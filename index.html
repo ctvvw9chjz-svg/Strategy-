@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Strategia Elegante - Touch & Hex Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -50,18 +50,19 @@
         .selected-roster { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; min-height: 50px; align-items: flex-start;}
         .roster-chip { background: #fff; border: 1px solid var(--accent-gold); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;}
 
-        /* GIOCO CANVAS (RESPONSIVE & TOUCH) */
+        /* GIOCO CANVAS */
         .game-layout { display: flex; width: 100%; height: 85vh; gap: 20px; align-items: stretch; justify-content: center; flex-wrap: wrap;}
         
-        #canvas-container { flex: 1; min-width: 300px; position: relative; background: #2a221a; border-radius: 12px; border: 4px solid var(--panel-border); box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; display: flex; justify-content: center; align-items: center;}
-        canvas { touch-action: none; /* Fondamentale per iPad: blocca lo scroll quando si tocca la mappa */ width: 100%; height: 100%; display: block;}
+        #canvas-container { flex: 1; min-width: 300px; position: relative; background: #2a221a; border-radius: 12px; border: 4px solid var(--panel-border); box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; display: flex; justify-content: center; align-items: center; cursor: grab;}
+        #canvas-container:active { cursor: grabbing; }
+        canvas { touch-action: none; width: 100%; height: 100%; display: block;}
         
-        /* SIDEBAR (ELEGANTE) */
+        /* SIDEBAR */
         .sidebar { width: 340px; background: transparent; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 5px;}
         
         @media (max-width: 900px) {
             .game-layout { height: auto; flex-direction: column; }
-            #canvas-container { height: 50vh; width: 100%; }
+            #canvas-container { height: 60vh; width: 100%; }
             .sidebar { width: 100%; height: auto; }
             .wiki-container { flex-direction: column; }
         }
@@ -74,8 +75,8 @@
         .ap-dot.active { background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold); }
         
         .log-box { height: 140px; overflow-y: auto; font-size: 0.8rem; background: #fff; border: 1px inset var(--panel-border); padding: 8px; font-family: monospace; display: flex; flex-direction: column-reverse; border-radius: 6px;}
+        .log-entry { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #eee; }
         
-        .enemy-roster-box { margin-top: 10px; font-size: 0.85rem; border-top: 1px dashed #ccc; padding-top: 10px;}
         .team-icons-row { display: flex; gap: 6px; margin-bottom: 6px; align-items:center; flex-wrap:wrap;}
         .team-icons-row strong { width: 70px; }
         .team-icons-row span { font-size: 1.2rem; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
@@ -93,11 +94,10 @@
                 <div style="flex:1; min-width:280px; text-align:center;">
                     <h3>Epoca Storica</h3>
                     <div class="btn-group" id="era-group">
-                        <button class="select-btn selected" onclick="selectEra('fantasy', this)">🧙‍♂️ Fantasy</button>
-                        <button class="select-btn" onclick="selectEra('west', this)">🤠 Far West</button>
-                        <button class="select-btn" onclick="selectEra('future', this)">🤖 Futuro</button>
+                        <button class="select-btn selected" onclick="selectEra('fantasy', this)"><i class="fa-solid fa-khanda"></i> Fantasy</button>
+                        <button class="select-btn" onclick="selectEra('future', this)"><i class="fa-solid fa-rocket"></i> Futuro</button>
                     </div>
-                    <h3 style="margin-top:25px;">Difficoltà Computer</h3>
+                    <h3 style="margin-top:25px;">Difficoltà</h3>
                     <div class="btn-group" id="diff-group">
                         <button class="select-btn" onclick="selectDiff('Facile', this)">Facile</button>
                         <button class="select-btn selected" onclick="selectDiff('Normale', this)">Normale</button>
@@ -123,13 +123,13 @@
             </div>
             
             <div style="text-align:center; margin-top:25px; font-size: 0.95rem; background: #fff; padding: 15px; border-radius: 8px;">
-                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;">La mappa esagonale scalerà automaticamente per riempire il tuo schermo!</p>
-                <label style="margin-right: 15px; cursor: pointer;"><input type="checkbox" id="fogToggle" checked> Abilita Foschia di Guerra</label>
-                <label style="cursor: pointer;"><input type="checkbox" id="neutralToggle" checked> Genera Banditi & Bottino</label>
+                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;"><i class="fa-solid fa-arrows-up-down-left-right"></i> Trascina la mappa per esplorare. La mappa si espanderà per accogliere grandi eserciti!</p>
+                <label style="margin-right: 15px; cursor: pointer;"><input type="checkbox" id="fogToggle" checked> Nebbia di Guerra</label>
+                <label style="cursor: pointer;"><input type="checkbox" id="neutralToggle" checked> Eventi Mappa (Cure e Furia)</label>
             </div>
 
             <div style="text-align: center;">
-                <button class="primary-action" onclick="goToDraft()">Procedi al Reclutamento ➔</button>
+                <button class="primary-action" onclick="goToDraft()">Reclutamento <i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </div>
     </div>
@@ -140,14 +140,12 @@
         <div class="wiki-container">
             <div class="roster-panel" style="flex: 0.8;">
                 <h3>Il Tuo Esercito (<span id="draft-count">0</span>/<span id="max-draft">5</span>)</h3>
-                <div class="selected-roster" id="roster-bar">
-                    <p style="font-size: 0.85rem; color: #888; font-style: italic;">Scegli le truppe dal pannello a destra...</p>
-                </div>
+                <div class="selected-roster" id="roster-bar"></div>
                 
                 <div style="margin-top:auto; display:flex; gap:10px; flex-direction:column;">
-                    <button class="primary-action" id="btn-start" style="display:none; margin:0;" onclick="startDeployment()">Inizia Schieramento sulla Mappa ➔</button>
+                    <button class="primary-action" id="btn-start" style="display:none; margin:0;" onclick="startDeployment()">Schiera sulla Mappa <i class="fa-solid fa-arrow-right"></i></button>
                     <button onclick="playerRosterKeys=[]; updateDraftUI();">Svuota Selezione</button>
-                    <button onclick="document.getElementById('screen-config').classList.add('active'); document.getElementById('screen-draft').classList.remove('active');">Indietro alle Impostazioni</button>
+                    <button onclick="document.getElementById('screen-config').classList.add('active'); document.getElementById('screen-draft').classList.remove('active');">Indietro</button>
                 </div>
             </div>
             <div class="roster-panel" style="flex: 1.2; background: #faf8f5;">
@@ -179,7 +177,7 @@
                 </div>
 
                 <div class="info-card">
-                    <h4 style="margin-bottom:8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Truppe in Campo (Radar)</h4>
+                    <h4 style="margin-bottom:8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Rapporto Forze</h4>
                     <div id="team-rosters"></div>
                 </div>
 
@@ -198,46 +196,52 @@
 
     <script>
         // === CONFIGURAZIONE E STRUTTURE DATI ===
-        let cfg = { era: 'fantasy', diff: 'Normale', radius: 6, unitCount: 5, teams: 2, fog: true, neutral: true };
+        let cfg = { era: 'fantasy', diff: 'Normale', radius: 5, unitCount: 5, teams: 2, fog: true, neutral: true };
         let maxAP = 3;
 
         const ICONS = {
             fanteria: '<i class="fa-solid fa-khanda"></i>', arciere: '<i class="fa-solid fa-feather-pointed"></i>',
             mago: '<i class="fa-solid fa-wand-magic-sparkles"></i>', esploratore: '<i class="fa-solid fa-leaf"></i>',
-            cavaliereL: '<i class="fa-solid fa-chess-knight"></i>', cavaliereP: '<i class="fa-solid fa-horse-head"></i>',
-            colosso: '<i class="fa-solid fa-cube"></i>', difensore: '<i class="fa-solid fa-shield-halved"></i>',
+            cavaliereL: '<i class="fa-solid fa-chess-knight"></i>', cavaliereP: '<i class="fa-solid fa-horse"></i>',
+            colosso: '<i class="fa-solid fa-chess-rook"></i>', difensore: '<i class="fa-solid fa-shield-halved"></i>',
             guaritore: '<i class="fa-solid fa-hand-holding-medical"></i>', stealth: '<i class="fa-solid fa-mask"></i>',
             trasporto: '<i class="fa-solid fa-cart-flatbed"></i>', orrore: '<i class="fa-solid fa-ghost"></i>'
         };
 
+        const UNICODES = {
+            fanteria: '\uf66d', arciere: '\uf56b', mago: '\ue2ca', esploratore: '\uf06c',
+            cavaliereL: '\uf441', cavaliereP: '\uf6f0', colosso: '\uf447', difensore: '\uf3ed',
+            guaritore: '\ue05c', stealth: '\uf6fa', trasporto: '\uf474', orrore: '\uf6e2'
+        };
+
         const DESC = {
-            fanteria: "Ottima per difendere e tenere la posizione.",
-            arciere: "Letale da lontano, debole nel corpo a corpo.",
-            mago: "Attacchi magici bilanciati a media distanza.",
-            esploratore: "Ignora i deserti. Svela vaste aree di nebbia.",
-            cavaliereL: "Velocissima per aggirare i fianchi nemici.",
-            cavaliereP: "Molto resistente. Bloccata dai boschi.",
-            colosso: "Lentissima, possiede i massimi HP e Danni.",
-            difensore: "Aura Passiva: +20% Difesa agli alleati vicini.",
-            guaritore: "Cura 30 HP agli alleati (Non attacca).",
+            fanteria: "Equilibrata, ottima per difendere posizioni.",
+            arciere: "Letale da lontano, vulnerabile da vicino.",
+            mago: "Attacchi medi potenti.",
+            esploratore: "Ignora malus del deserto, vista ampia.",
+            cavaliereL: "Massima mobilità per aggiramenti.",
+            cavaliereP: "Resistente, bloccata dai boschi.",
+            colosso: "Lenta ma devastante.",
+            difensore: "Fornisce bonus difesa agli alleati vicini.",
+            guaritore: "Ripristina punti salute agli alleati.",
             stealth: "Invisibile finché il nemico non è adiacente.",
-            trasporto: "Carica 1 alleato (toccalo) e poi sbarcalo.",
-            orrore: "Aura Terrore: -20% Stats ai nemici vicini."
+            trasporto: "Trasporta un alleato per lunghe distanze.",
+            orrore: "Terrorizza i nemici riducendo il loro attacco."
         };
 
         const B_STAT = { 
-            fanteria:   { hp: 120, atk: 35, def: 10, mov: 3, rng: 1, vis: 6, ctr: 1.0, role: "Fanteria", desc: DESC.fanteria, shape: 'sword', icon: ICONS.fanteria },
-            arciere:    { hp: 60,  atk: 45, def: 0,  mov: 3, rng: 5, vis: 7, ctr: 0.2, role: "Arciere", desc: DESC.arciere, shape: 'bow', icon: ICONS.arciere },
-            mago:       { hp: 70,  atk: 40, def: 5,  mov: 3, rng: 3, vis: 6, ctr: 0.5, role: "Mago", desc: DESC.mago, shape: 'staff', icon: ICONS.mago },
-            esploratore:{ hp: 55,  atk: 25, def: 0,  mov: 5, rng: 1, vis: 8, ctr: 0.7, role: "Esploratore", perk: 'agile', desc: DESC.esploratore, shape: 'wing', icon: ICONS.esploratore },
-            cavaliereL: { hp: 80,  atk: 30, def: 10, mov: 6, rng: 1, vis: 7, ctr: 0.8, role: "Cav. Leggera", perk: 'mounted', desc: DESC.cavaliereL, shape: 'horse_l', icon: ICONS.cavaliereL },
-            cavaliereP: { hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cav. Pesante", perk: 'mounted', desc: DESC.cavaliereP, shape: 'horse_p', icon: ICONS.cavaliereP },
-            colosso:    { hp: 160, atk: 55, def: 30, mov: 2, rng: 1, vis: 5, ctr: 1.0, role: "Colosso", desc: DESC.colosso, shape: 'block', icon: ICONS.colosso },
-            difensore:  { hp: 140, atk: 25, def: 40, mov: 2, rng: 1, vis: 6, ctr: 0.8, role: "Difensore", perk: 'aura_shield', desc: DESC.difensore, shape: 'shield', icon: ICONS.difensore },
-            guaritore:  { hp: 60,  atk: 15, def: 5,  mov: 3, rng: 2, vis: 6, ctr: 0.2, role: "Guaritore", perk: 'healer', desc: DESC.guaritore, shape: 'cross', icon: ICONS.guaritore },
-            stealth:    { hp: 50,  atk: 50, def: 0,  mov: 4, rng: 1, vis: 7, ctr: 0.5, role: "Assassino", perk: 'stealth', desc: DESC.stealth, shape: 'cloak', icon: ICONS.stealth },
-            trasporto:  { hp: 100, atk: 10, def: 15, mov: 5, rng: 1, vis: 6, ctr: 0.2, role: "Trasporto", perk: 'transport', desc: DESC.trasporto, shape: 'cart', icon: ICONS.trasporto },
-            orrore:     { hp: 80,  atk: 30, def: 10, mov: 4, rng: 1, vis: 6, ctr: 0.8, role: "Terrore", perk: 'aura_terror', desc: DESC.orrore, shape: 'skull', icon: ICONS.orrore }
+            fanteria:   { hp: 120, atk: 35, def: 10, mov: 3, rng: 1, vis: 6, ctr: 1.0, role: "Fanteria", desc: DESC.fanteria, icon: ICONS.fanteria, uni: UNICODES.fanteria },
+            arciere:    { hp: 60,  atk: 45, def: 0,  mov: 3, rng: 5, vis: 7, ctr: 0.0, role: "Arciere", desc: DESC.arciere, icon: ICONS.arciere, uni: UNICODES.arciere },
+            mago:       { hp: 70,  atk: 40, def: 5,  mov: 3, rng: 3, vis: 6, ctr: 0.5, role: "Mago", desc: DESC.mago, icon: ICONS.mago, uni: UNICODES.mago },
+            esploratore:{ hp: 55,  atk: 25, def: 0,  mov: 5, rng: 1, vis: 8, ctr: 0.7, role: "Esploratore", perk: 'agile', desc: DESC.esploratore, icon: ICONS.esploratore, uni: UNICODES.esploratore },
+            cavaliereL: { hp: 80,  atk: 30, def: 10, mov: 6, rng: 1, vis: 7, ctr: 0.8, role: "Cav. Leggera", perk: 'mounted', desc: DESC.cavaliereL, icon: ICONS.cavaliereL, uni: UNICODES.cavaliereL },
+            cavaliereP: { hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cav. Pesante", perk: 'mounted', desc: DESC.cavaliereP, icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
+            colosso:    { hp: 160, atk: 55, def: 30, mov: 2, rng: 1, vis: 5, ctr: 1.0, role: "Colosso", desc: DESC.colosso, icon: ICONS.colosso, uni: UNICODES.colosso },
+            difensore:  { hp: 140, atk: 25, def: 40, mov: 2, rng: 1, vis: 6, ctr: 0.8, role: "Difensore", perk: 'aura_shield', desc: DESC.difensore, icon: ICONS.difensore, uni: UNICODES.difensore },
+            guaritore:  { hp: 60,  atk: 15, def: 5,  mov: 3, rng: 2, vis: 6, ctr: 0.2, role: "Guaritore", perk: 'healer', desc: DESC.guaritore, icon: ICONS.guaritore, uni: UNICODES.guaritore },
+            stealth:    { hp: 50,  atk: 50, def: 0,  mov: 4, rng: 1, vis: 7, ctr: 0.5, role: "Assassino", perk: 'stealth', desc: DESC.stealth, icon: ICONS.stealth, uni: UNICODES.stealth },
+            trasporto:  { hp: 100, atk: 10, def: 15, mov: 5, rng: 1, vis: 6, ctr: 0.2, role: "Trasporto", perk: 'transport', desc: DESC.trasporto, icon: ICONS.trasporto, uni: UNICODES.trasporto },
+            orrore:     { hp: 80,  atk: 30, def: 10, mov: 4, rng: 1, vis: 6, ctr: 0.8, role: "Terrore", perk: 'aura_terror', desc: DESC.orrore, icon: ICONS.orrore, uni: UNICODES.orrore }
         };
 
         const TEMPLATES = {
@@ -248,14 +252,6 @@
                 colosso: { ...B_STAT.colosso, name: "Golem di Pietra" }, difensore: { ...B_STAT.difensore, name: "Paladino" },
                 guaritore: { ...B_STAT.guaritore, name: "Chierico" }, stealth: { ...B_STAT.stealth, name: "Ombra" },
                 trasporto: { ...B_STAT.trasporto, name: "Carrozza" }, orrore: { ...B_STAT.orrore, name: "Banshee" }
-            },
-            west: {
-                fanteria: { ...B_STAT.fanteria, name: "Milizia" }, arciere: { ...B_STAT.arciere, name: "Tiratore Scelto" },
-                mago: { ...B_STAT.mago, name: "Pistolero" }, esploratore: { ...B_STAT.esploratore, name: "Scout Nativo" },
-                cavaliereL: { ...B_STAT.cavaliereL, name: "Cacciatore" }, cavaliereP: { ...B_STAT.cavaliereP, name: "Cavalleria" },
-                colosso: { ...B_STAT.colosso, name: "Sceriffo Pesante" }, difensore: { ...B_STAT.difensore, name: "Barricata" },
-                guaritore: { ...B_STAT.guaritore, name: "Cerusico" }, stealth: { ...B_STAT.stealth, name: "Fuorilegge" },
-                trasporto: { ...B_STAT.trasporto, name: "Diligenza" }, orrore: { ...B_STAT.orrore, name: "Becchino" }
             },
             future: {
                 fanteria: { ...B_STAT.fanteria, name: "Soldato" }, arciere: { ...B_STAT.arciere, name: "Railgunner" },
@@ -271,8 +267,8 @@
             pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#a1c27d', cTop: '#b5d692' },
             bosco: { id: 'Bosco', walk: true, cover: 15, cMain: '#4e7a41', cTop: '#5c8f4d' },    
             deserto: { id: 'Deserto', walk: true, cover: 0, cMain: '#e8cd7b', cTop: '#f4d888' },
-            montagna: { id: 'Montagna', walk: false, cover: 0, cMain: '#7a7672', cTop: '#8c8884' },
-            citta: { id: 'Rovine/Città', walk: true, cover: 25, cMain: '#a39b93', cTop: '#b8b0a7' },     
+            montagna: { id: 'Montagna', walk: false, cover: 0, cMain: '#7a7672', cTop: '#8c8884', blockLOS: true },
+            citta: { id: 'Rovine', walk: true, cover: 25, cMain: '#a39b93', cTop: '#b8b0a7', blockLOS: true },     
             collina: { id: 'Collina', walk: true, cover: 5, cMain: '#82a35d', cTop: '#99b876' },
             vuoto: { id: 'Vuoto', walk: false, cover: 0, cMain: 'transparent', cTop: 'transparent' }
         };
@@ -288,52 +284,58 @@
         let playerRosterKeys = [], pDeployQueue = [], botDeployQueues = {}; 
         let selectedDeployIdx = -1;
 
-        // === MOTORE CANVAS (NO ZOOM/PAN, SOLO AUTO-FIT PER TOUCH) ===
+        // === MOTORE CANVAS E CAMERA PAN ===
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        let HEX_SIZE = 30; // Valore di partenza, verrà sovrascritto dall'Auto-Fit
+        const HEX_SIZE = 44; // Dimensione fissa ideale per touch/iPad
         let camX = 0, camY = 0;
+        
+        let isDragging = false;
+        let dragStartX = 0, dragStartY = 0;
+        let dragMoved = false;
 
         function resizeCanvas() {
             let container = document.getElementById('canvas-container');
             if(container) {
-                // Imposta la grandezza in pixel fisici uguale a quella calcolata dal CSS flexbox
                 canvas.width = container.clientWidth;
                 canvas.height = container.clientHeight;
                 if(gameState !== 'config') {
-                    calculateAutoFit();
+                    if(camX === 0 && camY === 0) centerCamera();
                     renderFrame();
                 }
             }
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // Calcola l'inquadratura perfetta per far stare tutta la mappa nello schermo senza scorrere
-        function calculateAutoFit() {
-            // Un esagono ha larghezza sqrt(3)*size e altezza 2*size
-            // La mappa è un esagono grande di raggio "cfg.radius"
-            let mapWidthInHexes = (cfg.radius * 2) + 1;
-            let mapHeightInHexes = (cfg.radius * 2) + 1;
-            
-            // Calcolo ingombro virtuale se la size fosse 1
-            let virtualW = mapWidthInHexes * Math.sqrt(3);
-            let virtualH = mapHeightInHexes * 1.5 + 0.5; // Le righe si sovrappongono
-            
-            // Troviamo il nuovo HEX_SIZE in base allo schermo (tenendo un margine del 10%)
-            let availW = canvas.width * 0.90;
-            let availH = canvas.height * 0.90;
-            
-            let scaleX = availW / virtualW;
-            let scaleY = availH / virtualH;
-            
-            HEX_SIZE = Math.min(scaleX, scaleY); // Prende la misura più piccola per non tagliare
-            
-            // Centra la telecamera (le coordinate 0,0 saranno al centro del canvas)
+        function centerCamera() {
             camX = canvas.width / 2;
             camY = canvas.height / 2;
         }
 
-        // Funzioni Matematiche Esagonali base Flat-Topped
+        canvas.addEventListener('pointerdown', e => {
+            isDragging = true;
+            dragMoved = false;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+        });
+
+        canvas.addEventListener('pointermove', e => {
+            if(!isDragging) return;
+            let dx = e.clientX - dragStartX;
+            let dy = e.clientY - dragStartY;
+            
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
+            
+            camX += dx;
+            camY += dy;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            renderFrame();
+        });
+
+        canvas.addEventListener('pointerleave', () => { isDragging = false; });
+        canvas.addEventListener('pointercancel', () => { isDragging = false; });
+
         function hexToPixel(q, r) {
             let x = HEX_SIZE * Math.sqrt(3) * (q + r/2);
             let y = HEX_SIZE * 3/2 * r;
@@ -392,7 +394,7 @@
             if(playerRosterKeys.length === 0) bar.innerHTML = '<p style="font-size: 0.85rem; color: #888; font-style: italic;">Scegli le truppe dal pannello a destra...</p>';
             playerRosterKeys.forEach((k, i) => {
                 bar.innerHTML += `<div class="roster-chip" onclick="playerRosterKeys.splice(${i},1);updateDraftUI()">
-                    ${tpl[k].icon} <span style="font-weight:bold;">${tpl[k].role}</span> <span style="color:red; margin-left:5px;">✖</span></div>`;
+                    ${tpl[k].icon} <span style="font-weight:bold;">${tpl[k].role}</span> <i class="fa-solid fa-xmark" style="color:#d9534f;"></i></div>`;
             });
             document.getElementById('draft-count').innerText = playerRosterKeys.length;
             document.getElementById('btn-start').style.display = playerRosterKeys.length === cfg.unitCount ? 'block' : 'none';
@@ -402,12 +404,16 @@
         // === FASE 3: MAPPA E SCHIERAMENTO ===
         function startDeployment() {
             maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3);
-            cfg.radius = 4 + Math.floor(cfg.teams) + Math.floor(cfg.unitCount / 2);
+            
+            // Calcolo Dinamico Dimensione Mappa (Scala con truppe e avversari)
+            let baseRadius = 5;
+            let teamBonus = cfg.teams === 2 ? 0 : (cfg.teams === 3 ? 2 : 4);
+            let unitBonus = cfg.unitCount === 5 ? 0 : (cfg.unitCount === 7 ? 2 : 4);
+            cfg.radius = baseRadius + teamBonus + unitBonus;
             
             document.getElementById('screen-draft').classList.remove('active');
             document.getElementById('screen-game').classList.add('active');
             
-            // Inizializza subito il Canvas
             resizeCanvas(); 
             initGame();
         }
@@ -436,9 +442,9 @@
                 }
             }
 
-            calculateAutoFit(); // Centra subito la mappa nel Canvas
+            centerCamera();
             currentTeamIdx = Math.floor(Math.random() * turnOrder.length);
-            logAction(`Mappa adattata allo schermo! Punti Azione: ${maxAP}. Inizia schieramento: ${turnOrder[currentTeamIdx].toUpperCase()}`);
+            logAction(`<i class="fa-solid fa-flag"></i> Inizia schieramento: ${turnOrder[currentTeamIdx].toUpperCase()}`);
             handleDeployTurn();
         }
 
@@ -478,12 +484,18 @@
             // Loot Neutrale
             if(cfg.neutral) {
                 Array.from(board.values()).forEach(c => {
-                    if(Math.random() < 0.05 && c.terrain !== 'montagna') loots.push({q:c.q, r:c.r, type: Math.random()>0.5?'heal':'dmg'});
+                    if(Math.random() < 0.04 && c.terrain !== 'montagna') loots.push({q:c.q, r:c.r, type: Math.random()>0.5?'heal':'dmg'});
                 });
             }
 
-            // Zone Spawn
-            let spawns = [{t:'player', q:0, r:cfg.radius}, {t:'enemy', q:0, r:-cfg.radius}, {t:'team3', q:-cfg.radius, r:0}, {t:'team4', q:cfg.radius, r:0}];
+            // Zone Spawn distanti in base al raggio dinamico
+            let spawns = [
+                {t:'player', q:0, r:-cfg.radius+1}, 
+                {t:'enemy', q:0, r:cfg.radius-1}, 
+                {t:'team3', q:-cfg.radius+1, r:cfg.radius-1}, 
+                {t:'team4', q:cfg.radius-1, r:0}
+            ];
+            
             for(let i=0; i<cfg.teams; i++) {
                 let s = spawns[i];
                 let count = 0;
@@ -491,7 +503,7 @@
                 while(queue.length > 0 && count < cfg.unitCount * 2) {
                     let curr = queue.shift();
                     let cell = board.get(`${curr.q},${curr.r}`);
-                    if(cell && !cell.spawnTeam) {
+                    if(cell && !cell.spawnTeam && cell.terrain !== 'montagna') {
                         cell.spawnTeam = s.t; count++;
                         getNeighbors(curr.q, curr.r).forEach(n => queue.push(n));
                     }
@@ -508,21 +520,35 @@
 
             if(allDone) {
                 gameState = 'playing'; currentTeamIdx = 0; actionsLeft = maxAP;
-                logAction("🔥 SCHIERAMENTO COMPLETATO! Inizia la battaglia.");
+                logAction("<i class='fa-solid fa-play'></i> SCHIERAMENTO COMPLETATO! Inizia la battaglia.");
                 if(turnOrder[currentTeamIdx] !== 'player') setTimeout(aiTurn, 1000);
                 updateUI(); renderFrame(); return;
             }
 
             if(!hasUnits) { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; handleDeployTurn(); return; }
 
-            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 300); } 
-            else { selectedDeployIdx = -1; updateUI(); renderFrame(); }
+            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 200); } 
+            else { 
+                selectedDeployIdx = -1; 
+                let pCells = Array.from(board.values()).filter(c => c.spawnTeam === 'player');
+                if(pCells.length > 0) {
+                    let avgQ = pCells.reduce((s,c)=>s+c.q, 0)/pCells.length;
+                    let avgR = pCells.reduce((s,c)=>s+c.r, 0)/pCells.length;
+                    let px = hexToPixel(avgQ, avgR);
+                    camX = canvas.width/2 - px.x;
+                    camY = canvas.height/2 - px.y;
+                }
+                updateUI(); renderFrame(); 
+            }
         }
 
         function selectDeployUnit(idx) { if(gameState==='deploy' && turnOrder[currentTeamIdx]==='player') { selectedDeployIdx = idx; updateUI(); } }
 
         function aiDeploy(team) {
-            let spots = Array.from(board.values()).filter(c => c.spawnTeam === team && !getUnitAt(c.q, c.r));
+            let spots = Array.from(board.values()).filter(c => c.spawnTeam === team && !getUnitAt(c.q, c.r) && c.terrain !== 'montagna');
+            // Fix per evitare loop infinti se lo spawn è ostruito
+            if(spots.length === 0) spots = Array.from(board.values()).filter(c => !getUnitAt(c.q, c.r) && c.terrain !== 'montagna');
+            
             if(spots.length > 0) {
                 let s = spots[Math.floor(Math.random()*spots.length)];
                 let u = botDeployQueues[team].shift();
@@ -559,8 +585,10 @@
                 let cell = board.get(`${u.q},${u.r}`);
                 let v = u.vis + (cell && cell.terrain === 'collina' ? 1 : 0);
                 board.forEach(c => {
-                    if(hexDist(u, c) <= v) { visMap.set(`${c.q},${c.r}`, true); exploredMap.set(`${c.q},${c.r}`, true); }
+                    if(hexDist(u, c) <= v && checkLOS(u, c)) { visMap.set(`${c.q},${c.r}`, true); exploredMap.set(`${c.q},${c.r}`, true); }
                 });
+                visMap.set(`${u.q},${u.r}`, true); exploredMap.set(`${u.q},${u.r}`, true);
+                getNeighbors(u.q, u.r).forEach(n => { visMap.set(`${n.q},${n.r}`, true); exploredMap.set(`${n.q},${n.r}`, true); });
             });
         }
 
@@ -600,10 +628,14 @@
         function hexLerp(a, b, t) { return { q: a.q + (b.q - a.q)*t, r: a.r + (b.r - a.r)*t, s: a.s + (b.s - a.s)*t }; }
         function checkLOS(a, b) {
             let dist = hexDist(a, b);
+            if (dist <= 1) return true; // Corpo a corpo ignorano sempre ostacoli
             let a3 = {q:a.q, r:a.r, s:-a.q-a.r}, b3 = {q:b.q, r:b.r, s:-b.q-b.r};
-            for(let i=0; i<=dist; i++) {
-                let h = hexRound(hexLerp(a3, b3, 1.0/dist * i));
-                if(!board.has(`${h.q},${h.r}`)) return false; 
+            // Controlla i punti intermedi
+            for(let i=1; i<dist; i++) {
+                let lerp = hexLerp(a3, b3, 1.0/dist * i);
+                let h = hexRound(lerp.q, lerp.r, lerp.s);
+                let cell = board.get(`${h.q},${h.r}`);
+                if(!cell || TERRAINS[cell.terrain].blockLOS) return false; 
             }
             return true;
         }
@@ -616,8 +648,10 @@
             units.forEach(other => {
                 if(other.id === u.id || other.passenger) return;
                 let dist = hexDist(u, other);
-                if(u.perk === 'healer' && other.team === u.team && dist <= myRng) acts.set(`${other.q},${other.r}`, {q:other.q, r:other.r, tgt: other, t: 'heal'});
-                else if(other.team !== u.team && dist <= myRng && (dist===1 || checkLOS(u, other))) {
+                if(u.perk === 'healer' && other.team === u.team && dist <= myRng && checkLOS(u, other)) {
+                    acts.set(`${other.q},${other.r}`, {q:other.q, r:other.r, tgt: other, t: 'heal'});
+                }
+                else if(other.team !== u.team && dist <= myRng && checkLOS(u, other)) {
                     if(other.perk === 'stealth' && !other.isVisible && u.team !== other.team) return;
                     acts.set(`${other.q},${other.r}`, {q:other.q, r:other.r, tgt: other, t: 'atk'});
                 }
@@ -642,92 +676,123 @@
             }
             ctx.closePath();
         }
-
-        function drawShape(shape, x, y) {
+        
+        function drawStatusDot(x, y, color) {
             ctx.beginPath();
-            if(shape==='sword') { ctx.moveTo(x, y+8); ctx.lineTo(x, y-8); ctx.moveTo(x-4, y+4); ctx.lineTo(x+4, y+4); }
-            else if(shape==='bow') { ctx.arc(x+4, y, 8, Math.PI/2, Math.PI*1.5); ctx.moveTo(x-6, y); ctx.lineTo(x+6, y); }
-            else if(shape==='staff') { ctx.moveTo(x, y+8); ctx.lineTo(x, y-4); ctx.arc(x, y-6, 3, 0, Math.PI*2); }
-            else if(shape==='wing') { ctx.moveTo(x-6, y+6); ctx.quadraticCurveTo(x-2, y-8, x+8, y-6); ctx.quadraticCurveTo(x, y+2, x-6, y+6); }
-            else if(shape==='horse_l' || shape==='horse_p') { ctx.moveTo(x-6, y+8); ctx.lineTo(x+6, y+8); ctx.lineTo(x+4, y); ctx.lineTo(x+8, y-6); ctx.lineTo(x, y-8); ctx.lineTo(x-4, y); }
-            else if(shape==='block') { ctx.rect(x-6, y-8, 12, 16); }
-            else if(shape==='shield') { ctx.moveTo(x-5, y-6); ctx.lineTo(x+5, y-6); ctx.lineTo(x+5, y+2); ctx.quadraticCurveTo(x, y+8, x-5, y+2); }
-            else if(shape==='cross') { ctx.rect(x-2, y-6, 4, 12); ctx.rect(x-6, y-2, 12, 4); }
-            else if(shape==='cloak') { ctx.moveTo(x, y-8); ctx.lineTo(x+6, y+8); ctx.lineTo(x-6, y+8); }
-            else if(shape==='cart') { ctx.rect(x-8, y-2, 16, 6); ctx.arc(x-4, y+6, 2,0,7); ctx.arc(x+4, y+6, 2,0,7); }
-            else if(shape==='skull') { ctx.arc(x, y-2, 6, Math.PI, 0); ctx.lineTo(x+6, y+6); ctx.lineTo(x-6, y+6); }
-            ctx.stroke(); ctx.fill();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            ctx.stroke();
         }
 
         function renderFrame() {
             if(!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();
-            ctx.translate(camX, camY); // Sposta l'origine al centro del Canvas
+            ctx.translate(camX, camY); 
 
             calcAurasAndStealth();
             calculateFog();
 
-            let moves = new Map(), acts = new Map(), canCamp = false;
+            let moves = new Map(), acts = new Map();
             if(gameState === 'playing' && activeUnit && turnOrder[currentTeamIdx] === 'player' && !activeUnit.hasActed) {
-                moves = getValidMoves(activeUnit); acts = getValidActions(activeUnit); canCamp = true;
+                moves = getValidMoves(activeUnit); acts = getValidActions(activeUnit);
             }
 
-            // Ordina Z-Index
             let cells = Array.from(board.values()).sort((a,b) => a.r - b.r);
 
             cells.forEach(c => {
                 let px = hexToPixel(c.q, c.r);
+                
+                // Ottimizzazione Culling per non appesantire la mappa grande
+                if(px.x + camX < -HEX_SIZE*2 || px.x + camX > canvas.width + HEX_SIZE*2 || 
+                   px.y + camY < -HEX_SIZE*2 || px.y + camY > canvas.height + HEX_SIZE*2) return;
+
                 let isVis = visMap.get(`${c.q},${c.r}`);
                 let isExp = exploredMap.get(`${c.q},${c.r}`);
                 let t = TERRAINS[c.terrain];
 
                 drawHex(px.x, px.y, HEX_SIZE + 0.5);
-                ctx.fillStyle = isExp ? t.cMain : '#111'; ctx.fill();
+                ctx.fillStyle = isExp ? t.cMain : '#1c1c1c'; ctx.fill();
                 drawHex(px.x, px.y, HEX_SIZE - 2);
-                ctx.fillStyle = isExp ? t.cTop : '#1a1a1a'; ctx.fill();
+                ctx.fillStyle = isExp ? t.cTop : '#262626'; ctx.fill();
                 
                 if(isExp) {
                     ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.1)';
                     if(c.terrain === 'bosco') { ctx.fillStyle='#2d4c24'; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.moveTo(px.x+i*8-8, px.y-i*2); ctx.lineTo(px.x+i*8-12, px.y+8-i*2); ctx.lineTo(px.x+i*8-4, px.y+8-i*2); ctx.fill(); } }
-                    if(c.terrain === 'deserto') { ctx.beginPath(); ctx.moveTo(px.x-10, px.y); ctx.quadraticCurveTo(px.x, px.y-10, px.x+10, px.y+2); ctx.stroke(); }
-                    if(c.terrain === 'montagna') { ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(px.x, px.y-10); ctx.lineTo(px.x-8, px.y+5); ctx.lineTo(px.x+8, px.y+5); ctx.fill(); ctx.stroke(); }
-                    if(c.terrain === 'citta') { ctx.fillStyle='#7a746e'; ctx.fillRect(px.x-8, px.y-5, 8, 10); ctx.fillRect(px.x+2, px.y-8, 6, 12); }
+                    if(c.terrain === 'deserto') { ctx.beginPath(); ctx.moveTo(px.x-12, px.y); ctx.quadraticCurveTo(px.x, px.y-12, px.x+12, px.y+2); ctx.stroke(); }
+                    if(c.terrain === 'montagna') { ctx.fillStyle='#e0e0e0'; ctx.beginPath(); ctx.moveTo(px.x, px.y-14); ctx.lineTo(px.x-12, px.y+8); ctx.lineTo(px.x+12, px.y+8); ctx.fill(); ctx.stroke(); }
+                    if(c.terrain === 'citta') { ctx.fillStyle='#7a746e'; ctx.fillRect(px.x-10, px.y-8, 10, 14); ctx.fillRect(px.x+2, px.y-12, 8, 18); }
                 }
 
                 if(cfg.fog && isExp && !isVis) {
-                    drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fill();
+                    drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fill();
                 }
 
                 let k = `${c.q},${c.r}`;
-                if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255,215,0,0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); }
-                if(activeUnit && activeUnit.q === c.q && activeUnit.r === c.r) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.strokeStyle='gold'; ctx.lineWidth=4; ctx.stroke(); if(canCamp){ ctx.fillStyle='white'; ctx.font="14px Arial"; ctx.fillText('⛺', px.x-8, px.y+5); } }
+                if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { 
+                    drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255,215,0,0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); 
+                }
+                
+                if(activeUnit && activeUnit.q === c.q && activeUnit.r === c.r) { 
+                    drawHex(px.x, px.y, HEX_SIZE-2); ctx.strokeStyle='gold'; ctx.lineWidth=4; ctx.stroke(); 
+                }
                 if(moves.has(k)) { drawHex(px.x, px.y, HEX_SIZE*0.3); ctx.fillStyle='rgba(76,175,80,0.8)'; ctx.fill(); }
                 if(acts.has(k)) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229,57,53,0.3)'; ctx.fill(); ctx.strokeStyle='red'; ctx.lineWidth=2; ctx.stroke(); }
 
-                if(isVis) { let l = loots.find(l=>l.q===c.q && l.r===c.r); if(l) { ctx.fillStyle=l.type==='heal'?'pink':'red'; ctx.beginPath(); ctx.arc(px.x, px.y+10, 5, 0, 7); ctx.fill(); } }
+                if(isVis) { 
+                    let l = loots.find(l=>l.q===c.q && l.r===c.r); 
+                    if(l) { 
+                        ctx.fillStyle = l.type==='heal' ? '#81c784' : '#e57373'; 
+                        ctx.fillRect(px.x-6, px.y-6, 12, 12);
+                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(px.x-6, px.y-6, 12, 12);
+                    } 
+                }
 
+                // Renderizza Silhouette FontAwesome
                 let u = getUnitAt(c.q, c.r);
                 if(u && !u.passenger) {
                     let canRender = (u.team === 'player') || (isVis && (!u.perk==='stealth' || u.isVisible));
                     if(canRender && (isExp || !cfg.fog)) {
-                        ctx.fillStyle = COLORS[u.team]; ctx.strokeStyle = u.hasActed ? '#666' : '#fff'; ctx.lineWidth = 2;
-                        if(u.hasActed) ctx.fillStyle = '#555';
-                        ctx.beginPath(); ctx.ellipse(px.x, px.y+8, HEX_SIZE*0.4, HEX_SIZE*0.2, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
                         
-                        ctx.fillStyle = u.hasActed ? '#999' : '#fff'; ctx.strokeStyle = '#222'; ctx.lineWidth = 1;
-                        if(u.perk === 'stealth' && !u.isVisible) ctx.globalAlpha = 0.4;
-                        drawShape(u.shape, px.x, px.y - 6);
+                        // Base Pedina
+                        ctx.beginPath();
+                        ctx.arc(px.x, px.y, HEX_SIZE * 0.70, 0, Math.PI * 2);
+                        ctx.fillStyle = COLORS[u.team];
+                        ctx.fill();
+                        
+                        // Ombreggiatura interna
+                        let grad = ctx.createRadialGradient(px.x, px.y, HEX_SIZE*0.3, px.x, px.y, HEX_SIZE*0.7);
+                        grad.addColorStop(0, 'rgba(0,0,0,0)');
+                        grad.addColorStop(1, 'rgba(0,0,0,0.3)');
+                        ctx.fillStyle = grad;
+                        ctx.fill();
+
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = u.hasActed ? '#444' : '#fff';
+                        if(u.perk === 'stealth' && !u.isVisible) ctx.globalAlpha = 0.5;
+                        ctx.stroke();
                         ctx.globalAlpha = 1.0;
 
-                        ctx.font="12px Arial";
-                        if(u.isCamped) { ctx.fillStyle='white'; ctx.fillText('⛺', px.x-20, px.y-10); }
-                        if(u.killBuff) { ctx.fillStyle='orange'; ctx.fillText('🔥', px.x+10, px.y-10); }
-                        if(u.passenger) { ctx.fillStyle='white'; ctx.fillText('📦', px.x+10, px.y); }
+                        // Silhouette vera e propria da FontAwesome integrata nel Canvas
+                        ctx.fillStyle = u.hasActed ? '#aaa' : '#fff';
+                        ctx.font = '900 28px "Font Awesome 6 Free"';
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "middle";
+                        ctx.fillText(u.uni, px.x, px.y);
+
+                        // Indicatori
+                        if(u.isCamped) drawStatusDot(px.x - 16, px.y - 16, '#81c784'); 
+                        if(u.killBuff) drawStatusDot(px.x + 16, px.y - 16, '#ffb74d'); 
+                        if(u.passenger) drawStatusDot(px.x, px.y + 18, '#ba68c8');     
                         
-                        let hpW = HEX_SIZE * 0.6;
-                        ctx.fillStyle = '#000'; ctx.fillRect(px.x-hpW/2, px.y+15, hpW, 4);
-                        ctx.fillStyle = u.currentHp/u.hp > 0.5 ? '#0f0' : 'red'; ctx.fillRect(px.x-hpW/2, px.y+15, hpW * (u.currentHp/u.hp), 4);
+                        // HP
+                        let hpW = HEX_SIZE * 0.8;
+                        ctx.fillStyle = '#111'; ctx.fillRect(px.x-hpW/2, px.y+22, hpW, 4);
+                        ctx.fillStyle = u.currentHp/u.hp > 0.5 ? '#4caf50' : '#f44336'; 
+                        ctx.fillRect(px.x-hpW/2, px.y+22, hpW * (u.currentHp/u.hp), 4);
                     }
                 }
             });
@@ -735,15 +800,15 @@
             ctx.restore();
         }
 
-        // === GESTIONE CLICK UNIVERSALE (POINTER EVENTS PER TOUCH/MOUSE) ===
-        // Questo risolve i problemi su iPad/Tablet
+        // === GESTIONE CLICK ===
         canvas.addEventListener('pointerup', e => {
+            isDragging = false;
+            if(dragMoved) return; 
+
             let rect = canvas.getBoundingClientRect();
-            // Trova il punto esatto rispetto al canvas
             let cx = e.clientX - rect.left;
             let cy = e.clientY - rect.top;
             
-            // Applica la trasformazione inversa (togli camX/Y)
             let mapX = (cx - camX);
             let mapY = (cy - camY);
             
@@ -755,14 +820,14 @@
             if (gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player') {
                 let cell = board.get(`${q},${r}`);
                 if(cell && cell.spawnTeam === 'player' && !getUnitAt(q,r) && pDeployQueue.length > 0) {
-                    if(selectedDeployIdx === -1) { logAction("⚠️ Tocca una truppa nel pannello per schierarla!"); return; }
+                    if(selectedDeployIdx === -1) { logAction("<i class='fa-solid fa-circle-exclamation'></i> Seleziona prima una truppa dal pannello."); return; }
                     let u = pDeployQueue.splice(selectedDeployIdx, 1)[0];
                     u.q = q; u.r = r; units.push(u);
                     exploredMap.set(`${q},${r}`, true); 
                     logAction(`Schierato: ${u.role}.`);
-                    selectedDeployIdx = -1; // Deseleziona
+                    selectedDeployIdx = -1;
                     currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length;
-                    updateUI(); // Aggiorna pannello prima di passare turno
+                    updateUI(); 
                     handleDeployTurn();
                 }
                 return;
@@ -772,47 +837,58 @@
 
             let occ = getUnitAt(q, r);
 
+            // Conferma posizione
             if (activeUnit && activeUnit.hasMovedThisTurn) {
                 let acts = getValidActions(activeUnit);
                 if (!acts.has(`${q},${r}`) && (q !== activeUnit.q || r !== activeUnit.r)) {
-                    logAction(`🏃 ${activeUnit.role} ha concluso la mossa.`);
+                    logAction(`<i class='fa-solid fa-shoe-prints'></i> ${activeUnit.role} si posiziona in difesa.`);
                     finalizeAction(activeUnit);
                 }
             }
 
+            // Selezione
             if (occ && occ.team === 'player' && !occ.hasActed) {
                 if (activeUnit && activeUnit.id === occ.id) {
                     activeUnit.isCamped = true; activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 20);
-                    logAction(`⛺ ${activeUnit.role} si accampa! (+Def/HP)`); finalizeAction(activeUnit); return;
+                    logAction(`<i class='fa-solid fa-campground'></i> ${activeUnit.role} si accampa! (+Difesa/Salute)`); 
+                    finalizeAction(activeUnit); 
+                    return;
                 }
                 activeUnit = occ; updateInfo(occ); renderFrame(); return;
             }
 
+            // Ispezione
             if(!activeUnit && occ) { updateInfo(occ); return; }
-            if(!activeUnit && !occ) { let t=TERRAINS[board.get(`${q},${r}`).terrain]; document.getElementById('unit-detail-box').innerHTML = `<strong>Terreno: ${t.id}</strong><br>Copertura Difesa: ${t.cover}%`; return; }
+            if(!activeUnit && !occ) { 
+                let t = TERRAINS[board.get(`${q},${r}`).terrain]; 
+                let blockTxt = t.blockLOS ? "Blocca Visuale/Tiro" : "Visuale Libera";
+                document.getElementById('unit-detail-box').innerHTML = `<strong>Terreno: ${t.id}</strong><br>Copertura Difesa: ${t.cover}%<br><em>${blockTxt}</em>`; 
+                return; 
+            }
 
             if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed) return;
 
             let acts = getValidActions(activeUnit);
             let act = acts.get(`${q},${r}`);
             if (act) {
-                if(act.t === 'unload') { act.tgt = activeUnit.passenger; act.tgt.q = q; act.tgt.r = r; activeUnit.passenger = null; logAction(`📦 Sbarco completato.`); finalizeAction(activeUnit); return; }
-                if(act.t === 'heal') { act.tgt.currentHp = Math.min(act.tgt.hp, act.tgt.currentHp + 30); logAction(`💖 ${activeUnit.role} cura ${act.tgt.role}!`); finalizeAction(activeUnit); return; }
+                if(act.t === 'unload') { act.tgt = activeUnit.passenger; act.tgt.q = q; act.tgt.r = r; activeUnit.passenger = null; logAction(`<i class='fa-solid fa-arrow-down'></i> Sbarco completato.`); finalizeAction(activeUnit); return; }
+                if(act.t === 'heal') { act.tgt.currentHp = Math.min(act.tgt.hp, act.tgt.currentHp + 30); logAction(`<i class='fa-solid fa-kit-medical'></i> ${activeUnit.role} cura ${act.tgt.role}!`); finalizeAction(activeUnit); return; }
                 if(act.t === 'atk') { executeCombat(activeUnit, act.tgt, false); return; }
             }
 
+            // Movimento
             let moves = getValidMoves(activeUnit);
             let move = moves.get(`${q},${r}`);
             if (move) {
                 activeUnit.isCamped = false; 
-                if(move.isLoad) { activeUnit.passenger = move.target; move.target.q = -99; activeUnit.q = q; activeUnit.r = r; logAction(`🚚 Imbarco!`); } 
+                if(move.isLoad) { activeUnit.passenger = move.target; move.target.q = -99; activeUnit.q = q; activeUnit.r = r; logAction(`<i class='fa-solid fa-arrow-up'></i> Truppa imbarcata!`); } 
                 else {
                     activeUnit.q = q; activeUnit.r = r;
                     let lIdx = loots.findIndex(l => l.q===q && l.r===r);
                     if(lIdx >= 0) {
                         let l = loots.splice(lIdx, 1)[0];
-                        if(l.type==='heal') { activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 30); logAction("✨ Loot Curativo!"); }
-                        if(l.type==='dmg') { activeUnit.killBuff = true; logAction("⚔️ Furia Trovata!"); }
+                        if(l.type==='heal') { activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 30); logAction("<i class='fa-solid fa-briefcase-medical'></i> Loot Curativo raccolto!"); }
+                        if(l.type==='dmg') { activeUnit.killBuff = true; logAction("<i class='fa-solid fa-fire-flame-curved'></i> Potenziamento Danni raccolto!"); }
                     }
                     if(activeUnit.perk === 'stealth') activeUnit.isVisible = false; 
                 }
@@ -832,22 +908,24 @@
             if(atkU.killBuff && !isCounter) { bAtk += 15; atkU.killBuff = false; }
             if(atkU.auraAtkDrop > 0) bAtk = Math.round(bAtk * (1 - atkU.auraAtkDrop/100));
 
-            let dTot = defU.def + TERRAINS[board.get(`${defU.q},${defU.r}`).terrain].cover + (defU.isCamped?20:0) + defU.auraDef; 
+            let tCover = TERRAINS[board.get(`${defU.q},${defU.r}`).terrain].cover;
+            let dTot = defU.def + tCover + (defU.isCamped?20:0) + defU.auraDef; 
             dTot = Math.min(80, dTot); 
             
             let dmg = Math.max(5, Math.round(bAtk * (1 - dTot/100)));
             defU.currentHp -= dmg;
             
-            if(!isCounter) logAction(`⚔️ ${atkU.role} ➔ ${defU.role}: ${dmg} dmg!`);
-            else logAction(`↪️ ${atkU.role} [Contrattacco]: ${dmg} dmg!`);
+            if(!isCounter) logAction(`<i class='fa-solid fa-burst'></i> ${atkU.role} attacca ${defU.role}: ${dmg} Danni`);
+            else logAction(`<i class='fa-solid fa-reply'></i> ${atkU.role} contrattacca: ${dmg} Danni`);
 
             if (defU.currentHp <= 0) {
-                logAction(`☠️ ${defU.role} eliminato!`);
+                logAction(`<i class='fa-solid fa-skull'></i> ${defU.role} eliminato!`);
                 if(!isCounter) atkU.killBuff = true;
                 units = units.filter(u => u.id !== defU.id && (!defU.passenger || u.id !== defU.passenger.id));
-            } else if (!isCounter && defU.team !== atkU.team && defU.perk !== 'healer') {
+            } else if (!isCounter && defU.team !== atkU.team && defU.perk !== 'healer' && defU.ctr > 0) {
                 let cell = board.get(`${defU.q},${defU.r}`);
-                if(hexDist(atkU, defU) <= defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0) && checkLOS(defU, atkU)) {
+                let defRng = defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
+                if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) {
                     setTimeout(() => { executeCombat(defU, atkU, true); renderFrame(); if(!checkVictory() && turnOrder[currentTeamIdx]==='player') checkTurnEnd(); }, 600);
                     if(!isCounter) finalizeAction(atkU);
                     return; 
@@ -862,7 +940,7 @@
             if (actionsLeft <= 0 || units.filter(u => u.team === t && !u.hasActed && !u.passenger).length === 0) passTurn();
             else { updateUI(); renderFrame(); }
         }
-        function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player') { logAction("Turno terminato."); if(activeUnit) finalizeAction(activeUnit); passTurn(); } }
+        function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player') { logAction("Turno terminato dal giocatore."); if(activeUnit) finalizeAction(activeUnit); passTurn(); } }
 
         function passTurn() {
             if(gameState !== 'playing') return;
@@ -871,7 +949,7 @@
             do { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; } while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0 && !checkVictory());
 
             actionsLeft = maxAP; let t = turnOrder[currentTeamIdx];
-            updateUI(); renderFrame(); logAction(`--- TURNO: ${t.toUpperCase()} ---`);
+            updateUI(); renderFrame(); logAction(`<strong>--- TURNO: ${t.toUpperCase()} ---</strong>`);
             
             if(currentTeamIdx === 0 && cfg.neutral) {
                 let nts = units.filter(u => u.team === 'neutral');
@@ -895,7 +973,7 @@
                 let acted = false;
                 for(let h of avail.filter(u => u.perk === 'healer')) {
                     let w = Array.from(getValidActions(h).values()).find(a => a.t === 'heal' && a.tgt.currentHp < a.tgt.hp);
-                    if(w) { w.tgt.currentHp = Math.min(w.tgt.hp, w.tgt.currentHp+30); h.hasActed = true; actionsLeft--; acted = true; logAction(`💖 IA cura ${w.tgt.role}.`); break; }
+                    if(w) { w.tgt.currentHp = Math.min(w.tgt.hp, w.tgt.currentHp+30); h.hasActed = true; actionsLeft--; acted = true; logAction(`<i class='fa-solid fa-laptop-code'></i> IA cura ${w.tgt.role}.`); break; }
                 }
 
                 if(!acted) {
@@ -910,11 +988,11 @@
                     let mvs = Array.from(getValidMoves(u).values());
                     let ens = units.filter(e => e.team !== t && e.team !== 'neutral');
                     if (u.currentHp < u.hp * 0.4 && cfg.diff === 'Difficile' && Math.random() > 0.3) {
-                        u.isCamped = true; u.currentHp = Math.min(u.hp, u.currentHp + 20); u.hasActed = true; actionsLeft--; logAction(`⛺ IA accampa ${u.role}.`); renderFrame();
+                        u.isCamped = true; u.currentHp = Math.min(u.hp, u.currentHp + 20); u.hasActed = true; actionsLeft--; logAction(`<i class='fa-solid fa-laptop-code'></i> IA accampa ${u.role}.`); renderFrame();
                     } else if(mvs.length > 0 && ens.length > 0) {
                         let tgt = ens[Math.floor(Math.random()*ens.length)];
                         mvs.sort((a,b)=> hexDist(a, tgt) - hexDist(b, tgt));
-                        u.isCamped = false; u.q = mvs[0].q; u.r = mvs[0].r; u.hasActed = true; actionsLeft--; logAction(`🤖 IA sposta ${u.role}.`); renderFrame();
+                        u.isCamped = false; u.q = mvs[0].q; u.r = mvs[0].r; u.hasActed = true; actionsLeft--; renderFrame();
                     } else u.hasActed = true; 
                 }
                 if(!checkVictory()) setTimeout(aiTurn, 600); 
@@ -924,8 +1002,8 @@
         // === UI & UTIL ===
         function checkVictory() {
             let activeTeams = [...new Set(units.filter(u => u.team !== 'neutral').map(u => u.team))];
-            if (activeTeams.length === 1) { gameState = 'gameover'; alert(`🏆 VITTORIA! Team: ${activeTeams[0].toUpperCase()}`); return true; }
-            if (!activeTeams.includes('player')) { gameState = 'gameover'; alert("☠️ SCONFITTA!"); return true; }
+            if (activeTeams.length === 1) { gameState = 'gameover'; alert(`VITTORIA! Team: ${activeTeams[0].toUpperCase()}`); return true; }
+            if (!activeTeams.includes('player')) { gameState = 'gameover'; alert("SCONFITTA! Le tue truppe sono state decimate."); return true; }
             return false;
         }
 
@@ -936,7 +1014,7 @@
                 let t = turnOrder[currentTeamIdx];
                 b.innerText = `SCHIERA: ${t.toUpperCase()}`; b.style.background = t==='player'?"#fff9c4":"#fbebe8"; b.style.color = "#333"; bp.style.display = 'none';
                 if(t === 'player') {
-                    msg.innerText = "Scegli a destra e tocca una zona gialla!";
+                    msg.innerText = "Scegli un'unità e tocca la zona gialla!";
                     let html = '<div style="display:flex; flex-wrap:wrap; gap:5px;">';
                     pDeployQueue.forEach((u, i) => {
                         let sel = i === selectedDeployIdx;
@@ -947,13 +1025,15 @@
             }
             else if(gameState === 'playing') {
                 let t = turnOrder[currentTeamIdx];
-                b.innerText = t === 'player' ? "TUO TURNO" : `TURNO: ${t.toUpperCase()}`;
+                b.innerText = t === 'player' ? "IL TUO TURNO" : `TURNO: ${t.toUpperCase()}`;
                 b.style.background = t === 'player' ? "var(--c-player)" : (t==='enemy' ? 'var(--c-enemy)' : (t==='team3'?'var(--c-team3)':'var(--c-team4)'));
                 b.style.color = "white"; b.style.borderColor = "black";
                 bp.style.display = t === 'player' ? 'block' : 'none';
-                msg.innerText = t === 'player' ? `Azioni Rimaste: ${actionsLeft}/${maxAP}` : "L'IA sta pensando...";
-                if(!activeUnit && t === 'player') det.innerHTML = "Tocca un esagono per i dettagli.";
+                msg.innerText = t === 'player' ? `Azioni Rimaste: ${actionsLeft}/${maxAP}` : "L'IA sta elaborando la mossa...";
+                if(!activeUnit && t === 'player') det.innerHTML = "<em>Tocca un esagono o trascina per muovere la telecamera.</em>";
             }
+            updateEnemyRoster();
+            updateAPDisplay();
         }
 
         function updateEnemyRoster() {
@@ -982,13 +1062,13 @@
             let effAtk = Math.max(5, Math.round(u.atk * (1 - u.auraAtkDrop/100)));
             det.innerHTML = `
                 <div style="font-size:1.2rem; margin-bottom:5px;">${u.icon} <strong style="color:var(--accent-gold-hover)">${u.role}</strong> (${u.name})</div>
-                ❤️ HP: ${u.currentHp}/${u.hp} | ⚔️ Atk: ${effAtk} | 🛡️ Def: ${effDef}%<br>
-                ⚡ Mov: ${u.mov} | 🎯 Rng: ${u.rng} | 👁️ Vis: ${u.vis}<br>
+                <i class="fa-solid fa-heart" style="color:#d9534f"></i> HP: ${u.currentHp}/${u.hp} | <i class="fa-solid fa-burst" style="color:#f0ad4e"></i> Atk: ${effAtk} | <i class="fa-solid fa-shield-halved" style="color:#5bc0de"></i> Def: ${effDef}%<br>
+                <i class="fa-solid fa-shoe-prints"></i> Mov: ${u.mov} | <i class="fa-solid fa-crosshairs"></i> Rng: ${u.rng} | <i class="fa-solid fa-eye"></i> Vis: ${u.vis}<br>
                 <em style="color:var(--text-muted);">${u.desc}</em>
             `;
         }
 
-        function logAction(txt) { let b = document.getElementById('action-log'); b.innerHTML = `<div>${txt}</div>` + b.innerHTML; }
+        function logAction(txt) { let b = document.getElementById('action-log'); b.innerHTML = `<div class="log-entry">${txt}</div>` + b.innerHTML; }
     </script>
 </body>
 </html>
