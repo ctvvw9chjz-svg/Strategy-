@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            /* Palette Fantasy / Pergamena */
             --bg-color: #f4ebd8; --panel-bg: #fdf8eb; --panel-border: #c8b495;
             --text-main: #2b1f14; --text-muted: #5e4b3c;
             --accent-gold: #b38b22; --accent-gold-hover: #8f6f1b;
@@ -21,21 +20,18 @@
         h1, h2, h3 { font-family: 'Playfair Display', serif; text-align: center; margin: 10px 0; color: #3e2723;}
         h1 { font-size: 2.5rem; letter-spacing: 1.5px; font-weight: 900; text-transform: uppercase; border-bottom: 2px solid var(--panel-border); padding-bottom: 10px; margin-bottom: 20px;}
 
-        /* SCHERMATE E CONTENITORI */
         .screen { display: none; width: 100%; max-width: 1300px; flex-direction: column; align-items: center; padding: 20px;}
         .screen.active { display: flex; }
         
         .main-panel { background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 4px; padding: 30px; box-shadow: 0 10px 30px rgba(43, 31, 20, 0.15); width: 100%; position: relative;}
         .main-panel::before { content: ''; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid rgba(200, 180, 149, 0.4); pointer-events: none;}
 
-        /* PULSANTI */
         .btn-group { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; justify-content: center; }
         button, .select-btn { background: #fff; border: 2px solid var(--panel-border); color: var(--text-main); padding: 10px 18px; font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; border-radius: 4px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
         button:hover, .select-btn:hover { border-color: var(--accent-gold); transform: translateY(-2px); }
         button.selected, .select-btn.selected { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold-hover); }
         button.primary-action { background: var(--accent-gold); color: white; padding: 14px 35px; font-size: 1.2rem; margin-top: 20px; box-shadow: 0 4px 15px rgba(179, 139, 34, 0.3);}
 
-        /* MENU DRAFT */
         .wiki-container { display: flex; width: 100%; gap: 20px; margin-top: 15px; }
         .roster-panel { flex: 1; display: flex; flex-direction: column; background: var(--panel-bg); padding: 20px; border-radius: 4px; border: 1px solid var(--panel-border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);}
         .draft-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 10px;}
@@ -51,14 +47,12 @@
         .selected-roster { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; min-height: 50px; align-items: flex-start;}
         .roster-chip { background: #fff; border: 1px solid var(--accent-gold); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
 
-        /* GIOCO CANVAS */
         .game-layout { display: flex; width: 100%; height: 85vh; gap: 20px; align-items: stretch; justify-content: center; flex-wrap: wrap;}
         
         #canvas-container { flex: 1; min-width: 300px; position: relative; background: #1a1612; border-radius: 8px; border: 4px solid #5e4b3c; box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; display: flex; justify-content: center; align-items: center; cursor: grab;}
         #canvas-container:active { cursor: grabbing; }
         canvas { touch-action: none; width: 100%; height: 100%; display: block;}
         
-        /* SIDEBAR */
         .sidebar { width: 340px; background: transparent; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 5px;}
         
         @media (max-width: 900px) {
@@ -82,14 +76,12 @@
         .team-icons-row strong { width: 70px; font-family: 'Playfair Display', serif;}
         .team-icons-row span { font-size: 1.2rem; background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         
-        /* Pulsante Accampati */
         .btn-camp-action { width: 100%; padding: 12px; font-size: 1.05rem; background: #2e7d32; color: white; border: 2px solid #1b5e20; margin-top: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
         .btn-camp-action:hover { background: #1b5e20; border-color: #0d3b10; transform: scale(1.02);}
     </style>
 </head>
 <body>
 
-    <!-- SCHERMATA CONFIGURAZIONE -->
     <div id="screen-config" class="screen active">
         <h1>Tattiche del Regno</h1>
         <div class="main-panel">
@@ -107,7 +99,7 @@
                     <div class="btn-group" id="team-group">
                         <button class="select-btn selected" onclick="selectTeams(2, this)">Duello (1v1)</button>
                         <button class="select-btn" onclick="selectTeams(3, this)">Triade</button>
-                        <button class="select-btn" onclick="selectTeams(4, this)">Guerra Totale (4 Fazioni)</button>
+                        <button class="select-btn" onclick="selectTeams(4, this)">Guerra Totale</button>
                     </div>
                 </div>
 
@@ -134,7 +126,6 @@
         </div>
     </div>
 
-    <!-- SCHERMATA DRAFTING -->
     <div id="screen-draft" class="screen">
         <h1>Armeria del Regno</h1>
         <div class="wiki-container">
@@ -155,7 +146,6 @@
         </div>
     </div>
 
-    <!-- SCHERMATA GIOCO -->
     <div id="screen-game" class="screen" style="max-width: 100%; padding: 15px;">
         <div class="game-layout">
             
@@ -175,7 +165,6 @@
                         <em>Tocca un esagono sulla mappa per analizzare.</em>
                     </div>
                     
-                    <!-- Nuovo Contenitore Azioni Truppa (Accampati) -->
                     <div id="unit-actions" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
                         <button id="btn-camp" class="btn-camp-action" onclick="campActiveUnit()">
                             <i class="fa-solid fa-campground"></i> Accampati e Fortifica
@@ -205,11 +194,11 @@
     </div>
 
     <script>
-        // === CARICAMENTO IMMAGINI BIOMI (TEXTURES) ===
-        const IMG_BOSCO = new Image(); IMG_BOSCO.src = 'image.png';
-        const IMG_DESERTO = new Image(); IMG_DESERTO.src = 'image_2.png';
-        const IMG_MONTAGNA = new Image(); IMG_MONTAGNA.src = 'image_3.png';
-        const IMG_CITTA = new Image(); IMG_CITTA.src = 'image_4.png';
+        // === CARICAMENTO IMMAGINI BIOMI CON CORREZIONE ESTENSIONE GITHUB ===
+        const IMG_BOSCO = new Image(); IMG_BOSCO.src = 'image.png.jpg';
+        const IMG_DESERTO = new Image(); IMG_DESERTO.src = 'image_2.png.jpg';
+        const IMG_MONTAGNA = new Image(); IMG_MONTAGNA.src = 'image_3.png.jpg';
+        const IMG_CITTA = new Image(); IMG_CITTA.src = 'image_4.png.jpg';
 
         // === CONFIGURAZIONE E STRUTTURE DATI ===
         let cfg = { diff: 'Normale', radius: 5, unitCount: 5, teams: 2, fog: true, neutral: true };
@@ -231,27 +220,27 @@
         };
 
         const DESC = {
-            fanteria: "Equilibrata, la fanteria di linea eccelle nel mantenere le posizioni.",
-            arciere: "Maestri dell'arco. Letali da lontano, indifesi in corpo a corpo.",
-            mago: "Utilizza arti arcane a media distanza. Ignora coperture leggere.",
-            esploratore: "Ignora i malus di movimento dei deserti e vanta un'ottima vista.",
-            cavaliereL: "Velocissima per fiancheggiamenti rapidi ed esplorazioni.",
-            cavaliereP: "Lenta ma resistente destriero corazzato. Ostacolata dai boschi.",
-            colosso: "Lentissima creatura di pietra. Possiede il massimo di HP e Danni.",
-            difensore: "Muro di scudi. Fornisce un bonus passivo alla difesa agli alleati vicini.",
-            guaritore: "Chierici dedicati al recupero delle ferite (Non attaccano).",
-            stealth: "Agisce nell'ombra. Invisibile finché il nemico non entra in contatto.",
-            trasporto: "Un carro merci che permette di rilocare una truppa a lunga distanza.",
-            orrore: "Creatura spaventosa. La sua presenza riduce l'attacco dei nemici vicini."
+            fanteria: "Equilibrata, eccelle nel mantenere le posizioni.",
+            arciere: "Letale da lontano, indifeso in corpo a corpo.",
+            mago: "Utilizza arti arcane a media distanza.",
+            esploratore: "Ignora i malus del deserto, ottima vista.",
+            cavaliereL: "Veloce per fiancheggiamenti ed esplorazioni.",
+            cavaliereP: "Resistente destriero corazzato. Ostacolato dai boschi.",
+            colosso: "Lentissimo, possiede il massimo di HP e Danni.",
+            difensore: "Muro di scudi. Bonus difesa ad alleati vicini.",
+            guaritore: "Cura ferite in battaglia (Non attacca).",
+            stealth: "Invisibile finché il nemico non entra in contatto.",
+            trasporto: "Carro merci che riloca una truppa a distanza.",
+            orrore: "Presenza spaventosa: riduce l'attacco dei nemici vicini."
         };
 
         const B_STAT = { 
             fanteria:   { hp: 120, atk: 35, def: 10, mov: 3, rng: 1, vis: 6, ctr: 1.0, role: "Spadaccino", desc: DESC.fanteria, icon: ICONS.fanteria, uni: UNICODES.fanteria },
-            arciere:    { hp: 60,  atk: 45, def: 0,  mov: 3, rng: 5, vis: 7, ctr: 0.0, role: "Arciere Elfico", desc: DESC.arciere, icon: ICONS.arciere, uni: UNICODES.arciere },
+            arciere:    { hp: 60,  atk: 45, def: 0,  mov: 3, rng: 5, vis: 7, ctr: 0.0, role: "Arciere", desc: DESC.arciere, icon: ICONS.arciere, uni: UNICODES.arciere },
             mago:       { hp: 70,  atk: 40, def: 5,  mov: 3, rng: 3, vis: 6, ctr: 0.5, role: "Mago Arcano", desc: DESC.mago, icon: ICONS.mago, uni: UNICODES.mago },
             esploratore:{ hp: 55,  atk: 25, def: 0,  mov: 5, rng: 1, vis: 8, ctr: 0.7, role: "Ranger", perk: 'agile', desc: DESC.esploratore, icon: ICONS.esploratore, uni: UNICODES.esploratore },
             cavaliereL: { hp: 80,  atk: 30, def: 10, mov: 6, rng: 1, vis: 7, ctr: 0.8, role: "Cavaliere Leggero", perk: 'mounted', desc: DESC.cavaliereL, icon: ICONS.cavaliereL, uni: UNICODES.cavaliereL },
-            cavaliereP: { hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cavalleria Pesante", perk: 'mounted', desc: DESC.cavaliereP, icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
+            cavaliereP: { hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cavaliere Corazzato", perk: 'mounted', desc: DESC.cavaliereP, icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
             colosso:    { hp: 160, atk: 55, def: 30, mov: 2, rng: 1, vis: 5, ctr: 1.0, role: "Golem di Pietra", desc: DESC.colosso, icon: ICONS.colosso, uni: UNICODES.colosso },
             difensore:  { hp: 140, atk: 25, def: 40, mov: 2, rng: 1, vis: 6, ctr: 0.8, role: "Paladino", perk: 'aura_shield', desc: DESC.difensore, icon: ICONS.difensore, uni: UNICODES.difensore },
             guaritore:  { hp: 60,  atk: 15, def: 5,  mov: 3, rng: 2, vis: 6, ctr: 0.2, role: "Chierico", perk: 'healer', desc: DESC.guaritore, icon: ICONS.guaritore, uni: UNICODES.guaritore },
@@ -291,6 +280,7 @@
         let activeUnit = null, actionsLeft = 3;
         let playerRosterKeys = [], pDeployQueue = [], botDeployQueues = {}; 
         let selectedDeployIdx = -1;
+        let isCombatActive = false; // FLAG CRUCIALE PER EVITARE BUG SOVRAPPOSIZIONE
 
         // === MOTORE CANVAS E CAMERA PAN ===
         const canvas = document.getElementById('gameCanvas');
@@ -421,7 +411,7 @@
         }
 
         function initGame() {
-            gameState = 'deploy'; selectedDeployIdx = -1;
+            gameState = 'deploy'; selectedDeployIdx = -1; isCombatActive = false;
             document.getElementById('action-log').innerHTML = '';
             
             board.clear(); units = []; loots = []; exploredMap.clear(); visMap.clear();
@@ -530,41 +520,70 @@
             });
         }
 
-        // === SCHIERAMENTO ===
+        // === SCHIERAMENTO SICURO (RISOLVE IL DESYNC) ===
         function handleDeployTurn() {
+            if (gameState !== 'deploy') return;
             let t = turnOrder[currentTeamIdx];
-            let hasUnits = t === 'player' ? pDeployQueue.length > 0 : botDeployQueues[t].length > 0;
-            let allDone = pDeployQueue.length === 0;
-            for(let k in botDeployQueues) if(botDeployQueues[k].length > 0) allDone = false;
+            
+            let pRem = pDeployQueue.length;
+            let bRem = 0;
+            for(let k in botDeployQueues) bRem += botDeployQueues[k].length;
 
-            if(allDone) {
-                gameState = 'playing'; currentTeamIdx = 0; 
-                maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3); // Resetta AP logicamente
+            if(pRem === 0 && bRem === 0) {
+                gameState = 'playing'; 
+                currentTeamIdx = 0; 
+                
+                while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0) {
+                    currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length;
+                }
+                
+                let firstTeam = turnOrder[currentTeamIdx];
+                maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3);
                 actionsLeft = maxAP;
+                
+                units.forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
+                
                 logAction("<i class='fa-solid fa-play'></i> SCHIERAMENTO COMPLETATO! Inizia la battaglia.");
-                if(turnOrder[currentTeamIdx] !== 'player') setTimeout(aiTurn, 1000);
-                updateUI(); renderFrame(); return;
+                updateUI(); 
+                renderFrame(); 
+                
+                if(firstTeam !== 'player') {
+                    setTimeout(aiTurn, 1000);
+                } else {
+                    logAction(`<strong style="color:var(--text-main);"><i class="fa-solid fa-hourglass-start"></i> TURNO: PLAYER</strong>`);
+                }
+                return;
             }
 
-            if(!hasUnits) { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; handleDeployTurn(); return; }
+            if ((t === 'player' && pRem === 0) || (t !== 'player' && botDeployQueues[t].length === 0)) {
+                currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length;
+                handleDeployTurn();
+                return;
+            }
 
-            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 200); } 
-            else { 
+            if(t !== 'player') { 
+                updateUI(); 
+                setTimeout(() => { aiDeploy(t); }, 200); 
+            } else { 
                 selectedDeployIdx = -1; 
-                updateUI(); renderFrame(); 
+                updateUI(); 
+                renderFrame(); 
             }
         }
 
         function selectDeployUnit(idx) { if(gameState==='deploy' && turnOrder[currentTeamIdx]==='player') { selectedDeployIdx = idx; updateUI(); } }
 
         function aiDeploy(team) {
+            if(gameState !== 'deploy') return;
             let spots = Array.from(board.values()).filter(c => c.spawnTeam === team && !getUnitAt(c.q, c.r) && c.terrain !== 'montagna');
             if(spots.length === 0) spots = Array.from(board.values()).filter(c => !getUnitAt(c.q, c.r) && c.terrain !== 'montagna');
             
-            if(spots.length > 0) {
+            if(spots.length > 0 && botDeployQueues[team].length > 0) {
                 let s = spots[Math.floor(Math.random()*spots.length)];
                 let u = botDeployQueues[team].shift();
                 u.q = s.q; u.r = s.r; units.push(u);
+            } else if (botDeployQueues[team].length > 0) {
+                botDeployQueues[team].shift(); // Scarta unità se bloccato
             }
             currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length;
             handleDeployTurn();
@@ -624,14 +643,12 @@
 
                     let cost = curr.cost + 1;
                     
-                    // Modificatori Ingresso Terreno
-                    if(cell.terrain === 'citta') cost += 2; // Costa 3 AP entrare in Città
+                    if(cell.terrain === 'citta') cost += 2; 
                     else if(cell.terrain === 'deserto' && u.perk !== 'agile') cost++;
                     else if(cell.terrain === 'bosco' && u.perk === 'mounted') cost++;
 
-                    // Modificatori Uscita Terreno
                     let currCell = board.get(`${curr.q},${curr.r}`);
-                    if(currCell && currCell.terrain === 'citta') cost += 1; // Costa 1 in più uscire dalla Città
+                    if(currCell && currCell.terrain === 'citta') cost += 1; 
 
                     if(cost <= u.mov) {
                         if(!moves.has(`${n.q},${n.r}`) || moves.get(`${n.q},${n.r}`).cost > cost) {
@@ -648,7 +665,7 @@
         function hexLerp(a, b, t) { return { q: a.q + (b.q - a.q)*t, r: a.r + (b.r - a.r)*t, s: a.s + (b.s - a.s)*t }; }
         function checkLOS(a, b) {
             let dist = hexDist(a, b);
-            if (dist <= 1) return true; // Corpo a corpo ignorano sempre ostacoli
+            if (dist <= 1) return true; 
             let a3 = {q:a.q, r:a.r, s:-a.q-a.r}, b3 = {q:b.q, r:b.r, s:-b.q-b.r};
             for(let i=1; i<dist; i++) {
                 let lerp = hexLerp(a3, b3, 1.0/dist * i);
@@ -724,8 +741,6 @@
 
             cells.forEach(c => {
                 let px = hexToPixel(c.q, c.r);
-                
-                // Ottimizzazione Culling
                 if(px.x + camX < -HEX_SIZE*2 || px.x + camX > canvas.width + HEX_SIZE*2 || 
                    px.y + camY < -HEX_SIZE*2 || px.y + camY > canvas.height + HEX_SIZE*2) return;
 
@@ -733,35 +748,29 @@
                 let isExp = exploredMap.get(`${c.q},${c.r}`);
                 let t = TERRAINS[c.terrain];
 
-                // Base Esagono
                 drawHex(px.x, px.y, HEX_SIZE + 0.5);
                 ctx.fillStyle = isExp ? t.cMain : '#2c251e'; ctx.fill();
                 
                 if (isExp) {
                     ctx.save();
                     drawHex(px.x, px.y, HEX_SIZE - 2); 
-                    ctx.clip(); // Crea la maschera di ritaglio a forma di esagono
+                    ctx.clip(); 
                     
                     if(t.img && t.img.complete && t.img.naturalWidth !== 0) {
-                        // Centra e disegna la tua foto tagliandola nell'esagono!
                         ctx.drawImage(t.img, px.x - HEX_SIZE, px.y - HEX_SIZE, HEX_SIZE * 2, HEX_SIZE * 2);
                     } else {
-                        // Per la pianura (che non ha foto) o se l'immagine carica lentamente
                         ctx.fillStyle = t.cTop; ctx.fill();
                     }
                     ctx.restore();
                 } else {
-                    // Nebbia inesplorata
                     drawHex(px.x, px.y, HEX_SIZE - 2);
                     ctx.fillStyle = '#3a3128'; ctx.fill();
                 }
 
-                // Oscurità Nebbia di Guerra
                 if(cfg.fog && isExp && !isVis) {
                     drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(10, 8, 5, 0.60)'; ctx.fill();
                 }
 
-                // Colori Selettori
                 let k = `${c.q},${c.r}`;
                 if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { 
                     drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 215, 0, 0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); 
@@ -773,7 +782,6 @@
                 if(moves.has(k)) { drawHex(px.x, px.y, HEX_SIZE*0.4); ctx.fillStyle='rgba(129, 199, 132, 0.8)'; ctx.fill(); }
                 if(acts.has(k)) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229, 57, 53, 0.3)'; ctx.fill(); ctx.strokeStyle='#e53935'; ctx.lineWidth=2; ctx.stroke(); }
 
-                // Loot (Reliquie/Cure)
                 if(isVis) { 
                     let l = loots.find(l=>l.q===c.q && l.r===c.r); 
                     if(l) { 
@@ -783,19 +791,16 @@
                     } 
                 }
 
-                // Disegno Truppe (Pedine)
                 let u = getUnitAt(c.q, c.r);
                 if(u && !u.passenger) {
                     let canRender = (u.team === 'player') || (isVis && (!u.perk==='stealth' || u.isVisible));
                     if(canRender && (isExp || !cfg.fog)) {
                         
-                        // Base Pedina
                         ctx.beginPath();
                         ctx.arc(px.x, px.y, HEX_SIZE * 0.65, 0, Math.PI * 2);
                         ctx.fillStyle = COLORS[u.team];
                         ctx.fill();
                         
-                        // Ombreggiatura interna
                         let grad = ctx.createRadialGradient(px.x, px.y, HEX_SIZE*0.2, px.x, px.y, HEX_SIZE*0.7);
                         grad.addColorStop(0, 'rgba(0,0,0,0)');
                         grad.addColorStop(1, 'rgba(0,0,0,0.5)');
@@ -808,19 +813,16 @@
                         ctx.stroke();
                         ctx.globalAlpha = 1.0;
 
-                        // Silhouette Icona
                         ctx.fillStyle = u.hasActed ? '#9e9e9e' : '#fff';
                         ctx.font = '900 24px "Font Awesome 6 Free"';
                         ctx.textAlign = "center";
                         ctx.textBaseline = "middle";
                         ctx.fillText(u.uni, px.x, px.y);
 
-                        // Indicatori (Verde=Camped, Arancio=Buff, Viola=Load)
                         if(u.isCamped) drawStatusDot(px.x - 17, px.y - 17, '#81c784'); 
                         if(u.killBuff) drawStatusDot(px.x + 17, px.y - 17, '#ffb74d'); 
                         if(u.passenger) drawStatusDot(px.x, px.y + 19, '#ba68c8');     
                         
-                        // Barra HP
                         let hpW = HEX_SIZE * 0.8;
                         ctx.fillStyle = '#1a1612'; ctx.fillRect(px.x-hpW/2, px.y+22, hpW, 5);
                         ctx.fillStyle = u.currentHp/u.hp > 0.5 ? '#81c784' : '#e53935'; 
@@ -832,17 +834,18 @@
             ctx.restore();
         }
 
-        // === AZIONE ACCAMPATI (Bottone Laterale) ===
+        // === AZIONE ACCAMPATI ===
         function campActiveUnit() {
-            if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed) return;
+            if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed || isCombatActive) return;
             activeUnit.isCamped = true; 
             activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 20);
             logAction(`<i class='fa-solid fa-campground'></i> ${activeUnit.role} si accampa! (+20% Difesa e recupera 20 HP)`); 
             finalizeAction(activeUnit); 
         }
 
-        // === GESTIONE CLICK ===
+        // === GESTIONE CLICK E BLOCCAGGI ===
         canvas.addEventListener('pointerup', e => {
+            if (isCombatActive) return; // BLOCCA IL CLICK MENTRE LE TRUPPE COMBATTONO!
             isDragging = false;
             if(dragMoved) return; 
 
@@ -933,8 +936,9 @@
             renderFrame(); updateUI(); checkTurnEnd(); 
         }
 
-        // === COMBAT E IA ===
+        // === COMBAT E IA SICURA ===
         function executeCombat(atkU, defU, isCounter) {
+            isCombatActive = true; // Impedisce interazioni e salti di turno mentre i calcoli sono in corso
             if(atkU.perk === 'stealth') atkU.isVisible = true;
 
             let bAtk = atkU.atk;
@@ -957,53 +961,89 @@
                 logAction(`<i class='fa-solid fa-skull'></i> ${defU.role} è caduto!`);
                 if(!isCounter) atkU.killBuff = true;
                 units = units.filter(u => u.id !== defU.id && (!defU.passenger || u.id !== defU.passenger.id));
-            } else if (!isCounter && defU.team !== atkU.team && defU.perk !== 'healer' && defU.ctr > 0) {
+            } 
+            
+            // Attendi e lancia il contrattacco SE necessario
+            if (!isCounter && defU.currentHp > 0 && defU.team !== atkU.team && defU.perk !== 'healer' && defU.ctr > 0) {
                 let cell = board.get(`${defU.q},${defU.r}`);
                 let defRng = defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
                 if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) {
-                    setTimeout(() => { executeCombat(defU, atkU, true); renderFrame(); if(!checkVictory() && turnOrder[currentTeamIdx]==='player') checkTurnEnd(); }, 600);
-                    if(!isCounter) finalizeAction(atkU);
-                    return; 
+                    setTimeout(() => { executeCombat(defU, atkU, true); }, 600);
+                    return; // Interrompiamo la funzione qui: sarà il contrattacco a finalizzare il turno
                 }
             }
-            if(!isCounter) finalizeAction(atkU);
-            else { activeUnit = null; renderFrame(); updateUI(); if(!checkVictory()) checkTurnEnd(); }
+
+            // Se arriviamo qui, il combattimento è finito al 100%
+            isCombatActive = false; 
+            if(!isCounter) {
+                finalizeAction(atkU);
+            } else {
+                finalizeAction(defU); // DefU qui era l'attaccante originale
+            }
         }
 
         function checkTurnEnd() {
             let t = turnOrder[currentTeamIdx];
-            if (actionsLeft <= 0 || units.filter(u => u.team === t && !u.hasActed && !u.passenger).length === 0) passTurn();
-            else { updateUI(); renderFrame(); }
+            let availableUnits = units.filter(u => u.team === t && !u.hasActed && !u.passenger);
+            
+            updateUI(); 
+            renderFrame();
+
+            if (actionsLeft <= 0 || availableUnits.length === 0) {
+                passTurn();
+            } else if (t !== 'player' && gameState === 'playing') {
+                setTimeout(aiTurn, 600); // L'IA continua a ragionare
+            }
         }
-        function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player') { logAction("Fine turno tattico."); if(activeUnit) finalizeAction(activeUnit); passTurn(); } }
+
+        function forcePassTurn() { 
+            if(gameState==='playing' && turnOrder[currentTeamIdx]==='player' && !isCombatActive) { 
+                logAction("Fine turno tattico."); 
+                if(activeUnit) { activeUnit.hasActed = true; activeUnit.hasMovedThisTurn = false; activeUnit = null; }
+                passTurn(); 
+            } 
+        }
 
         function passTurn() {
             if(gameState !== 'playing') return;
             
+            // Sblocca la vecchia squadra
             units.filter(u => u.team === turnOrder[currentTeamIdx]).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
             
-            do { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; } while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0 && !checkVictory());
+            // Passa alla prossima squadra viva
+            let safeCounter = 0;
+            do { 
+                currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; 
+                safeCounter++;
+                if (safeCounter > 10) break;
+            } while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0 && !checkVictory());
 
-            // FIX BUG AP: Ricalcolo forzato e reset
+            if (checkVictory()) return;
+
+            // FIX: Azzera i punti azione sempre e forza per tutti
             maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3);
             actionsLeft = maxAP; 
             let t = turnOrder[currentTeamIdx];
             
-            // Sblocca la NUOVA squadra
+            // Sblocca la nuova squadra pronta ad agire
             units.filter(u => u.team === t).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
-
-            updateUI(); renderFrame(); logAction(`<strong style="color:var(--text-main);"><i class="fa-solid fa-hourglass-start"></i> TURNO: ${t.toUpperCase()}</strong>`);
             
+            // Movimenti Neutrali se presenti
             if(currentTeamIdx === 0 && cfg.neutral) {
                 let nts = units.filter(u => u.team === 'neutral');
-                if(nts.length > 0) {
-                    nts.forEach(n => {
-                        let acts = Array.from(getValidActions(n).values());
-                        if(acts.length>0) executeCombat(n, acts[0].tgt, false);
-                        else { let mvs = Array.from(getValidMoves(n).values()); if(mvs.length>0) { let rm = mvs[Math.floor(Math.random()*mvs.length)]; n.q = rm.q; n.r = rm.r; } }
-                    });
-                }
+                nts.forEach(n => {
+                    let mvs = Array.from(getValidMoves(n).values()); 
+                    if(mvs.length>0) { 
+                        let rm = mvs[Math.floor(Math.random()*mvs.length)]; 
+                        n.q = rm.q; n.r = rm.r; 
+                    }
+                });
             }
+
+            updateUI(); 
+            renderFrame(); 
+            logAction(`<strong style="color:var(--text-main);"><i class="fa-solid fa-hourglass-start"></i> TURNO: ${t.toUpperCase()}</strong>`);
+            
             if (t !== 'player') setTimeout(aiTurn, 800);
         }
 
@@ -1013,33 +1053,50 @@
             let avail = units.filter(u => u.team === t && !u.hasActed && !u.passenger);
             
             if(actionsLeft > 0 && avail.length > 0) {
-                let acted = false;
+                // 1. Prova Cura
                 for(let h of avail.filter(u => u.perk === 'healer')) {
                     let w = Array.from(getValidActions(h).values()).find(a => a.t === 'heal' && a.tgt.currentHp < a.tgt.hp);
-                    if(w) { w.tgt.currentHp = Math.min(w.tgt.hp, w.tgt.currentHp+30); h.hasActed = true; actionsLeft--; acted = true; logAction(`<i class='fa-solid fa-wand-magic'></i> Il nemico cura ${w.tgt.role}.`); break; }
-                }
-
-                if(!acted) {
-                    for(let u of avail) {
-                        let acts = Array.from(getValidActions(u).values()).filter(a => a.t === 'atk');
-                        if(acts.length > 0) { if(cfg.diff !== 'Facile') acts.sort((a,b)=> a.tgt.currentHp - b.tgt.currentHp); executeCombat(u, acts[0].tgt, false); acted = true; break; }
+                    if(w) { 
+                        w.tgt.currentHp = Math.min(w.tgt.hp, w.tgt.currentHp+30); 
+                        logAction(`<i class='fa-solid fa-wand-magic'></i> Il nemico cura ${w.tgt.role}.`); 
+                        finalizeAction(h);
+                        return; 
                     }
                 }
 
-                if(!acted) {
-                    let u = avail[Math.floor(Math.random() * avail.length)];
-                    let mvs = Array.from(getValidMoves(u).values());
-                    let ens = units.filter(e => e.team !== t && e.team !== 'neutral');
-                    if (u.currentHp < u.hp * 0.4 && cfg.diff === 'Difficile' && Math.random() > 0.3) {
-                        u.isCamped = true; u.currentHp = Math.min(u.hp, u.currentHp + 20); u.hasActed = true; actionsLeft--; logAction(`<i class='fa-solid fa-shield'></i> Il nemico accampa ${u.role}.`); renderFrame();
-                    } else if(mvs.length > 0 && ens.length > 0) {
-                        let tgt = ens[Math.floor(Math.random()*ens.length)];
-                        mvs.sort((a,b)=> hexDist(a, tgt) - hexDist(b, tgt));
-                        u.isCamped = false; u.q = mvs[0].q; u.r = mvs[0].r; u.hasActed = true; actionsLeft--; renderFrame();
-                    } else u.hasActed = true; 
+                // 2. Prova Attacco
+                for(let u of avail) {
+                    let acts = Array.from(getValidActions(u).values()).filter(a => a.t === 'atk');
+                    if(acts.length > 0) { 
+                        if(cfg.diff !== 'Facile') acts.sort((a,b)=> a.tgt.currentHp - b.tgt.currentHp); 
+                        executeCombat(u, acts[0].tgt, false); 
+                        return; // Il turno riprenderà da solo alla fine del combattimento tramite finalizeAction
+                    }
                 }
-                if(!checkVictory()) setTimeout(aiTurn, 600); 
-            } else passTurn();
+
+                // 3. Prova Movimento / Accampamento
+                let u = avail[Math.floor(Math.random() * avail.length)];
+                let mvs = Array.from(getValidMoves(u).values());
+                let ens = units.filter(e => e.team !== t && e.team !== 'neutral');
+                if (u.currentHp < u.hp * 0.4 && cfg.diff === 'Difficile' && Math.random() > 0.3) {
+                    u.isCamped = true; 
+                    u.currentHp = Math.min(u.hp, u.currentHp + 20); 
+                    logAction(`<i class='fa-solid fa-shield'></i> Il nemico accampa ${u.role}.`); 
+                    finalizeAction(u);
+                    return;
+                } else if(mvs.length > 0 && ens.length > 0) {
+                    let tgt = ens[Math.floor(Math.random()*ens.length)];
+                    mvs.sort((a,b)=> hexDist(a, tgt) - hexDist(b, tgt));
+                    u.isCamped = false; u.q = mvs[0].q; u.r = mvs[0].r; 
+                    finalizeAction(u);
+                    return;
+                } else {
+                    finalizeAction(u); // Nessuna mossa valida, salta l'unità
+                    return;
+                }
+            } else {
+                passTurn();
+            }
         }
 
         // === UI & UTIL ===
@@ -1076,7 +1133,7 @@
                 bp.style.display = t === 'player' ? 'block' : 'none';
                 msg.innerText = t === 'player' ? `Azioni Strategiche Rimaste: ${actionsLeft}/${maxAP}` : "La mente nemica sta pianificando...";
                 
-                if(activeUnit && t === 'player' && !activeUnit.hasActed) {
+                if(activeUnit && t === 'player' && !activeUnit.hasActed && !isCombatActive) {
                     actMenu.style.display = 'block';
                 } else {
                     actMenu.style.display = 'none';
