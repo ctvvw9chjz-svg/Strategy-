@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuovo Motore Grafico Esagonale</title>
+    <style>
+        body {
+            background-color: #2c2116;
+            color: #f4eee1;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        canvas {
+            background-color: #1a1410;
+            border: 4px solid #d8c7ad;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+        .instructions {
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="instructions">
+        <h1>Motore Grafico Procedurale</h1>
+        <p>Muovi il mouse per selezionare gli esagoni. Noterai che i boschi hanno veri alberelli procedurali, i deserti hanno le dune, e c'è una sfumatura tra i terreni. Le pedine hanno una vera silhouette tridimensionale!</p>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Impostazioni Esagoni
+        const HEX_SIZE = 35; 
+        const HEX_WIDTH = Math.sqrt(3) * HEX_SIZE;
+        const HEX_HEIGHT = 2 * HEX_SIZE;
+        const MAP_RADIUS = 5; // Grandezza della mappa
+
+        let hexGrid = [];
+        let hoveredHex = null;
+
+        // Generazione Griglia Esagonale (Coordinate Assiali q, r)
+        function generateGrid() {
+            for (let q = -MAP_RADIUS; q <= MAP_RADIUS; q++) {
+                let r1 = Math.max(-MAP_RADIUS, -q - MAP_RADIUS);
+                let r2 = Math.min(MAP_RADIUS, -q + MAP_RADIUS);
+                for (let r = r1; r <= r2; r++) {
+                    
+                    // Assegna terreno casuale
+                    let terrain = 'pianura';
+                    let rand = Math.random();
+                    if(rand > 0.6) terrain = 'bosco';
+                    else if (rand > 0.4) terrain = 'deserto';
+
+                    hexGrid.push({ q, r, terrain: terrain, hasUnit: Math.random() > 0.9 });
+                }
+            }
+        }
+
+        // Converti (q,r) in coordinate Pixel (x,y)
+        function hexToPixel(q, r) {
+            let x = HEX_SIZE * Math.sqrt(3) * (q + r / 2);
+            let y = HEX_SIZE * 3/2 * r;
+            return { x: x + canvas.width / 2, y: y + canvas.height / 2 };
+        }
+
+        // Trova l'esagono sotto il mouse
+        function pixelToHex(x, y) {
+            let cx = x - canvas.width / 2;
+            let cy = y - canvas.height / 2;
+            let q = (Math.sqrt(3)/3 * cx - 1/3 * cy) / HEX_SIZE;
+            let r = (2/3 * cy) / HEX_SIZE;
+            return hexRound(q, r, -q-r);
+        }
+
+        function hexRound(q, r, s) {
+            let rq = Math.round(q);
+            let rr = Math.round(r);
+            let rs = Math.round(s);
+            let q_diff = Math.abs(rq - q);
+            let r_diff = Math.abs(rr - r);
+            let s_diff = Math.abs(rs - s);
+            if (q_diff > r_diff && q_diff > s_diff) rq = -rr - rs;
+            else if (r_diff > s_diff) rr = -rq - rs;
+            return {q: rq, r: rr};
+        }
+
+        // Disegna un singolo esagono
+        function drawHexagon(x, y, size) {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                let angle_deg = 60 * i - 30;
+                let angle_rad = Math.PI / 180 * angle_deg;
+                let hx = x + size * Math.cos(angle_rad);
+                let hy = y + size * Math.sin(angle_rad);
+                if (i === 0) ctx.moveTo(hx, hy);
+                else ctx.lineTo(hx, hy);
+            }
+            ctx.closePath();
+        }
+
+        // Grafica Procedurale Terreni
+        function drawTerrain(x, y, terrain) {
+            // 1. Sfondo base (leggermente ingrandito per creare l'effetto "sfumatura" sui bordi)
+            drawHexagon(x, y, HEX_SIZE + 2); 
+            if(terrain === 'pianura') ctx.fillStyle = '#a1c27d';
+            if(terrain === 'bosco') ctx.fillStyle = '#4e7a41';
+            if(terrain === 'deserto') ctx.fillStyle = '#e8cd7b';
+            ctx.fill();
+
+            // Sfondo esatto
+            drawHexagon(x, y, HEX_SIZE - 1);
+            if(terrain === 'pianura') ctx.fillStyle = '#b5d692';
+            if(terrain === 'bosco') ctx.fillStyle = '#5c8f4d';
+            if(terrain === 'deserto') ctx.fillStyle = '#f4d888';
+            ctx.fill();
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            ctx.stroke();
+
+            // 2. Dettagli Procedurali
+            if (terrain === 'bosco') {
+                // Disegna alberelli stilizzati (Triangoli)
+                ctx.fillStyle = '#2d4c24';
+                for(let i=0; i<4; i++) {
+                    let ox = x + (Math.random() * 20 - 10);
+                    let oy = y + (Math.random() * 20 - 10);
+                    ctx.beginPath();
+                    ctx.moveTo(ox, oy - 10);
+                    ctx.lineTo(ox - 6, oy + 5);
+                    ctx.lineTo(ox + 6, oy + 5);
+                    ctx.fill();
+                }
+            } else if (terrain === 'deserto') {
+                // Disegna le dune (Curve)
+                ctx.strokeStyle = '#d6b65a';
+                ctx.lineWidth = 2;
+                for(let i=0; i<3; i++) {
+                    let ox = x + (Math.random() * 20 - 10);
+                    let oy = y + (Math.random() * 20 - 10);
+                    ctx.beginPath();
+                    ctx.moveTo(ox - 8, oy);
+                    ctx.quadraticCurveTo(ox, oy - 6, ox + 8, oy + 2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Disegna una Pedina (stile scacchi 2D) invece di un cerchio
+        function drawPawn(x, y) {
+            ctx.fillStyle = '#3a7bd5';
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(x - 8, y + 12); // Base sinistra
+            ctx.lineTo(x + 8, y + 12); // Base destra
+            ctx.bezierCurveTo(x + 5, y + 5, x + 10, y - 5, x, y - 12); // Lato destro fino alla testa
+            ctx.bezierCurveTo(x - 10, y - 5, x - 5, y + 5, x - 8, y + 12); // Lato sinistro
+            ctx.fill();
+            ctx.stroke();
+
+            // Testa della pedina
+            ctx.beginPath();
+            ctx.arc(x, y - 12, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        // Render Loop
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Disegna la mappa
+            hexGrid.forEach(hex => {
+                let pos = hexToPixel(hex.q, hex.r);
+                drawTerrain(pos.x, pos.y, hex.terrain);
+
+                if(hex.hasUnit) {
+                    drawPawn(pos.x, pos.y - 5);
+                }
+
+                // Hover effetto
+                if (hoveredHex && hoveredHex.q === hex.q && hoveredHex.r === hex.r) {
+                    drawHexagon(pos.x, pos.y, HEX_SIZE);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.fill();
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#c59b27';
+                    ctx.stroke();
+                }
+            });
+        }
+
+        // Event Listeners
+        canvas.addEventListener('mousemove', (e) => {
+            let rect = canvas.getBoundingClientRect();
+            let mouseX = e.clientX - rect.left;
+            let mouseY = e.clientY - rect.top;
+            
+            let targetHex = pixelToHex(mouseX, mouseY);
+            
+            // Verifica se l'esagono esiste nella griglia
+            hoveredHex = hexGrid.find(h => h.q === targetHex.q && h.r === targetHex.r) || null;
+            render();
+        });
+
+        // Avvio
+        generateGrid();
+        render();
+
+    </script>
+</body>
+</html>
