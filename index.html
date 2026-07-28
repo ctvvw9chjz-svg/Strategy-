@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Strategia Elegante - Edizione Fantasy</title>
+    <title>Strategia Elegante - Edizione Fantasy (Civ-Style)</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -82,8 +82,9 @@
         .team-icons-row strong { width: 70px; font-family: 'Playfair Display', serif;}
         .team-icons-row span { font-size: 1.2rem; background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         
-        .btn-camp-action { width: 100%; padding: 10px; font-size: 0.95rem; background: #1976d2; color: white; border: 2px solid #0d47a1; margin-top: 10px; }
-        .btn-camp-action:hover { background: #1565c0; border-color: #0a3575; }
+        /* Pulsante Accampati */
+        .btn-camp-action { width: 100%; padding: 12px; font-size: 1.05rem; background: #2e7d32; color: white; border: 2px solid #1b5e20; margin-top: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+        .btn-camp-action:hover { background: #1b5e20; border-color: #0d3b10; transform: scale(1.02);}
     </style>
 </head>
 <body>
@@ -113,16 +114,16 @@
                 <div style="flex:1; min-width:280px; text-align:center;">
                     <h3>Dimensioni Battaglione</h3>
                     <div class="btn-group" id="unit-group">
-                        <button class="select-btn selected" onclick="selectUnitCount(5, this)">Pattuglia (5 Truppe / 3 Azioni)</button>
-                        <button class="select-btn" onclick="selectUnitCount(7, this)">Avanguardia (7 Truppe / 4 Azioni)</button>
-                        <button class="select-btn" onclick="selectUnitCount(10, this)">Armata (10 Truppe / 5 Azioni)</button>
+                        <button class="select-btn selected" onclick="selectUnitCount(5, this)">Pattuglia (5 Truppe)</button>
+                        <button class="select-btn" onclick="selectUnitCount(7, this)">Avanguardia (7 Truppe)</button>
+                        <button class="select-btn" onclick="selectUnitCount(10, this)">Armata (10 Truppe)</button>
                     </div>
                 </div>
 
             </div>
             
             <div style="text-align:center; margin-top:25px; font-size: 0.95rem; background: #fff; padding: 15px; border-radius: 4px; border: 1px dashed var(--panel-border);">
-                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;"><i class="fa-solid fa-up-down-left-right"></i> Il campo di battaglia genererà accampamenti di schieramento multipli per permettere manovre a tenaglia.</p>
+                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot"></i> La mappa (Stile Civ-6) ha punti di partenza separati per manovre a tenaglia.</p>
                 <label style="margin-right: 15px; cursor: pointer;"><input type="checkbox" id="fogToggle" checked> Oscurità (Nebbia di Guerra)</label>
                 <label style="cursor: pointer;"><input type="checkbox" id="neutralToggle" checked> Genera Reliquie & Pozioni Mappa</label>
             </div>
@@ -177,10 +178,10 @@
                     <!-- Nuovo Contenitore Azioni Truppa (Accampati) -->
                     <div id="unit-actions" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
                         <button id="btn-camp" class="btn-camp-action" onclick="campActiveUnit()">
-                            <i class="fa-solid fa-campground"></i> Accampati
+                            <i class="fa-solid fa-campground"></i> Accampati e Fortifica
                         </button>
-                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:5px; text-align:center; line-height: 1.3;">
-                            Fortifica la truppa in questa posizione.<br>Aumenta la Difesa del +20% e recupera 20 HP.
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px; text-align:center; line-height: 1.3;">
+                            Passa il resto del turno e innalza palizzate.<br><strong>+20% Difesa Bonus</strong> e recupera <strong>20 HP</strong>.
                         </p>
                     </div>
                 </div>
@@ -204,12 +205,6 @@
     </div>
 
     <script>
-        // === CARICAMENTO IMMAGINI BIOMI (TEXTURES) ===
-        const IMG_BOSCO = new Image(); IMG_BOSCO.src = 'image.png';
-        const IMG_DESERTO = new Image(); IMG_DESERTO.src = 'image_2.png';
-        const IMG_MONTAGNA = new Image(); IMG_MONTAGNA.src = 'image_3.png';
-        const IMG_CITTA = new Image(); IMG_CITTA.src = 'image_4.png';
-
         // === CONFIGURAZIONE E STRUTTURE DATI ===
         let cfg = { diff: 'Normale', radius: 5, unitCount: 5, teams: 2, fog: true, neutral: true };
         let maxAP = 3;
@@ -232,7 +227,7 @@
         const DESC = {
             fanteria: "Equilibrata, la fanteria di linea eccelle nel mantenere le posizioni.",
             arciere: "Maestri dell'arco. Letali da lontano, indifesi in corpo a corpo.",
-            mago: "Utilizza le arti arcane per infliggere danni a media distanza.",
+            mago: "Utilizza arti arcane a media distanza. Ignora coperture leggere.",
             esploratore: "Ignora i malus di movimento dei deserti e vanta un'ottima vista.",
             cavaliereL: "Velocissima per fiancheggiamenti rapidi ed esplorazioni.",
             cavaliereP: "Lenta ma resistente destriero corazzato. Ostacolata dai boschi.",
@@ -250,7 +245,7 @@
             mago:       { hp: 70,  atk: 40, def: 5,  mov: 3, rng: 3, vis: 6, ctr: 0.5, role: "Mago Arcano", desc: DESC.mago, icon: ICONS.mago, uni: UNICODES.mago },
             esploratore:{ hp: 55,  atk: 25, def: 0,  mov: 5, rng: 1, vis: 8, ctr: 0.7, role: "Ranger", perk: 'agile', desc: DESC.esploratore, icon: ICONS.esploratore, uni: UNICODES.esploratore },
             cavaliereL: { hp: 80,  atk: 30, def: 10, mov: 6, rng: 1, vis: 7, ctr: 0.8, role: "Cavaliere Leggero", perk: 'mounted', desc: DESC.cavaliereL, icon: ICONS.cavaliereL, uni: UNICODES.cavaliereL },
-            cavaliereP: { hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cavaliere Corazzato", perk: 'mounted', desc: DESC.cavaliereP, icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
+            cavaliereP: { hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cavalleria Pesante", perk: 'mounted', desc: DESC.cavaliereP, icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
             colosso:    { hp: 160, atk: 55, def: 30, mov: 2, rng: 1, vis: 5, ctr: 1.0, role: "Golem di Pietra", desc: DESC.colosso, icon: ICONS.colosso, uni: UNICODES.colosso },
             difensore:  { hp: 140, atk: 25, def: 40, mov: 2, rng: 1, vis: 6, ctr: 0.8, role: "Paladino", perk: 'aura_shield', desc: DESC.difensore, icon: ICONS.difensore, uni: UNICODES.difensore },
             guaritore:  { hp: 60,  atk: 15, def: 5,  mov: 3, rng: 2, vis: 6, ctr: 0.2, role: "Chierico", perk: 'healer', desc: DESC.guaritore, icon: ICONS.guaritore, uni: UNICODES.guaritore },
@@ -271,13 +266,13 @@
         };
 
         const TERRAINS = {
-            pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#819a62', cTop: '#95b172', img: null },
-            bosco: { id: 'Foresta Antica', walk: true, cover: 15, cMain: '#3b5e30', cTop: '#456d38', img: IMG_BOSCO },    
-            deserto: { id: 'Deserto', walk: true, cover: 0, cMain: '#c8b67b', cTop: '#dbca91', img: IMG_DESERTO },
-            montagna: { id: 'Picco Roccioso', walk: false, cover: 0, cMain: '#5a5652', cTop: '#6b6762', blockLOS: true, img: IMG_MONTAGNA },
-            collina: { id: 'Collina', walk: true, cover: 5, cMain: '#6c8a4a', cTop: '#7c9d57', img: IMG_MONTAGNA }, // Usa la stessa immagine con clipping
-            citta: { id: 'Città Fortificata', walk: true, cover: 40, cMain: '#807a72', cTop: '#928c83', blockLOS: true, img: IMG_CITTA },     
-            vuoto: { id: 'Vuoto', walk: false, cover: 0, cMain: 'transparent', cTop: 'transparent', img: null }
+            pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#819a62', cTop: '#95b172' },
+            bosco: { id: 'Foresta Antica', walk: true, cover: 15, cMain: '#3b5e30', cTop: '#456d38' },    
+            deserto: { id: 'Deserto', walk: true, cover: 0, cMain: '#d4c28c', cTop: '#e8d59b' },
+            montagna: { id: 'Picco Roccioso', walk: false, cover: 0, cMain: '#5a5652', cTop: '#6b6762', blockLOS: true },
+            collina: { id: 'Colline', walk: true, cover: 5, cMain: '#6c8a4a', cTop: '#7c9d57' },
+            citta: { id: 'Città Fortificata', walk: true, cover: 40, cMain: '#807a72', cTop: '#928c83', blockLOS: true },     
+            vuoto: { id: 'Vuoto', walk: false, cover: 0, cMain: 'transparent', cTop: 'transparent' }
         };
 
         const TEAMS = ['player', 'enemy', 'team3', 'team4'];
@@ -294,7 +289,7 @@
         // === MOTORE CANVAS E CAMERA PAN ===
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const HEX_SIZE = 48; // Dimensione esagoni leggermente aumentata per apprezzare le immagini
+        const HEX_SIZE = 50; 
         let camX = 0, camY = 0;
         
         let isDragging = false;
@@ -330,9 +325,7 @@
             if(!isDragging) return;
             let dx = e.clientX - dragStartX;
             let dy = e.clientY - dragStartY;
-            
             if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
-            
             camX += dx;
             camY += dy;
             dragStartX = e.clientX;
@@ -409,8 +402,6 @@
         // === FASE 3: MAPPA E SCHIERAMENTO ===
         function startDeployment() {
             maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3);
-            
-            // Calcolo Dinamico Dimensione Mappa 
             let baseRadius = 6;
             let teamBonus = cfg.teams === 2 ? 0 : (cfg.teams === 3 ? 2 : 4);
             let unitBonus = cfg.unitCount === 5 ? 0 : (cfg.unitCount === 7 ? 2 : 4);
@@ -465,7 +456,6 @@
         }
 
         function generateHexMap() {
-            // Forma Esagonale
             for (let q = -cfg.radius; q <= cfg.radius; q++) {
                 let r1 = Math.max(-cfg.radius, -q - cfg.radius);
                 let r2 = Math.min(cfg.radius, -q + cfg.radius);
@@ -474,7 +464,7 @@
                     if(!isVoid) board.set(`${q},${r}`, {q, r, terrain: 'pianura', spawnTeam: null});
                 }
             }
-            // Biomi
+            
             const biomes = ['bosco','bosco','deserto','citta','collina','montagna'];
             for(let i=0; i<cfg.radius*3; i++) {
                 let b = biomes[Math.floor(Math.random()*biomes.length)];
@@ -486,14 +476,13 @@
                     q = n.q; r = n.r;
                 }
             }
-            // Loot Neutrale
+            
             if(cfg.neutral) {
                 Array.from(board.values()).forEach(c => {
                     if(Math.random() < 0.04 && c.terrain !== 'montagna') loots.push({q:c.q, r:c.r, type: Math.random()>0.5?'heal':'dmg'});
                 });
             }
 
-            // Sistema di Spawn "Scacchi Tattici" (3 cluster sparsi per mappa)
             let teamsArr = TEAMS.slice(0, cfg.teams);
             let spawnClusters = 3;
             let tilesPerCluster = Math.ceil(cfg.unitCount / 1.2); 
@@ -501,7 +490,7 @@
             teamsArr.forEach(t => {
                 for(let c = 0; c < spawnClusters; c++) {
                     let validCells = Array.from(board.values()).filter(cell => {
-                        if(cell.spawnTeam || cell.terrain === 'montagna' || cell.terrain === 'citta') return false; // Evita di spawnare direttamente in città
+                        if(cell.spawnTeam || cell.terrain === 'montagna' || cell.terrain === 'citta') return false; 
                         let ns = getNeighbors(cell.q, cell.r);
                         for(let n of ns) {
                             let nc = board.get(`${n.q},${n.r}`);
@@ -634,7 +623,7 @@
                     else if(cell.terrain === 'deserto' && u.perk !== 'agile') cost++;
                     else if(cell.terrain === 'bosco' && u.perk === 'mounted') cost++;
 
-                    // Modificatori Uscita Terreno (Preparazione uscita città)
+                    // Modificatori Uscita Terreno
                     let currCell = board.get(`${curr.q},${curr.r}`);
                     if(currCell && currCell.terrain === 'citta') cost += 1; // Costa 1 in più uscire dalla Città
 
@@ -690,7 +679,7 @@
             return acts;
         }
 
-        // === RENDER ENGINE CANVAS ===
+        // === RENDER ENGINE CANVAS (Vettoriale Stile Civ) ===
         function drawHex(x, y, size) {
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
@@ -701,9 +690,80 @@
             ctx.closePath();
         }
         
+        // Disegna arte vettoriale del bioma direttamente su Canvas!
+        function drawTerrainFeatures(ctx, type, x, y) {
+            ctx.save();
+            if (type === 'montagna') {
+                // Ombra (Destra)
+                ctx.fillStyle = '#4a4641';
+                ctx.beginPath(); ctx.moveTo(x-15, y+15); ctx.lineTo(x, y-22); ctx.lineTo(x+20, y+15); ctx.fill();
+                // Luce (Sinistra)
+                ctx.fillStyle = '#6b6762';
+                ctx.beginPath(); ctx.moveTo(x-15, y+15); ctx.lineTo(x, y-22); ctx.lineTo(x+3, y+15); ctx.fill();
+                // Neve
+                ctx.fillStyle = '#e0e0e0';
+                ctx.beginPath(); ctx.moveTo(x, y-22); ctx.lineTo(x-6, y-10); ctx.lineTo(x-2, y-14); ctx.lineTo(x+3, y-8); ctx.lineTo(x+7, y-12); ctx.fill();
+            } else if (type === 'bosco') {
+                // Tronchi
+                ctx.fillStyle = '#4e342e';
+                ctx.fillRect(x-12, y, 4, 12);
+                ctx.fillRect(x+8, y+4, 4, 10);
+                ctx.fillRect(x-2, y-10, 4, 15);
+                // Chiome Scure
+                ctx.fillStyle = '#2e7d32'; 
+                ctx.beginPath(); ctx.arc(x-10, y-2, 10, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(x+10, y+2, 9, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(x, y-14, 11, 0, Math.PI*2); ctx.fill();
+                // Chiome Chiare
+                ctx.fillStyle = '#4caf50'; 
+                ctx.beginPath(); ctx.arc(x-12, y-4, 6, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(x+8, y, 5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(x-2, y-16, 7, 0, Math.PI*2); ctx.fill();
+            } else if (type === 'deserto') {
+                // Curve delle Dune
+                ctx.strokeStyle = '#c5a871';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.moveTo(x-18, y-2); ctx.quadraticCurveTo(x-5, y-12, x+12, y+5); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x-12, y+10); ctx.quadraticCurveTo(x+2, y, x+18, y+12); ctx.stroke();
+                // Sole o miraggio
+                ctx.fillStyle = 'rgba(255, 200, 0, 0.4)';
+                ctx.beginPath(); ctx.arc(x+12, y-14, 7, 0, Math.PI*2); ctx.fill();
+            } else if (type === 'citta') {
+                // Mura Cittadine
+                ctx.fillStyle = '#78909c';
+                ctx.fillRect(x-18, y-4, 36, 14);
+                // Cancello
+                ctx.fillStyle = '#3e2723';
+                ctx.beginPath(); ctx.arc(x, y+10, 5, Math.PI, 0); ctx.fill();
+                ctx.fillRect(x-5, y+10, 10, 6);
+                // Torri
+                ctx.fillStyle = '#546e7a';
+                ctx.fillRect(x-22, y-12, 10, 24);
+                ctx.fillRect(x+12, y-12, 10, 24);
+                // Tetti Torri
+                ctx.fillStyle = '#b71c1c';
+                ctx.beginPath(); ctx.moveTo(x-23, y-12); ctx.lineTo(x-17, y-26); ctx.lineTo(x-11, y-12); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x+11, y-12); ctx.lineTo(x+17, y-26); ctx.lineTo(x+23, y-12); ctx.fill();
+            } else if (type === 'collina') {
+                ctx.fillStyle = '#558b2f';
+                ctx.beginPath(); ctx.arc(x-10, y+10, 14, Math.PI, 0); ctx.fill();
+                ctx.fillStyle = '#689f38';
+                ctx.beginPath(); ctx.arc(x+8, y+12, 16, Math.PI, 0); ctx.fill();
+            } else if (type === 'pianura') {
+                // Ciuffi d'erba
+                ctx.strokeStyle = '#689f38';
+                ctx.lineWidth = 1.5;
+                for(let i=0; i<3; i++) {
+                    let ox = (i-1)*12; let oy = (i%2)*6;
+                    ctx.beginPath(); ctx.moveTo(x+ox-3, y+oy-4); ctx.lineTo(x+ox, y+oy); ctx.lineTo(x+ox+3, y+oy-5); ctx.stroke();
+                }
+            }
+            ctx.restore();
+        }
+        
         function drawStatusDot(x, y, color) {
             ctx.beginPath();
-            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.arc(x, y, 4.5, 0, Math.PI * 2);
             ctx.fillStyle = color;
             ctx.fill();
             ctx.strokeStyle = '#1a1612';
@@ -738,33 +798,27 @@
                 let isExp = exploredMap.get(`${c.q},${c.r}`);
                 let t = TERRAINS[c.terrain];
 
-                // Bordo scuro dell'esagono base
+                // Base Esagono
                 drawHex(px.x, px.y, HEX_SIZE + 0.5);
-                ctx.fillStyle = '#1c1815'; ctx.fill();
+                ctx.fillStyle = isExp ? t.cMain : '#2c251e'; ctx.fill();
+                drawHex(px.x, px.y, HEX_SIZE - 2);
+                ctx.fillStyle = isExp ? t.cTop : '#3a3128'; ctx.fill();
                 
-                if (isExp) {
+                // Disegno Vettoriale del Bioma
+                if(isExp) {
                     ctx.save();
-                    drawHex(px.x, px.y, HEX_SIZE - 2); // Il confine del ritaglio (clipping)
-                    ctx.clip(); 
-                    
-                    if(t.img && t.img.complete && t.img.naturalWidth !== 0) {
-                        // Disegna la texture dell'immagine fornita
-                        ctx.drawImage(t.img, px.x - HEX_SIZE, px.y - HEX_SIZE, HEX_SIZE * 2, HEX_SIZE * 2);
-                    } else {
-                        // Selettore Pianura (nessuna foto)
-                        ctx.fillStyle = t.cMain; ctx.fill();
-                    }
+                    drawHex(px.x, px.y, HEX_SIZE - 2); 
+                    ctx.clip(); // Limita il disegno all'interno dell'esagono
+                    drawTerrainFeatures(ctx, c.terrain, px.x, px.y);
                     ctx.restore();
-                } else {
-                    drawHex(px.x, px.y, HEX_SIZE - 2);
-                    ctx.fillStyle = '#26221d'; ctx.fill();
                 }
 
                 // Nebbia di Guerra
                 if(cfg.fog && isExp && !isVis) {
-                    drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(10, 8, 5, 0.65)'; ctx.fill();
+                    drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(10, 8, 5, 0.60)'; ctx.fill();
                 }
 
+                // Colori Selettori
                 let k = `${c.q},${c.r}`;
                 if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { 
                     drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 215, 0, 0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); 
@@ -776,16 +830,17 @@
                 if(moves.has(k)) { drawHex(px.x, px.y, HEX_SIZE*0.4); ctx.fillStyle='rgba(129, 199, 132, 0.8)'; ctx.fill(); }
                 if(acts.has(k)) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229, 57, 53, 0.3)'; ctx.fill(); ctx.strokeStyle='#e53935'; ctx.lineWidth=2; ctx.stroke(); }
 
+                // Loot (Reliquie/Cure)
                 if(isVis) { 
                     let l = loots.find(l=>l.q===c.q && l.r===c.r); 
                     if(l) { 
-                        ctx.fillStyle = l.type==='heal' ? '#81c784' : '#e57373'; 
-                        ctx.beginPath(); ctx.arc(px.x, px.y, 8, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillStyle = l.type==='heal' ? '#81c784' : '#ff9800'; 
+                        ctx.beginPath(); ctx.arc(px.x, px.y + 15, 6, 0, Math.PI * 2); ctx.fill();
                         ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
                     } 
                 }
 
-                // Renderizza Silhouette FontAwesome (Pedine stile scacchi)
+                // Disegno Truppe (Pedine)
                 let u = getUnitAt(c.q, c.r);
                 if(u && !u.passenger) {
                     let canRender = (u.team === 'player') || (isVis && (!u.perk==='stealth' || u.isVisible));
@@ -810,7 +865,7 @@
                         ctx.stroke();
                         ctx.globalAlpha = 1.0;
 
-                        // Silhouette
+                        // Silhouette Icona
                         ctx.fillStyle = u.hasActed ? '#9e9e9e' : '#fff';
                         ctx.font = '900 24px "Font Awesome 6 Free"';
                         ctx.textAlign = "center";
@@ -818,9 +873,9 @@
                         ctx.fillText(u.uni, px.x, px.y);
 
                         // Indicatori (Verde=Camped, Arancio=Buff, Viola=Load)
-                        if(u.isCamped) drawStatusDot(px.x - 16, px.y - 16, '#81c784'); 
-                        if(u.killBuff) drawStatusDot(px.x + 16, px.y - 16, '#ffb74d'); 
-                        if(u.passenger) drawStatusDot(px.x, px.y + 18, '#ba68c8');     
+                        if(u.isCamped) drawStatusDot(px.x - 17, px.y - 17, '#81c784'); 
+                        if(u.killBuff) drawStatusDot(px.x + 17, px.y - 17, '#ffb74d'); 
+                        if(u.passenger) drawStatusDot(px.x, px.y + 19, '#ba68c8');     
                         
                         // Barra HP
                         let hpW = HEX_SIZE * 0.8;
@@ -888,7 +943,6 @@
                 }
             }
 
-            // Click su una propria truppa la seleziona
             if (occ && occ.team === 'player' && !occ.hasActed) {
                 activeUnit = occ; updateInfo(occ); renderFrame(); updateUI(); return;
             }
@@ -983,17 +1037,16 @@
         function passTurn() {
             if(gameState !== 'playing') return;
             
-            // Sblocca la vecchia squadra per sicurezza
             units.filter(u => u.team === turnOrder[currentTeamIdx]).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
             
             do { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; } while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0 && !checkVictory());
 
-            // FIX BUG AP: Ricalcolo forzato e reset Punti Azione all'inizio di ogni turno
+            // FIX BUG AP: Ricalcolo forzato e reset
             maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3);
             actionsLeft = maxAP; 
             let t = turnOrder[currentTeamIdx];
             
-            // Sblocca la NUOVA squadra appena passata di turno
+            // Sblocca la NUOVA squadra
             units.filter(u => u.team === t).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
 
             updateUI(); renderFrame(); logAction(`<strong style="color:var(--text-main);"><i class="fa-solid fa-hourglass-start"></i> TURNO: ${t.toUpperCase()}</strong>`);
