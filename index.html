@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Strategia Elegante - Il Signore Oscuro</title>
+    <title>Strategia Elegante - Oltre la Muraglia</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -102,7 +102,7 @@
             <h2>Scegli la tua Avventura</h2>
             
             <div class="mode-cards">
-                <div class="mode-card" onclick="alert('Lavori in Corso: I Livelli Tutorial arriveranno con la prossima espansione.')">
+                <div class="mode-card" onclick="alert('I Livelli Tutorial arriveranno con la prossima espansione!')">
                     <i class="fa-solid fa-graduation-cap"></i>
                     <h3>Campagna</h3>
                     <p>Affronta missioni strategiche per imparare i segreti di ogni truppa.</p>
@@ -111,13 +111,13 @@
                 <div class="mode-card" onclick="openSetup('skirmish')">
                     <i class="fa-solid fa-chess-board"></i>
                     <h3>Schermaglia</h3>
-                    <p>Partita libera tutti contro tutti. Espandi l'impero e conquista.</p>
+                    <p>Partita libera tutti contro tutti in terre sconosciute.</p>
                 </div>
 
                 <div class="mode-card" onclick="openSetup('darklord')">
                     <i class="fa-solid fa-skull"></i>
                     <h3>Signore Oscuro</h3>
-                    <p>Alleati per sopravvivere all'imponente armata del Signore Oscuro.</p>
+                    <p>Fermate l'armata oscura che scende dalle lande ghiacciate del Nord!</p>
                 </div>
             </div>
 
@@ -278,10 +278,12 @@
 
         const TEMPLATES = { fantasy: { ...B_STAT } };
 
+        // Aggiunto Bioma NEVE
         const TERRAINS = {
             pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#7cb342', cSide: '#558b2f' },
             bosco: { id: 'Foresta', walk: true, cover: 15, cMain: '#43a047', cSide: '#2e7d32' },    
             deserto: { id: 'Deserto', walk: true, cover: 0, cMain: '#e6c25e', cSide: '#c0a045' },
+            neve: { id: 'Terre Ghiacciate', walk: true, cover: 5, cMain: '#e0e0e0', cSide: '#b0bec5' },
             montagna: { id: 'Montagna', walk: false, cover: 0, cMain: '#8d8d8d', cSide: '#5c5c5c', blockLOS: true },
             collina: { id: 'Colline', walk: true, cover: 5, cMain: '#689f38', cSide: '#33691e' },
             villaggio: { id: 'Villaggio', walk: true, cover: 20, cMain: '#a1887f', cSide: '#78909c', blockLOS: false }, 
@@ -299,7 +301,6 @@
         let activeUnit = null, actionsLeft = 5;
         let playerRosterKeys = [], pDeployQueue = [], botDeployQueues = {}; 
         let selectedDeployIdx = -1;
-        let isCombatActive = false;
         let selectedCellForInfo = null;
 
         const canvas = document.getElementById('gameCanvas');
@@ -345,12 +346,13 @@
         function hexDist(a, b) { return (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(-a.q-a.r + b.q+b.r)) / 2; }
         function getNeighbors(q, r) { return [[1,0], [1,-1], [0,-1], [-1,0], [-1,1], [0,1]].map(d => ({q: q+d[0], r: r+d[1]})); }
 
+        // DIPLOMAZIA: Gestisce alleanze e tradimenti
         function isEnemy(teamA, teamB) {
             if (teamA === teamB) return false;
             if (teamA === 'neutral' || teamB === 'neutral') return true;
             
             if (gameMode === 'darklord') {
-                if (teamA === 'enemy' || teamB === 'enemy') return true; 
+                if (teamA === 'enemy' || teamB === 'enemy') return true; // Il Signore Oscuro odia tutti
                 if (teamA === 'player' && playerAggression[teamB] >= 2) return true;
                 if (teamB === 'player' && playerAggression[teamA] >= 2) return true;
                 return false; 
@@ -371,7 +373,6 @@
 
         function updateBtnGroup(gid, btn) { document.querySelectorAll(`#${gid} .select-btn`).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
         function selectDiff(v, b) { cfg.diff = v; updateBtnGroup('diff-group', b); }
-        function selectUnitCount(c, b) { cfg.unitCount = 5; updateBtnGroup('unit-group', b); } 
         function selectTeams(v, b) { cfg.teams = v; updateBtnGroup('team-group', b); }
 
         function goToDraft() {
@@ -419,14 +420,13 @@
         }
 
         function initGame() {
-            gameState = 'deploy'; selectedDeployIdx = -1; isCombatActive = false;
+            gameState = 'deploy'; selectedDeployIdx = -1;
             document.getElementById('action-log').innerHTML = '';
             board.clear(); units = []; loots = []; exploredMap.clear(); visMap.clear();
 
             playerAggression = { team3: 0, team4: 0 };
             teamGold = { player: 200, enemy: 200, team3: 200, team4: 200 };
-            if(gameMode === 'darklord') teamGold.enemy = 1500; 
-
+            
             pDeployQueue = playerRosterKeys.map(k => createUnitObj(k, 'player'));
             turnOrder = ['player'];
             let keys = Object.keys(TEMPLATES.fantasy);
@@ -435,14 +435,18 @@
                 botDeployQueues[t] = [];
                 
                 let troopsToSpawn = 5;
-                if(gameMode === 'darklord' && t === 'enemy') troopsToSpawn = 12; 
+                if(gameMode === 'darklord' && t === 'enemy') {
+                    troopsToSpawn = 12; 
+                    teamGold.enemy = 1500; 
+                }
                 
                 for(let j=0; j<troopsToSpawn; j++) {
                     botDeployQueues[t].push(createUnitObj(keys[Math.floor(Math.random()*keys.length)], t));
                 }
             }
 
-            generateHexMap();
+            if(gameMode === 'darklord') generateDarkLordMap();
+            else generateHexMap();
             
             if(cfg.neutral) {
                 let numNeutrals = Math.floor(cfg.radius * 1.5);
@@ -469,6 +473,7 @@
             if(cells.length > 0) { let c = cells[Math.floor(Math.random()*cells.length)]; u.q = c.q; u.r = c.r; units.push(u); }
         }
 
+        // GENERATORE SCHERMAGLIA (Simmetrico, Casuale)
         function generateHexMap() {
             for (let q = -cfg.radius; q <= cfg.radius; q++) {
                 let r1 = Math.max(-cfg.radius, -q - cfg.radius);
@@ -485,27 +490,14 @@
                 let q = Math.floor(Math.random()*cfg.radius*2)-cfg.radius, r = Math.floor(Math.random()*cfg.radius*2)-cfg.radius;
                 for(let j=0; j<8; j++) {
                     if(board.has(`${q},${r}`)) board.get(`${q},${r}`).terrain = b;
-                    let ns = getNeighbors(q, r);
-                    let n = ns[Math.floor(Math.random()*ns.length)]; q = n.q; r = n.r;
+                    let ns = getNeighbors(q, r); let n = ns[Math.floor(Math.random()*ns.length)]; q = n.q; r = n.r;
                 }
             }
 
-            let teamsArr = TEAMS.slice(0, cfg.teams);
-            
-            if (gameMode === 'darklord') {
-                board.get(`0,-${cfg.radius-2}`).terrain = 'citta'; board.get(`0,-${cfg.radius-2}`).owner = 'enemy'; board.get(`0,-${cfg.radius-2}`).spawnTeam = 'enemy';
-                board.get(`2,-${cfg.radius-3}`).terrain = 'citta'; board.get(`2,-${cfg.radius-3}`).owner = 'enemy'; board.get(`2,-${cfg.radius-3}`).spawnTeam = 'enemy';
-                board.get(`-2,-${cfg.radius-3}`).terrain = 'citta'; board.get(`-2,-${cfg.radius-3}`).owner = 'enemy'; board.get(`-2,-${cfg.radius-3}`).spawnTeam = 'enemy';
-                
-                board.get(`0,${cfg.radius-2}`).terrain = 'citta'; board.get(`0,${cfg.radius-2}`).owner = 'player'; board.get(`0,${cfg.radius-2}`).spawnTeam = 'player';
-                board.get(`-${cfg.radius-2},0`).terrain = 'citta'; board.get(`-${cfg.radius-2},0`).owner = 'team3'; board.get(`-${cfg.radius-2},0`).spawnTeam = 'team3';
-                if(cfg.teams === 4) { board.get(`${cfg.radius-2},0`).terrain = 'citta'; board.get(`${cfg.radius-2},0`).owner = 'team4'; board.get(`${cfg.radius-2},0`).spawnTeam = 'team4'; }
-            } else {
-                let citySpawns = [ {q: 0, r: cfg.radius-2, t: 'player'}, {q: 0, r: -cfg.radius+2, t: 'enemy'}, {q: -cfg.radius+2, r: 0, t: 'team3'}, {q: cfg.radius-2, r: 0, t: 'team4'} ];
-                for(let i=0; i<cfg.teams; i++) {
-                    let s = citySpawns[i]; let cell = board.get(`${s.q},${s.r}`);
-                    if(cell) { cell.terrain = 'citta'; cell.owner = s.t; cell.spawnTeam = s.t; }
-                }
+            let citySpawns = [ {q: 0, r: cfg.radius-2, t: 'player'}, {q: 0, r: -cfg.radius+2, t: 'enemy'}, {q: -cfg.radius+2, r: 0, t: 'team3'}, {q: cfg.radius-2, r: 0, t: 'team4'} ];
+            for(let i=0; i<cfg.teams; i++) {
+                let s = citySpawns[i]; let cell = board.get(`${s.q},${s.r}`);
+                if(cell) { cell.terrain = 'citta'; cell.owner = s.t; cell.spawnTeam = s.t; }
             }
 
             let numVillages = cfg.radius * 1.5;
@@ -513,12 +505,73 @@
             for(let i=0; i<numVillages; i++) {
                 if(flatCells.length > 0) {
                     let rIdx = Math.floor(Math.random() * flatCells.length);
-                    flatCells[rIdx].terrain = 'villaggio';
-                    flatCells.splice(rIdx, 1);
+                    flatCells[rIdx].terrain = 'villaggio'; flatCells.splice(rIdx, 1);
                 }
             }
 
-            teamsArr.forEach(t => {
+            TEAMS.slice(0, cfg.teams).forEach(t => {
+                let tCells = Array.from(board.values()).filter(c => c.spawnTeam === t);
+                tCells.forEach(tc => {
+                    getNeighbors(tc.q, tc.r).forEach(n => {
+                        let nc = board.get(`${n.q},${n.r}`);
+                        if(nc && !nc.spawnTeam && nc.terrain !== 'montagna') nc.spawnTeam = t;
+                    });
+                });
+            });
+        }
+
+        // GENERATORE SIGNORE OSCURO (Asimmetrico, Neve, Choke points)
+        function generateDarkLordMap() {
+            for (let q = -cfg.radius; q <= cfg.radius; q++) {
+                let r1 = Math.max(-cfg.radius, -q - cfg.radius); let r2 = Math.min(cfg.radius, -q + cfg.radius);
+                for (let r = r1; r <= r2; r++) { board.set(`${q},${r}`, {q, r, terrain: 'pianura', spawnTeam: null, owner: null}); }
+            }
+            
+            board.forEach(c => {
+                if (Math.random() < 0.2) c.terrain = 'bosco';
+                if (Math.random() < 0.1) c.terrain = 'collina';
+
+                // La Muraglia
+                if (c.r === -2 && c.q >= -4 && c.q <= 6) c.terrain = 'montagna';
+                if (c.q === -4 && c.r <= -2) c.terrain = 'montagna';
+                
+                // I due Passaggi (I Cancelli)
+                if (c.q === 1 && c.r === -2) c.terrain = 'neve'; 
+                if (c.q === 4 && c.r === -2) c.terrain = 'neve'; 
+
+                // Le Terre del Nord (Neve)
+                if (c.r < -2 && c.q > -4) {
+                    if (c.terrain !== 'montagna') {
+                        c.terrain = 'neve';
+                        if(Math.random() < 0.1) c.terrain = 'montagna'; 
+                    }
+                }
+                
+                // Le Terre del Sud-Ovest (Deserto)
+                if (c.r > 3 && c.q < 0) c.terrain = 'deserto';
+            });
+
+            // Basi Signore Oscuro (Nord)
+            let enemyCities = [ [4, -8], [6, -5], [1, -6] ];
+            enemyCities.forEach(coord => {
+                let c = board.get(`${coord[0]},${coord[1]}`);
+                if(c) { c.terrain = 'citta'; c.owner = 'enemy'; c.spawnTeam = 'enemy'; }
+            });
+
+            // Basi Alleati (Sud)
+            let pCity = board.get(`0,6`); if(pCity){ pCity.terrain='citta'; pCity.owner='player'; pCity.spawnTeam='player'; }
+            let t3City = board.get(`-6,2`); if(t3City){ t3City.terrain='citta'; t3City.owner='team3'; t3City.spawnTeam='team3'; }
+            if(cfg.teams === 4) { let t4City = board.get(`7,2`); if(t4City){ t4City.terrain='citta'; t4City.owner='team4'; t4City.spawnTeam='team4'; } }
+
+            let validVillages = Array.from(board.values()).filter(c => c.terrain === 'pianura' || c.terrain === 'neve');
+            for(let i=0; i<15; i++) {
+                if(validVillages.length > 0) {
+                    let idx = Math.floor(Math.random() * validVillages.length);
+                    validVillages[idx].terrain = 'villaggio'; validVillages.splice(idx, 1);
+                }
+            }
+
+            TEAMS.slice(0, cfg.teams).forEach(t => {
                 let tCells = Array.from(board.values()).filter(c => c.spawnTeam === t);
                 tCells.forEach(tc => {
                     getNeighbors(tc.q, tc.r).forEach(n => {
@@ -615,10 +668,13 @@
                     let cell = board.get(`${n.q},${n.r}`); if(!cell || !TERRAINS[cell.terrain].walk) return;
                     let occ = getUnitAt(n.q, n.r); let canLoad = (u.perk === 'transport' && !u.passenger && occ && occ.team === u.team && occ.perk !== 'transport');
                     if(occ && !canLoad) return;
+                    
                     let cost = curr.cost + 1;
                     if(cell.terrain === 'citta') cost += 2; 
+                    else if(cell.terrain === 'neve') cost += 2; // Neve riduce drasticamente il movimento
                     else if(cell.terrain === 'deserto' && u.perk !== 'agile') cost++;
                     else if(cell.terrain === 'bosco' && u.perk === 'mounted') cost++;
+                    
                     let currCell = board.get(`${curr.q},${curr.r}`); if(currCell && currCell.terrain === 'citta') cost += 1; 
 
                     if(cost <= u.mov) {
@@ -705,6 +761,10 @@
                 ctx.fillStyle = '#8d6e63'; ctx.beginPath(); ctx.moveTo(x-size*0.1, y-size*0.4); ctx.lineTo(x-size*0.4, y-size*0.1); ctx.lineTo(x+size*0.2, y-size*0.1); ctx.fill();
                 ctx.fillStyle = '#a1887f'; ctx.fillRect(x+size*0.1, y, size*0.3, size*0.2);
                 ctx.fillStyle = '#795548'; ctx.beginPath(); ctx.moveTo(x+size*0.25, y-size*0.2); ctx.lineTo(x, y); ctx.lineTo(x+size*0.5, y); ctx.fill();
+            }
+            else if (type === 'neve') {
+                ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.moveTo(x-size*0.4, y-size*0.2); ctx.lineTo(x, y+size*0.2); ctx.lineTo(x+size*0.4, y-size*0.1); ctx.fill();
+                ctx.fillStyle = '#e0e0e0'; ctx.beginPath(); ctx.moveTo(x-size*0.2, y+size*0.1); ctx.lineTo(x, y+size*0.4); ctx.lineTo(x+size*0.3, y+size*0.2); ctx.fill();
             }
             else if (type === 'deserto') {
                 ctx.strokeStyle = '#d4a355'; ctx.lineWidth = 2;
@@ -815,12 +875,12 @@
         }
 
         function campActiveUnit() {
-            if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed || isCombatActive) return;
+            if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed) return;
             activeUnit.isCamped = true; activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 20); logAction(`<i class='fa-solid fa-campground'></i> ${activeUnit.role} si fortifica!`); finalizeAction(activeUnit); 
         }
 
         canvas.addEventListener('pointerup', e => {
-            if (isCombatActive) return; isDragging = false; if(dragMoved) return; 
+            isDragging = false; if(dragMoved) return; 
             let rect = canvas.getBoundingClientRect(); let cx = e.clientX - rect.left; let cy = e.clientY - rect.top;
             let mapX = (cx - camX); let mapY = (cy - camY); let h = pixelToHex(mapX, mapY);
             if(!board.has(`${h.q},${h.r}`)) return; let q = h.q, r = h.r;
@@ -878,8 +938,10 @@
 
         function finalizeAction(u) { u.hasActed = true; u.hasMovedThisTurn = false; actionsLeft--; activeUnit = null; checkCaptures(); renderFrame(); updateUI(); checkTurnEnd(); }
 
+        // FIX BUG: UI bloccata durante il timeout per impedire doppi click disastrosi
         function executeCombat(atkU, defU, isCounter) {
-            isCombatActive = true; 
+            document.body.style.pointerEvents = 'none'; // BLOCCO INPUT
+            
             if(atkU.perk === 'stealth') atkU.isVisible = true;
             if(defU.team === 'neutral') defU.provoked = true;
             if(atkU.team === 'neutral') atkU.provoked = true;
@@ -919,10 +981,14 @@
             
             if (!isCounter && defU.currentHp > 0 && isEnemy(atkU.team, defU.team) && defU.perk !== 'healer' && defU.ctr > 0) {
                 let cell = board.get(`${defU.q},${defU.r}`); let defRng = defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
-                if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) { setTimeout(() => { executeCombat(defU, atkU, true); }, 600); return; }
+                if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) { 
+                    setTimeout(() => { executeCombat(defU, atkU, true); }, 600); 
+                    return; 
+                }
             }
 
-            isCombatActive = false; if(!isCounter) finalizeAction(atkU); else finalizeAction(defU);
+            document.body.style.pointerEvents = 'auto'; // SBLOCCO INPUT
+            if(!isCounter) finalizeAction(atkU); else finalizeAction(defU);
         }
 
         function checkTurnEnd() {
@@ -933,7 +999,7 @@
             else if (t !== 'player' && gameState === 'playing') setTimeout(aiTurn, 600);
         }
 
-        function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player' && !isCombatActive) { if(activeUnit) { activeUnit.hasActed = true; activeUnit.hasMovedThisTurn = false; activeUnit = null; } passTurn(); } }
+        function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player') { if(activeUnit) { activeUnit.hasActed = true; activeUnit.hasMovedThisTurn = false; activeUnit = null; } passTurn(); } }
 
         function collectIncome(team) {
             if (team === 'neutral') return;
@@ -1068,7 +1134,7 @@
                     document.getElementById('alliance-text').innerHTML = aText;
                 } else allyBox.style.display = 'none';
 
-                actMenu.style.display = (activeUnit && t === 'player' && !activeUnit.hasActed && !isCombatActive) ? 'block' : 'none';
+                actMenu.style.display = (activeUnit && t === 'player' && !activeUnit.hasActed) ? 'block' : 'none';
                 cityMenu.style.display = (!activeUnit && t === 'player' && selectedCellForInfo && selectedCellForInfo.terrain === 'citta' && selectedCellForInfo.owner === 'player' && !getUnitAt(selectedCellForInfo.q, selectedCellForInfo.r)) ? 'block' : 'none';
                 if(!activeUnit && !selectedCellForInfo && t === 'player') det.innerHTML = "<em>Tocca un esagono o trascina per esplorare la mappa.</em>";
             }
