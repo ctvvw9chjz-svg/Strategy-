@@ -121,7 +121,7 @@
                 </div>
             </div>
 
-            <!-- Impostazioni Nascoste -->
+            <!-- Impostazioni Partita -->
             <div id="setup-options" style="display:none; margin-top: 40px; border-top: 1px dashed var(--panel-border); padding-top: 20px;">
                 <h3 id="setup-title">Impostazioni Partita</h3>
                 <div style="display:flex; width:100%; gap:30px; margin-top:20px; flex-wrap:wrap;">
@@ -142,6 +142,12 @@
                         </div>
                     </div>
                 </div>
+
+                <div style="text-align:center; margin-top:20px; font-size: 0.95rem; background: #fff; padding: 15px; border-radius: 4px; border: 1px dashed var(--panel-border);">
+                    <label style="margin-right: 15px; cursor: pointer;"><input type="checkbox" id="fogToggle" checked> Oscurità (Nebbia di Guerra)</label>
+                    <label style="cursor: pointer;"><input type="checkbox" id="neutralToggle" checked> Genera Mostri e Banditi Neutrali</label>
+                </div>
+
                 <div style="text-align: center;">
                     <button class="primary-action" onclick="goToDraft()">Alla Tenda di Reclutamento <i class="fa-solid fa-arrow-right"></i></button>
                 </div>
@@ -193,7 +199,6 @@
                     <div class="gold-display" id="ui-gold-display"><i class="fa-solid fa-coins"></i> Oro: 0</div>
                     <div class="action-points" id="ap-container"></div>
                     
-                    <!-- Box Alleanze (Mostrato solo nel Signore Oscuro) -->
                     <div id="alliance-box" style="display:none; margin-bottom:10px; font-size:0.85rem; padding:8px; border-radius:4px; background:#e8f5e9; border:1px solid #81c784;">
                         <strong>Diplomazia Reale:</strong><br>
                         <span id="alliance-text"></span>
@@ -233,19 +238,12 @@
     </div>
 
     <script>
-        const IMG_BOSCO = new Image(); IMG_BOSCO.src = 'image.png.jpg';
-        const IMG_DESERTO = new Image(); IMG_DESERTO.src = 'image_2.png.jpg';
-        const IMG_MONTAGNA = new Image(); IMG_MONTAGNA.src = 'image_3.png.jpg';
-        const IMG_CITTA = new Image(); IMG_CITTA.src = 'image_4.png.jpg';
-
         let gameMode = 'skirmish';
         let cfg = { diff: 'Normale', radius: 6, unitCount: 5, teams: 2, fog: true, neutral: true };
         let maxAP = 5;
         
         let teamGold = { player: 200, enemy: 200, team3: 200, team4: 200 };
         let recruitTargetCell = null;
-        
-        // MATRICE DIPLOMAZIA (Quante volte il player ha attaccato un team alleato)
         let playerAggression = { team3: 0, team4: 0 };
 
         const ICONS = {
@@ -347,19 +345,17 @@
         function hexDist(a, b) { return (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(-a.q-a.r + b.q+b.r)) / 2; }
         function getNeighbors(q, r) { return [[1,0], [1,-1], [0,-1], [-1,0], [-1,1], [0,1]].map(d => ({q: q+d[0], r: r+d[1]})); }
 
-        // === SISTEMA DIPLOMAZIA E ALLEANZE ===
         function isEnemy(teamA, teamB) {
             if (teamA === teamB) return false;
             if (teamA === 'neutral' || teamB === 'neutral') return true;
             
             if (gameMode === 'darklord') {
-                if (teamA === 'enemy' || teamB === 'enemy') return true; // Il Signore Oscuro (enemy) odia tutti
-                // Controllo tolleranza per alleanze infrante
+                if (teamA === 'enemy' || teamB === 'enemy') return true; 
                 if (teamA === 'player' && playerAggression[teamB] >= 2) return true;
                 if (teamB === 'player' && playerAggression[teamA] >= 2) return true;
-                return false; // Altrimenti sono alleati!
+                return false; 
             }
-            return true; // Nella schermaglia normale, tutti sono nemici
+            return true; 
         }
 
         function openSetup(mode) {
@@ -379,8 +375,11 @@
         function selectTeams(v, b) { cfg.teams = v; updateBtnGroup('team-group', b); }
 
         function goToDraft() {
-            cfg.fog = document.getElementById('fogToggle').checked;
-            cfg.neutral = document.getElementById('neutralToggle').checked;
+            let fogEl = document.getElementById('fogToggle');
+            let neuEl = document.getElementById('neutralToggle');
+            cfg.fog = fogEl ? fogEl.checked : true;
+            cfg.neutral = neuEl ? neuEl.checked : true;
+
             document.getElementById('screen-config').classList.remove('active');
             document.getElementById('screen-draft').classList.add('active');
             document.getElementById('max-draft').innerText = 5; 
@@ -424,10 +423,9 @@
             document.getElementById('action-log').innerHTML = '';
             board.clear(); units = []; loots = []; exploredMap.clear(); visMap.clear();
 
-            // Reset Sistemi
             playerAggression = { team3: 0, team4: 0 };
             teamGold = { player: 200, enemy: 200, team3: 200, team4: 200 };
-            if(gameMode === 'darklord') teamGold.enemy = 1500; // Il tesoro del Signore Oscuro
+            if(gameMode === 'darklord') teamGold.enemy = 1500; 
 
             pDeployQueue = playerRosterKeys.map(k => createUnitObj(k, 'player'));
             turnOrder = ['player'];
@@ -437,7 +435,7 @@
                 botDeployQueues[t] = [];
                 
                 let troopsToSpawn = 5;
-                if(gameMode === 'darklord' && t === 'enemy') troopsToSpawn = 12; // Esercito Oscuro
+                if(gameMode === 'darklord' && t === 'enemy') troopsToSpawn = 12; 
                 
                 for(let j=0; j<troopsToSpawn; j++) {
                     botDeployQueues[t].push(createUnitObj(keys[Math.floor(Math.random()*keys.length)], t));
@@ -495,12 +493,10 @@
             let teamsArr = TEAMS.slice(0, cfg.teams);
             
             if (gameMode === 'darklord') {
-                // Dominio Oscuro
                 board.get(`0,-${cfg.radius-2}`).terrain = 'citta'; board.get(`0,-${cfg.radius-2}`).owner = 'enemy'; board.get(`0,-${cfg.radius-2}`).spawnTeam = 'enemy';
                 board.get(`2,-${cfg.radius-3}`).terrain = 'citta'; board.get(`2,-${cfg.radius-3}`).owner = 'enemy'; board.get(`2,-${cfg.radius-3}`).spawnTeam = 'enemy';
                 board.get(`-2,-${cfg.radius-3}`).terrain = 'citta'; board.get(`-2,-${cfg.radius-3}`).owner = 'enemy'; board.get(`-2,-${cfg.radius-3}`).spawnTeam = 'enemy';
                 
-                // Alleanza
                 board.get(`0,${cfg.radius-2}`).terrain = 'citta'; board.get(`0,${cfg.radius-2}`).owner = 'player'; board.get(`0,${cfg.radius-2}`).spawnTeam = 'player';
                 board.get(`-${cfg.radius-2},0`).terrain = 'citta'; board.get(`-${cfg.radius-2},0`).owner = 'team3'; board.get(`-${cfg.radius-2},0`).spawnTeam = 'team3';
                 if(cfg.teams === 4) { board.get(`${cfg.radius-2},0`).terrain = 'citta'; board.get(`${cfg.radius-2},0`).owner = 'team4'; board.get(`${cfg.radius-2},0`).spawnTeam = 'team4'; }
@@ -652,7 +648,6 @@
                 if(other.id === u.id || other.passenger) return;
                 let dist = hexDist(u, other);
                 if(u.perk === 'healer' && other.team === u.team && dist <= myRng && checkLOS(u, other)) acts.set(`${other.q},${other.r}`, {q:other.q, r:other.r, tgt: other, t: 'heal'});
-                // Puoi mirare anche gli alleati... se sbagli, paghi le conseguenze!
                 else if(other.team !== u.team && dist <= myRng && checkLOS(u, other)) {
                     if(other.perk === 'stealth' && !other.isVisible && isEnemy(u.team, other.team)) return;
                     acts.set(`${other.q},${other.r}`, {q:other.q, r:other.r, tgt: other, t: 'atk'});
@@ -889,7 +884,6 @@
             if(defU.team === 'neutral') defU.provoked = true;
             if(atkU.team === 'neutral') atkU.provoked = true;
 
-            // DIPLOMAZIA: Segna il tradimento se attacchi un alleato
             if (gameMode === 'darklord' && atkU.team === 'player' && (defU.team === 'team3' || defU.team === 'team4')) {
                 playerAggression[defU.team]++;
                 if (playerAggression[defU.team] === 1) logAction(`<strong style="color:red">⚠️ Attenzione: Hai attaccato l'alleato ${defU.team.toUpperCase()}! Al prossimo sgarro l'alleanza si romperà.</strong>`);
@@ -983,7 +977,6 @@
             if (gameState !== 'playing' || turnOrder[currentTeamIdx] === 'player') return;
             let t = turnOrder[currentTeamIdx];
             
-            // IA RECLUTAMENTO
             let aiOwnedCities = Array.from(board.values()).filter(c => c.owner === t && c.terrain === 'citta' && !getUnitAt(c.q, c.r));
             if(aiOwnedCities.length > 0 && teamGold[t] >= 150) {
                 let keys = Object.keys(TEMPLATES.fantasy).filter(k => TEMPLATES.fantasy[k].cost <= teamGold[t]);
@@ -1006,7 +999,6 @@
 
                 let u = avail[Math.floor(Math.random() * avail.length)];
                 let mvs = Array.from(getValidMoves(u).values());
-                // LA IA PUNTA SOLO I VERI NEMICI
                 let ens = units.filter(e => isEnemy(t, e.team));
                 let targetLocs = Array.from(board.values()).filter(c => (c.terrain==='citta' || c.terrain==='villaggio') && isEnemy(t, c.owner || 'neutral'));
 
@@ -1121,4 +1113,3 @@
     </script>
 </body>
 </html>
-
