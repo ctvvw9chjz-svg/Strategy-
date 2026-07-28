@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -123,7 +123,7 @@
             </div>
             
             <div style="text-align:center; margin-top:25px; font-size: 0.95rem; background: #fff; padding: 15px; border-radius: 4px; border: 1px dashed var(--panel-border);">
-                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot"></i> La mappa (Stile Civ-6) ha punti di partenza separati per manovre a tenaglia.</p>
+                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot"></i> La mappa ha punti di partenza separati per manovre a tenaglia.</p>
                 <label style="margin-right: 15px; cursor: pointer;"><input type="checkbox" id="fogToggle" checked> Oscurità (Nebbia di Guerra)</label>
                 <label style="cursor: pointer;"><input type="checkbox" id="neutralToggle" checked> Genera Reliquie & Pozioni Mappa</label>
             </div>
@@ -205,6 +205,12 @@
     </div>
 
     <script>
+        // === CARICAMENTO IMMAGINI BIOMI (TEXTURES) ===
+        const IMG_BOSCO = new Image(); IMG_BOSCO.src = 'image.png';
+        const IMG_DESERTO = new Image(); IMG_DESERTO.src = 'image_2.png';
+        const IMG_MONTAGNA = new Image(); IMG_MONTAGNA.src = 'image_3.png';
+        const IMG_CITTA = new Image(); IMG_CITTA.src = 'image_4.png';
+
         // === CONFIGURAZIONE E STRUTTURE DATI ===
         let cfg = { diff: 'Normale', radius: 5, unitCount: 5, teams: 2, fog: true, neutral: true };
         let maxAP = 3;
@@ -266,13 +272,13 @@
         };
 
         const TERRAINS = {
-            pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#819a62', cTop: '#95b172' },
-            bosco: { id: 'Foresta Antica', walk: true, cover: 15, cMain: '#3b5e30', cTop: '#456d38' },    
-            deserto: { id: 'Deserto', walk: true, cover: 0, cMain: '#d4c28c', cTop: '#e8d59b' },
-            montagna: { id: 'Picco Roccioso', walk: false, cover: 0, cMain: '#5a5652', cTop: '#6b6762', blockLOS: true },
-            collina: { id: 'Colline', walk: true, cover: 5, cMain: '#6c8a4a', cTop: '#7c9d57' },
-            citta: { id: 'Città Fortificata', walk: true, cover: 40, cMain: '#807a72', cTop: '#928c83', blockLOS: true },     
-            vuoto: { id: 'Vuoto', walk: false, cover: 0, cMain: 'transparent', cTop: 'transparent' }
+            pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#819a62', cTop: '#95b172', img: null },
+            bosco: { id: 'Foresta Antica', walk: true, cover: 15, cMain: '#3b5e30', cTop: '#456d38', img: IMG_BOSCO },    
+            deserto: { id: 'Deserto', walk: true, cover: 0, cMain: '#c8b67b', cTop: '#dbca91', img: IMG_DESERTO },
+            montagna: { id: 'Picco Roccioso', walk: false, cover: 0, cMain: '#5a5652', cTop: '#6b6762', blockLOS: true, img: IMG_MONTAGNA },
+            collina: { id: 'Colline', walk: true, cover: 5, cMain: '#6c8a4a', cTop: '#7c9d57', img: IMG_MONTAGNA },
+            citta: { id: 'Città Fortificata', walk: true, cover: 40, cMain: '#807a72', cTop: '#928c83', blockLOS: true, img: IMG_CITTA },     
+            vuoto: { id: 'Vuoto', walk: false, cover: 0, cMain: 'transparent', cTop: 'transparent', img: null }
         };
 
         const TEAMS = ['player', 'enemy', 'team3', 'team4'];
@@ -679,7 +685,7 @@
             return acts;
         }
 
-        // === RENDER ENGINE CANVAS (Vettoriale Stile Civ) ===
+        // === RENDER ENGINE CANVAS ===
         function drawHex(x, y, size) {
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
@@ -688,77 +694,6 @@
                 else ctx.lineTo(x + size * Math.cos(a), y + size * Math.sin(a));
             }
             ctx.closePath();
-        }
-        
-        // Disegna arte vettoriale del bioma direttamente su Canvas!
-        function drawTerrainFeatures(ctx, type, x, y) {
-            ctx.save();
-            if (type === 'montagna') {
-                // Ombra (Destra)
-                ctx.fillStyle = '#4a4641';
-                ctx.beginPath(); ctx.moveTo(x-15, y+15); ctx.lineTo(x, y-22); ctx.lineTo(x+20, y+15); ctx.fill();
-                // Luce (Sinistra)
-                ctx.fillStyle = '#6b6762';
-                ctx.beginPath(); ctx.moveTo(x-15, y+15); ctx.lineTo(x, y-22); ctx.lineTo(x+3, y+15); ctx.fill();
-                // Neve
-                ctx.fillStyle = '#e0e0e0';
-                ctx.beginPath(); ctx.moveTo(x, y-22); ctx.lineTo(x-6, y-10); ctx.lineTo(x-2, y-14); ctx.lineTo(x+3, y-8); ctx.lineTo(x+7, y-12); ctx.fill();
-            } else if (type === 'bosco') {
-                // Tronchi
-                ctx.fillStyle = '#4e342e';
-                ctx.fillRect(x-12, y, 4, 12);
-                ctx.fillRect(x+8, y+4, 4, 10);
-                ctx.fillRect(x-2, y-10, 4, 15);
-                // Chiome Scure
-                ctx.fillStyle = '#2e7d32'; 
-                ctx.beginPath(); ctx.arc(x-10, y-2, 10, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(x+10, y+2, 9, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(x, y-14, 11, 0, Math.PI*2); ctx.fill();
-                // Chiome Chiare
-                ctx.fillStyle = '#4caf50'; 
-                ctx.beginPath(); ctx.arc(x-12, y-4, 6, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(x+8, y, 5, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(x-2, y-16, 7, 0, Math.PI*2); ctx.fill();
-            } else if (type === 'deserto') {
-                // Curve delle Dune
-                ctx.strokeStyle = '#c5a871';
-                ctx.lineWidth = 2.5;
-                ctx.beginPath(); ctx.moveTo(x-18, y-2); ctx.quadraticCurveTo(x-5, y-12, x+12, y+5); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x-12, y+10); ctx.quadraticCurveTo(x+2, y, x+18, y+12); ctx.stroke();
-                // Sole o miraggio
-                ctx.fillStyle = 'rgba(255, 200, 0, 0.4)';
-                ctx.beginPath(); ctx.arc(x+12, y-14, 7, 0, Math.PI*2); ctx.fill();
-            } else if (type === 'citta') {
-                // Mura Cittadine
-                ctx.fillStyle = '#78909c';
-                ctx.fillRect(x-18, y-4, 36, 14);
-                // Cancello
-                ctx.fillStyle = '#3e2723';
-                ctx.beginPath(); ctx.arc(x, y+10, 5, Math.PI, 0); ctx.fill();
-                ctx.fillRect(x-5, y+10, 10, 6);
-                // Torri
-                ctx.fillStyle = '#546e7a';
-                ctx.fillRect(x-22, y-12, 10, 24);
-                ctx.fillRect(x+12, y-12, 10, 24);
-                // Tetti Torri
-                ctx.fillStyle = '#b71c1c';
-                ctx.beginPath(); ctx.moveTo(x-23, y-12); ctx.lineTo(x-17, y-26); ctx.lineTo(x-11, y-12); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(x+11, y-12); ctx.lineTo(x+17, y-26); ctx.lineTo(x+23, y-12); ctx.fill();
-            } else if (type === 'collina') {
-                ctx.fillStyle = '#558b2f';
-                ctx.beginPath(); ctx.arc(x-10, y+10, 14, Math.PI, 0); ctx.fill();
-                ctx.fillStyle = '#689f38';
-                ctx.beginPath(); ctx.arc(x+8, y+12, 16, Math.PI, 0); ctx.fill();
-            } else if (type === 'pianura') {
-                // Ciuffi d'erba
-                ctx.strokeStyle = '#689f38';
-                ctx.lineWidth = 1.5;
-                for(let i=0; i<3; i++) {
-                    let ox = (i-1)*12; let oy = (i%2)*6;
-                    ctx.beginPath(); ctx.moveTo(x+ox-3, y+oy-4); ctx.lineTo(x+ox, y+oy); ctx.lineTo(x+ox+3, y+oy-5); ctx.stroke();
-                }
-            }
-            ctx.restore();
         }
         
         function drawStatusDot(x, y, color) {
@@ -801,19 +736,27 @@
                 // Base Esagono
                 drawHex(px.x, px.y, HEX_SIZE + 0.5);
                 ctx.fillStyle = isExp ? t.cMain : '#2c251e'; ctx.fill();
-                drawHex(px.x, px.y, HEX_SIZE - 2);
-                ctx.fillStyle = isExp ? t.cTop : '#3a3128'; ctx.fill();
                 
-                // Disegno Vettoriale del Bioma
-                if(isExp) {
+                if (isExp) {
                     ctx.save();
                     drawHex(px.x, px.y, HEX_SIZE - 2); 
-                    ctx.clip(); // Limita il disegno all'interno dell'esagono
-                    drawTerrainFeatures(ctx, c.terrain, px.x, px.y);
+                    ctx.clip(); // Crea la maschera di ritaglio a forma di esagono
+                    
+                    if(t.img && t.img.complete && t.img.naturalWidth !== 0) {
+                        // Centra e disegna la tua foto tagliandola nell'esagono!
+                        ctx.drawImage(t.img, px.x - HEX_SIZE, px.y - HEX_SIZE, HEX_SIZE * 2, HEX_SIZE * 2);
+                    } else {
+                        // Per la pianura (che non ha foto) o se l'immagine carica lentamente
+                        ctx.fillStyle = t.cTop; ctx.fill();
+                    }
                     ctx.restore();
+                } else {
+                    // Nebbia inesplorata
+                    drawHex(px.x, px.y, HEX_SIZE - 2);
+                    ctx.fillStyle = '#3a3128'; ctx.fill();
                 }
 
-                // Nebbia di Guerra
+                // Oscurità Nebbia di Guerra
                 if(cfg.fog && isExp && !isVis) {
                     drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(10, 8, 5, 0.60)'; ctx.fill();
                 }
