@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Strategia Elegante - Oltre l'Oscurità</title>
+    <title>Strategia Elegante - Il Signore Oscuro</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -31,7 +31,6 @@
         button.selected, .select-btn.selected { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold-hover); }
         button.primary-action { background: var(--accent-gold); color: white; padding: 14px 35px; font-size: 1.2rem; margin-top: 20px; box-shadow: 0 4px 15px rgba(179, 139, 34, 0.3);}
 
-        /* Nuovo Menu Stile Grand Strategy */
         .mode-cards { display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
         .mode-card { flex: 1; min-width: 250px; background: #fff; border: 2px solid var(--panel-border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; }
         .mode-card:hover { border-color: var(--accent-gold); transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
@@ -91,45 +90,43 @@
         .btn-recruit { width: 100%; padding: 12px; font-size: 1.05rem; background: #f57f17; color: white; border: 2px solid #e65100; margin-top: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;}
         .btn-recruit:hover { background: #e65100; border-color: #bf360c; transform: scale(1.02);}
         
-        /* Modal Reclutamento */
         #recruit-modal { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
         .recruit-content { background: var(--panel-bg); padding: 20px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;}
     </style>
 </head>
 <body>
 
-    <!-- NUOVO MENU PRINCIPALE -->
     <div id="screen-config" class="screen active">
         <h1>Tattiche del Regno</h1>
         <div class="main-panel">
             <h2>Scegli la tua Avventura</h2>
             
             <div class="mode-cards">
-                <div class="mode-card" onclick="alert('Lavori in Corso: I 12 Livelli Tutorial verranno aggiunti nel prossimo aggiornamento.')">
+                <div class="mode-card" onclick="alert('Lavori in Corso: I Livelli Tutorial arriveranno con la prossima espansione.')">
                     <i class="fa-solid fa-graduation-cap"></i>
                     <h3>Campagna</h3>
-                    <p>Affronta i tutorial tattici per dominare l'arte della guerra imparando a usare ogni truppa.</p>
+                    <p>Affronta missioni strategiche per imparare i segreti di ogni truppa.</p>
                 </div>
                 
                 <div class="mode-card" onclick="openSetup('skirmish')">
                     <i class="fa-solid fa-chess-board"></i>
                     <h3>Schermaglia</h3>
-                    <p>Partita personalizzata contro altre fazioni. Conquista villaggi ed espandi il tuo esercito.</p>
+                    <p>Partita libera tutti contro tutti. Espandi l'impero e conquista.</p>
                 </div>
 
                 <div class="mode-card" onclick="openSetup('darklord')">
                     <i class="fa-solid fa-skull"></i>
                     <h3>Signore Oscuro</h3>
-                    <p>Sopravvivi a un'enorme armata oscura alleandoti temporaneamente con le altre fazioni.</p>
+                    <p>Alleati per sopravvivere all'imponente armata del Signore Oscuro.</p>
                 </div>
             </div>
 
-            <!-- Impostazioni Nascoste (Si aprono cliccando sulle card) -->
+            <!-- Impostazioni Nascoste -->
             <div id="setup-options" style="display:none; margin-top: 40px; border-top: 1px dashed var(--panel-border); padding-top: 20px;">
                 <h3 id="setup-title">Impostazioni Partita</h3>
                 <div style="display:flex; width:100%; gap:30px; margin-top:20px; flex-wrap:wrap;">
                     <div style="flex:1; min-width:280px; text-align:center;">
-                        <h3>Astuzia Avversaria</h3>
+                        <h3>Astuzia IA</h3>
                         <div class="btn-group" id="diff-group">
                             <button class="select-btn" onclick="selectDiff('Facile', this)">Apprendista</button>
                             <button class="select-btn selected" onclick="selectDiff('Normale', this)">Cavaliere</button>
@@ -146,16 +143,15 @@
                     </div>
                 </div>
                 <div style="text-align: center;">
-                    <button class="primary-action" onclick="goToDraft()">Alla Tenda di Reclutamento Iniziale <i class="fa-solid fa-arrow-right"></i></button>
+                    <button class="primary-action" onclick="goToDraft()">Alla Tenda di Reclutamento <i class="fa-solid fa-arrow-right"></i></button>
                 </div>
             </div>
-
         </div>
     </div>
 
     <div id="screen-draft" class="screen">
         <h1>Esercito Iniziale</h1>
-        <p style="text-align:center; margin-bottom:15px;">Scegli le tue 5 truppe di partenza. Potrai reclutarne altre conquistando le Città.</p>
+        <p style="text-align:center; margin-bottom:15px;">Scegli le tue 5 truppe di partenza. Potrai reclutarne altre spendendo l'Oro generato dalle Città.</p>
         <div class="wiki-container">
             <div class="roster-panel" style="flex: 0.8;">
                 <h3>Il Tuo Battaglione (<span id="draft-count">0</span>/5)</h3>
@@ -177,18 +173,16 @@
     <!-- SCHERMATA GIOCO -->
     <div id="screen-game" class="screen" style="max-width: 100%; padding: 15px;">
         
-        <!-- MODAL RECLUTAMENTO -->
         <div id="recruit-modal">
             <div class="recruit-content">
                 <h2 style="margin-bottom:10px;"><i class="fa-solid fa-coins" style="color:gold;"></i> Recluta Nuove Truppe</h2>
                 <div class="gold-display" id="modal-gold-display">Oro Disponibile: 0</div>
                 <div class="draft-grid" id="modal-recruit-grid"></div>
-                <button onclick="document.getElementById('recruit-modal').style.display='none'" style="margin-top:20px; width:100%;">Annulla e Torna alla Mappa</button>
+                <button onclick="document.getElementById('recruit-modal').style.display='none'" style="margin-top:20px; width:100%;">Annulla</button>
             </div>
         </div>
 
         <div class="game-layout">
-            
             <div id="canvas-container">
                 <canvas id="gameCanvas"></canvas>
             </div>
@@ -196,10 +190,15 @@
             <div class="sidebar">
                 <div class="info-card" style="background: #fff;">
                     <div id="turn-badge" class="turn-badge">...</div>
-                    
-                    <div class="gold-display" id="ui-gold-display" title="Ottieni Oro dominando Città (+75) e Villaggi (+25)"><i class="fa-solid fa-coins"></i> Oro: 0</div>
-
+                    <div class="gold-display" id="ui-gold-display"><i class="fa-solid fa-coins"></i> Oro: 0</div>
                     <div class="action-points" id="ap-container"></div>
+                    
+                    <!-- Box Alleanze (Mostrato solo nel Signore Oscuro) -->
+                    <div id="alliance-box" style="display:none; margin-bottom:10px; font-size:0.85rem; padding:8px; border-radius:4px; background:#e8f5e9; border:1px solid #81c784;">
+                        <strong>Diplomazia Reale:</strong><br>
+                        <span id="alliance-text"></span>
+                    </div>
+
                     <div id="status-msg" style="text-align:center; font-size:0.9rem; margin-bottom:10px; color: var(--text-muted);">...</div>
                     <button id="btn-pass" style="width:100%; padding:8px; font-size:0.95rem; display:none;" onclick="forcePassTurn()">Concludi il Turno</button>
                     
@@ -209,20 +208,16 @@
                     </div>
                     
                     <div id="unit-actions" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                        <button id="btn-camp" class="btn-camp-action" onclick="campActiveUnit()">
-                            <i class="fa-solid fa-campground"></i> Accampati e Fortifica
-                        </button>
+                        <button id="btn-camp" class="btn-camp-action" onclick="campActiveUnit()"><i class="fa-solid fa-campground"></i> Accampati e Fortifica</button>
                     </div>
 
                     <div id="city-actions" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                        <button id="btn-recruit" class="btn-recruit" onclick="openRecruitMenu()">
-                            <i class="fa-solid fa-user-plus"></i> Recluta Esercito
-                        </button>
+                        <button id="btn-recruit" class="btn-recruit" onclick="openRecruitMenu()"><i class="fa-solid fa-user-plus"></i> Recluta Esercito</button>
                     </div>
                 </div>
 
                 <div class="info-card">
-                    <h4 style="margin-bottom:8px; border-bottom: 1px solid var(--panel-border); padding-bottom: 5px; font-family: 'Playfair Display', serif;">Rapporto Forze</h4>
+                    <h4 style="margin-bottom:8px; border-bottom: 1px solid var(--panel-border); padding-bottom: 5px;">Rapporto Forze</h4>
                     <div id="team-rosters"></div>
                 </div>
 
@@ -231,10 +226,9 @@
                 </div>
 
                 <div style="display:flex; gap:10px;">
-                    <button style="flex:1; font-size: 0.8rem;" onclick="if(confirm('Arrendersi e riavviare la mappa?')) location.reload();"><i class="fa-solid fa-right-from-bracket"></i> Esci</button>
+                    <button style="flex:1; font-size: 0.8rem;" onclick="if(confirm('Arrendersi?')) location.reload();"><i class="fa-solid fa-right-from-bracket"></i> Ritirata</button>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -246,11 +240,13 @@
 
         let gameMode = 'skirmish';
         let cfg = { diff: 'Normale', radius: 6, unitCount: 5, teams: 2, fog: true, neutral: true };
-        let maxAP = 3;
+        let maxAP = 5;
         
-        // ECONOMIA
         let teamGold = { player: 200, enemy: 200, team3: 200, team4: 200 };
         let recruitTargetCell = null;
+        
+        // MATRICE DIPLOMAZIA (Quante volte il player ha attaccato un team alleato)
+        let playerAggression = { team3: 0, team4: 0 };
 
         const ICONS = {
             fanteria: '<i class="fa-solid fa-khanda"></i>', arciere: '<i class="fa-solid fa-bow-arrow"></i>',
@@ -267,25 +263,23 @@
             guaritore: '\ue579', stealth: '\uf6fa', trasporto: '\uf474', orrore: '\uf6e2'
         };
 
-        // Aggiunto COSTO IN ORO (cost)
         const B_STAT = { 
             fanteria:   { cost: 100, hp: 100, atk: 30, def: 15, mov: 3, rng: 1, vis: 6, ctr: 1.0, role: "Spadaccino", desc: "Equilibrata, ottima in difesa.", icon: ICONS.fanteria, uni: UNICODES.fanteria },
-            arciere:    { cost: 120, hp: 60,  atk: 40, def: 0,  mov: 3, rng: 4, vis: 7, ctr: 0.0, role: "Arciere", desc: "Letale a distanza, debole in mischia.", icon: ICONS.arciere, uni: UNICODES.arciere },
-            mago:       { cost: 150, hp: 70,  atk: 40, def: 5,  mov: 3, rng: 3, vis: 6, ctr: 0.5, role: "Mago", desc: "Danni costanti a media distanza.", icon: ICONS.mago, uni: UNICODES.mago },
-            esploratore:{ cost: 80,  hp: 55,  atk: 20, def: 0,  mov: 5, rng: 1, vis: 8, ctr: 0.7, role: "Ranger", perk: 'agile', desc: "Molto agile. Ignora malus deserto.", icon: ICONS.esploratore, uni: UNICODES.esploratore },
+            arciere:    { cost: 120, hp: 60,  atk: 40, def: 0,  mov: 3, rng: 4, vis: 7, ctr: 0.0, role: "Arciere", desc: "Letale a distanza.", icon: ICONS.arciere, uni: UNICODES.arciere },
+            mago:       { cost: 150, hp: 70,  atk: 40, def: 5,  mov: 3, rng: 3, vis: 6, ctr: 0.5, role: "Mago", desc: "Danni magici costanti.", icon: ICONS.mago, uni: UNICODES.mago },
+            esploratore:{ cost: 80,  hp: 55,  atk: 20, def: 0,  mov: 5, rng: 1, vis: 8, ctr: 0.7, role: "Ranger", perk: 'agile', desc: "Ignora malus deserto.", icon: ICONS.esploratore, uni: UNICODES.esploratore },
             cavaliereL: { cost: 130, hp: 80,  atk: 30, def: 10, mov: 6, rng: 1, vis: 7, ctr: 0.8, role: "Cavalleria Leggera", perk: 'mounted', desc: "Veloce per fiancheggiamenti.", icon: ICONS.cavaliereL, uni: UNICODES.cavaliereL },
-            cavaliereP: { cost: 200, hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cavaliere Pesante", perk: 'mounted', desc: "Corazzato, rallentato dai boschi.", icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
-            colosso:    { cost: 300, hp: 150, atk: 50, def: 30, mov: 2, rng: 1, vis: 5, ctr: 1.0, role: "Golem", desc: "Lentissimo, massimi HP e Danni.", icon: ICONS.colosso, uni: UNICODES.colosso },
-            difensore:  { cost: 180, hp: 140, atk: 25, def: 30, mov: 2, rng: 1, vis: 6, ctr: 0.8, role: "Paladino", perk: 'aura_shield', desc: "Aura: +20 Def agli alleati vicini.", icon: ICONS.difensore, uni: UNICODES.difensore },
-            guaritore:  { cost: 150, hp: 60,  atk: 15, def: 5,  mov: 3, rng: 2, vis: 6, ctr: 0.2, role: "Chierico", perk: 'healer', desc: "Cura 30 HP. Non attacca.", icon: ICONS.guaritore, uni: UNICODES.guaritore },
-            stealth:    { cost: 140, hp: 50,  atk: 50, def: 0,  mov: 4, rng: 1, vis: 7, ctr: 0.5, role: "Ombra", perk: 'stealth', desc: "Invisibile finché non è adiacente.", icon: ICONS.stealth, uni: UNICODES.stealth },
-            trasporto:  { cost: 100, hp: 100, atk: 10, def: 15, mov: 5, rng: 1, vis: 6, ctr: 0.2, role: "Carrozza", perk: 'transport', desc: "Trasporta una truppa alleata.", icon: ICONS.trasporto, uni: UNICODES.trasporto },
-            orrore:     { cost: 220, hp: 80,  atk: 30, def: 10, mov: 4, rng: 1, vis: 6, ctr: 0.8, role: "Banshee", perk: 'aura_terror', desc: "Aura: -20% Atk ai nemici vicini.", icon: ICONS.orrore, uni: UNICODES.orrore }
+            cavaliereP: { cost: 200, hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cavaliere Pesante", perk: 'mounted', desc: "Corazzato, odia i boschi.", icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
+            colosso:    { cost: 300, hp: 150, atk: 50, def: 30, mov: 2, rng: 1, vis: 5, ctr: 1.0, role: "Golem", desc: "Lentissimo ma devastante.", icon: ICONS.colosso, uni: UNICODES.colosso },
+            difensore:  { cost: 180, hp: 140, atk: 25, def: 30, mov: 2, rng: 1, vis: 6, ctr: 0.8, role: "Paladino", perk: 'aura_shield', desc: "Aura: +20 Def agli alleati.", icon: ICONS.difensore, uni: UNICODES.difensore },
+            guaritore:  { cost: 150, hp: 60,  atk: 15, def: 5,  mov: 3, rng: 2, vis: 6, ctr: 0.2, role: "Chierico", perk: 'healer', desc: "Cura 30 HP.", icon: ICONS.guaritore, uni: UNICODES.guaritore },
+            stealth:    { cost: 140, hp: 50,  atk: 50, def: 0,  mov: 4, rng: 1, vis: 7, ctr: 0.5, role: "Ombra", perk: 'stealth', desc: "Invisibile finché distante.", icon: ICONS.stealth, uni: UNICODES.stealth },
+            trasporto:  { cost: 100, hp: 100, atk: 10, def: 15, mov: 5, rng: 1, vis: 6, ctr: 0.2, role: "Carrozza", perk: 'transport', desc: "Trasporta una truppa.", icon: ICONS.trasporto, uni: UNICODES.trasporto },
+            orrore:     { cost: 220, hp: 80,  atk: 30, def: 10, mov: 4, rng: 1, vis: 6, ctr: 0.8, role: "Banshee", perk: 'aura_terror', desc: "Aura: -20% Atk ai nemici.", icon: ICONS.orrore, uni: UNICODES.orrore }
         };
 
         const TEMPLATES = { fantasy: { ...B_STAT } };
 
-        // Aggiunto il VILLAGGIO
         const TERRAINS = {
             pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#7cb342', cSide: '#558b2f' },
             bosco: { id: 'Foresta', walk: true, cover: 15, cMain: '#43a047', cSide: '#2e7d32' },    
@@ -304,7 +298,7 @@
         let exploredMap = new Map(), visMap = new Map();
         
         let gameState = 'config', turnOrder = [], currentTeamIdx = 0;
-        let activeUnit = null;
+        let activeUnit = null, actionsLeft = 5;
         let playerRosterKeys = [], pDeployQueue = [], botDeployQueues = {}; 
         let selectedDeployIdx = -1;
         let isCombatActive = false;
@@ -321,62 +315,58 @@
         function resizeCanvas() {
             let container = document.getElementById('canvas-container');
             if(container) {
-                canvas.width = container.clientWidth;
-                canvas.height = container.clientHeight;
-                if(gameState !== 'config') {
-                    if(camX === 0 && camY === 0) centerCamera();
-                    renderFrame();
-                }
+                canvas.width = container.clientWidth; canvas.height = container.clientHeight;
+                if(gameState !== 'config') { if(camX === 0 && camY === 0) centerCamera(); renderFrame(); }
             }
         }
         window.addEventListener('resize', resizeCanvas);
-
         function centerCamera() { camX = canvas.width / 2; camY = canvas.height / 2; }
 
-        canvas.addEventListener('pointerdown', e => {
-            isDragging = true; dragMoved = false; dragStartX = e.clientX; dragStartY = e.clientY;
-        });
-
+        canvas.addEventListener('pointerdown', e => { isDragging = true; dragMoved = false; dragStartX = e.clientX; dragStartY = e.clientY; });
         canvas.addEventListener('pointermove', e => {
             if(!isDragging) return;
             let dx = e.clientX - dragStartX; let dy = e.clientY - dragStartY;
             if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
-            camX += dx; camY += dy;
-            dragStartX = e.clientX; dragStartY = e.clientY;
-            renderFrame();
+            camX += dx; camY += dy; dragStartX = e.clientX; dragStartY = e.clientY; renderFrame();
         });
-
         canvas.addEventListener('pointerleave', () => { isDragging = false; });
         canvas.addEventListener('pointercancel', () => { isDragging = false; });
 
-        function hexToPixel(q, r) {
-            let x = HEX_SIZE * Math.sqrt(3) * (q + r/2);
-            let y = HEX_SIZE * 3/2 * r;
-            return { x: x, y: y * Y_SQUASH };
-        }
+        function hexToPixel(q, r) { let x = HEX_SIZE * Math.sqrt(3) * (q + r/2); let y = HEX_SIZE * 3/2 * r; return { x: x, y: y * Y_SQUASH }; }
         function pixelToHex(px, py) {
             let unY = py / Y_SQUASH; 
-            let q = (Math.sqrt(3)/3 * px - 1/3 * unY) / HEX_SIZE;
-            let r = (2/3 * unY) / HEX_SIZE;
+            let q = (Math.sqrt(3)/3 * px - 1/3 * unY) / HEX_SIZE; let r = (2/3 * unY) / HEX_SIZE;
             return hexRound(q, r, -q-r);
         }
         function hexRound(q, r, s) {
             let rq = Math.round(q), rr = Math.round(r), rs = Math.round(s);
             let qd = Math.abs(rq - q), rd = Math.abs(rr - r), sd = Math.abs(rs - s);
-            if (qd > rd && qd > sd) rq = -rr - rs;
-            else if (rd > sd) rr = -rq - rs;
+            if (qd > rd && qd > sd) rq = -rr - rs; else if (rd > sd) rr = -rq - rs;
             return {q: rq, r: rr};
         }
         function hexDist(a, b) { return (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(-a.q-a.r + b.q+b.r)) / 2; }
         function getNeighbors(q, r) { return [[1,0], [1,-1], [0,-1], [-1,0], [-1,1], [0,1]].map(d => ({q: q+d[0], r: r+d[1]})); }
 
-        // === MENU E SETUP ===
+        // === SISTEMA DIPLOMAZIA E ALLEANZE ===
+        function isEnemy(teamA, teamB) {
+            if (teamA === teamB) return false;
+            if (teamA === 'neutral' || teamB === 'neutral') return true;
+            
+            if (gameMode === 'darklord') {
+                if (teamA === 'enemy' || teamB === 'enemy') return true; // Il Signore Oscuro (enemy) odia tutti
+                // Controllo tolleranza per alleanze infrante
+                if (teamA === 'player' && playerAggression[teamB] >= 2) return true;
+                if (teamB === 'player' && playerAggression[teamA] >= 2) return true;
+                return false; // Altrimenti sono alleati!
+            }
+            return true; // Nella schermaglia normale, tutti sono nemici
+        }
+
         function openSetup(mode) {
             gameMode = mode;
             document.getElementById('setup-options').style.display = 'block';
             if (mode === 'darklord') {
                 document.getElementById('setup-title').innerText = "Impostazioni: Il Risveglio del Signore Oscuro";
-                // Forza 3 o 4 team
                 selectTeams(3, document.getElementById('team-group').children[1]);
             } else {
                 document.getElementById('setup-title').innerText = "Impostazioni: Schermaglia";
@@ -385,7 +375,7 @@
 
         function updateBtnGroup(gid, btn) { document.querySelectorAll(`#${gid} .select-btn`).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
         function selectDiff(v, b) { cfg.diff = v; updateBtnGroup('diff-group', b); }
-        function selectUnitCount(c, b) { cfg.unitCount = 5; updateBtnGroup('unit-group', b); } // Bloccato a 5 base, il resto si recluta
+        function selectUnitCount(c, b) { cfg.unitCount = 5; updateBtnGroup('unit-group', b); } 
         function selectTeams(v, b) { cfg.teams = v; updateBtnGroup('team-group', b); }
 
         function goToDraft() {
@@ -393,42 +383,34 @@
             cfg.neutral = document.getElementById('neutralToggle').checked;
             document.getElementById('screen-config').classList.remove('active');
             document.getElementById('screen-draft').classList.add('active');
-            document.getElementById('max-draft').innerText = 5; // Partenza fissa a 5
+            document.getElementById('max-draft').innerText = 5; 
             cfg.unitCount = 5; 
             updateDraftUI();
         }
 
         function updateDraftUI() {
             const grid = document.getElementById('draft-grid'); grid.innerHTML = '';
-            const tpl = TEMPLATES.fantasy;
-            for (let k in tpl) {
-                let u = tpl[k];
-                let isFull = playerRosterKeys.length >= cfg.unitCount;
+            for (let k in TEMPLATES.fantasy) {
+                let u = TEMPLATES.fantasy[k];
+                let isFull = playerRosterKeys.length >= 5;
                 grid.innerHTML += `
                     <div class="unit-card ${isFull?'disabled':''}" onclick="addToRoster('${k}')">
                         <div class="unit-cost"><i class="fa-solid fa-coins"></i> ${u.cost}</div>
                         <div class="u-icon">${u.icon}</div>
-                        <div class="u-info">
-                            <strong>${u.role}</strong><br>
-                            HP: ${u.hp} | Atk: ${u.atk} | Def: ${u.def}%<br>
-                            Mov: ${u.mov} | Rng: ${u.rng} | Vis: ${u.vis}<br>
-                        </div>
+                        <div class="u-info"><strong>${u.role}</strong><br>HP: ${u.hp} | Atk: ${u.atk} | Def: ${u.def}%<br>Mov: ${u.mov} | Rng: ${u.rng} | Vis: ${u.vis}</div>
                     </div>`;
             }
             const bar = document.getElementById('roster-bar'); bar.innerHTML = '';
             if(playerRosterKeys.length === 0) bar.innerHTML = '<p style="font-size: 0.85rem; color: var(--text-muted); font-style: italic;">Seleziona i tuoi 5 campioni iniziali...</p>';
-            playerRosterKeys.forEach((k, i) => {
-                bar.innerHTML += `<div class="roster-chip" onclick="playerRosterKeys.splice(${i},1);updateDraftUI()">
-                    ${tpl[k].icon} <span>${tpl[k].role}</span> <i class="fa-solid fa-xmark" style="color:#d50000;"></i></div>`;
-            });
+            playerRosterKeys.forEach((k, i) => { bar.innerHTML += `<div class="roster-chip" onclick="playerRosterKeys.splice(${i},1);updateDraftUI()">${TEMPLATES.fantasy[k].icon} <span>${TEMPLATES.fantasy[k].role}</span> <i class="fa-solid fa-xmark" style="color:#d50000;"></i></div>`; });
             document.getElementById('draft-count').innerText = playerRosterKeys.length;
-            document.getElementById('btn-start').style.display = playerRosterKeys.length === cfg.unitCount ? 'block' : 'none';
+            document.getElementById('btn-start').style.display = playerRosterKeys.length === 5 ? 'block' : 'none';
         }
-        function addToRoster(k) { if(playerRosterKeys.length < cfg.unitCount) { playerRosterKeys.push(k); updateDraftUI(); } }
+        function addToRoster(k) { if(playerRosterKeys.length < 5) { playerRosterKeys.push(k); updateDraftUI(); } }
 
         function startDeployment() {
-            maxAP = 5; // Nelle partite con espansione servono più AP fissi
-            cfg.radius = 7 + (cfg.teams === 4 ? 2 : 0); // Mappa più grande per ospitare villaggi
+            maxAP = 5; 
+            cfg.radius = gameMode === 'darklord' ? 9 : 7 + (cfg.teams === 4 ? 2 : 0);
             
             document.getElementById('screen-draft').classList.remove('active');
             document.getElementById('screen-game').classList.add('active');
@@ -442,8 +424,10 @@
             document.getElementById('action-log').innerHTML = '';
             board.clear(); units = []; loots = []; exploredMap.clear(); visMap.clear();
 
-            // Reset Economy
+            // Reset Sistemi
+            playerAggression = { team3: 0, team4: 0 };
             teamGold = { player: 200, enemy: 200, team3: 200, team4: 200 };
+            if(gameMode === 'darklord') teamGold.enemy = 1500; // Il tesoro del Signore Oscuro
 
             pDeployQueue = playerRosterKeys.map(k => createUnitObj(k, 'player'));
             turnOrder = ['player'];
@@ -451,22 +435,19 @@
             for(let i=1; i<cfg.teams; i++) {
                 let t = TEAMS[i]; turnOrder.push(t);
                 botDeployQueues[t] = [];
-                // Nelle schermaglie normali, le IA partono con truppe casuali equivalenti
-                for(let j=0; j<cfg.unitCount; j++) {
-                    // Nel Signore Oscuro, il team 'enemy' è pompato
-                    if(gameMode === 'darklord' && t === 'enemy') {
-                        botDeployQueues[t].push(createUnitObj(keys[Math.floor(Math.random()*keys.length)], t));
-                        botDeployQueues[t].push(createUnitObj(keys[Math.floor(Math.random()*keys.length)], t)); // Doppie truppe!
-                    } else {
-                        botDeployQueues[t].push(createUnitObj(keys[Math.floor(Math.random()*keys.length)], t));
-                    }
+                
+                let troopsToSpawn = 5;
+                if(gameMode === 'darklord' && t === 'enemy') troopsToSpawn = 12; // Esercito Oscuro
+                
+                for(let j=0; j<troopsToSpawn; j++) {
+                    botDeployQueues[t].push(createUnitObj(keys[Math.floor(Math.random()*keys.length)], t));
                 }
             }
 
             generateHexMap();
             
             if(cfg.neutral) {
-                let numNeutrals = Math.floor(cfg.radius);
+                let numNeutrals = Math.floor(cfg.radius * 1.5);
                 for(let i=0; i<numNeutrals; i++) {
                     let u = createUnitObj(keys[Math.floor(Math.random()*keys.length)], 'neutral');
                     placeRandom(u);
@@ -486,7 +467,7 @@
         function getUnitAt(q, r) { return units.find(u => u.q === q && u.r === r); }
 
         function placeRandom(u) {
-            let cells = Array.from(board.values()).filter(c => c.terrain !== 'vuoto' && !c.spawnTeam && !getUnitAt(c.q, c.r));
+            let cells = Array.from(board.values()).filter(c => c.terrain !== 'vuoto' && !c.spawnTeam && !getUnitAt(c.q, c.r) && c.terrain !== 'citta');
             if(cells.length > 0) { let c = cells[Math.floor(Math.random()*cells.length)]; u.q = c.q; u.r = c.r; units.push(u); }
         }
 
@@ -496,7 +477,6 @@
                 let r2 = Math.min(cfg.radius, -q + cfg.radius);
                 for (let r = r1; r <= r2; r++) {
                     let isVoid = Math.random() < 0.05 && Math.abs(q)>2 && Math.abs(r)>2;
-                    // Aggiunto "owner: null" per le proprietà di città e villaggi
                     if(!isVoid) board.set(`${q},${r}`, {q, r, terrain: 'pianura', spawnTeam: null, owner: null});
                 }
             }
@@ -508,41 +488,31 @@
                 for(let j=0; j<8; j++) {
                     if(board.has(`${q},${r}`)) board.get(`${q},${r}`).terrain = b;
                     let ns = getNeighbors(q, r);
-                    let n = ns[Math.floor(Math.random()*ns.length)];
-                    q = n.q; r = n.r;
+                    let n = ns[Math.floor(Math.random()*ns.length)]; q = n.q; r = n.r;
                 }
             }
 
-            // Generazione Asimmetrica Signore Oscuro vs Simmetrica Schermaglia
             let teamsArr = TEAMS.slice(0, cfg.teams);
             
             if (gameMode === 'darklord') {
-                // Il Signore Oscuro ha il Nord/Est ed enormi vantaggi
+                // Dominio Oscuro
                 board.get(`0,-${cfg.radius-2}`).terrain = 'citta'; board.get(`0,-${cfg.radius-2}`).owner = 'enemy'; board.get(`0,-${cfg.radius-2}`).spawnTeam = 'enemy';
                 board.get(`2,-${cfg.radius-3}`).terrain = 'citta'; board.get(`2,-${cfg.radius-3}`).owner = 'enemy'; board.get(`2,-${cfg.radius-3}`).spawnTeam = 'enemy';
+                board.get(`-2,-${cfg.radius-3}`).terrain = 'citta'; board.get(`-2,-${cfg.radius-3}`).owner = 'enemy'; board.get(`-2,-${cfg.radius-3}`).spawnTeam = 'enemy';
                 
-                // Player a Sud
+                // Alleanza
                 board.get(`0,${cfg.radius-2}`).terrain = 'citta'; board.get(`0,${cfg.radius-2}`).owner = 'player'; board.get(`0,${cfg.radius-2}`).spawnTeam = 'player';
-                // Team 3 a Sud/Ovest
                 board.get(`-${cfg.radius-2},0`).terrain = 'citta'; board.get(`-${cfg.radius-2},0`).owner = 'team3'; board.get(`-${cfg.radius-2},0`).spawnTeam = 'team3';
-                // Team 4 a Sud/Est se esiste
                 if(cfg.teams === 4) { board.get(`${cfg.radius-2},0`).terrain = 'citta'; board.get(`${cfg.radius-2},0`).owner = 'team4'; board.get(`${cfg.radius-2},0`).spawnTeam = 'team4'; }
-
             } else {
-                // Generazione Simmetrica: 1 Città a testa negli angoli
-                let citySpawns = [
-                    {q: 0, r: cfg.radius-2, t: 'player'}, {q: 0, r: -cfg.radius+2, t: 'enemy'},
-                    {q: -cfg.radius+2, r: 0, t: 'team3'}, {q: cfg.radius-2, r: 0, t: 'team4'}
-                ];
+                let citySpawns = [ {q: 0, r: cfg.radius-2, t: 'player'}, {q: 0, r: -cfg.radius+2, t: 'enemy'}, {q: -cfg.radius+2, r: 0, t: 'team3'}, {q: cfg.radius-2, r: 0, t: 'team4'} ];
                 for(let i=0; i<cfg.teams; i++) {
-                    let s = citySpawns[i];
-                    let cell = board.get(`${s.q},${s.r}`);
+                    let s = citySpawns[i]; let cell = board.get(`${s.q},${s.r}`);
                     if(cell) { cell.terrain = 'citta'; cell.owner = s.t; cell.spawnTeam = s.t; }
                 }
             }
 
-            // Disseminazione dei Villaggi Neutrali
-            let numVillages = cfg.radius;
+            let numVillages = cfg.radius * 1.5;
             let flatCells = Array.from(board.values()).filter(c => c.terrain === 'pianura' || c.terrain === 'bosco');
             for(let i=0; i<numVillages; i++) {
                 if(flatCells.length > 0) {
@@ -552,7 +522,6 @@
                 }
             }
 
-            // Espansione Spawn Points attorno alle città
             teamsArr.forEach(t => {
                 let tCells = Array.from(board.values()).filter(c => c.spawnTeam === t);
                 tCells.forEach(tc => {
@@ -574,24 +543,19 @@
 
             if(pRem === 0 && bRem === 0) {
                 gameState = 'playing'; currentTeamIdx = 0; 
-                while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0) {
-                    currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length;
-                }
+                while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0) { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; }
                 let firstTeam = turnOrder[currentTeamIdx];
                 actionsLeft = maxAP;
                 units.forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
                 
                 logAction("<i class='fa-solid fa-play'></i> SCHIERAMENTO COMPLETATO! Inizia la battaglia.");
                 updateUI(); renderFrame(); 
-                
                 if(firstTeam !== 'player') setTimeout(aiTurn, 1000);
-                else logAction(`<strong style="color:var(--text-main);"><i class="fa-solid fa-hourglass-start"></i> TURNO: PLAYER</strong>`);
                 return;
             }
 
             if ((t === 'player' && pRem === 0) || (t !== 'player' && botDeployQueues[t].length === 0)) {
-                currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length;
-                handleDeployTurn(); return;
+                currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; handleDeployTurn(); return;
             }
 
             if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 50); } 
@@ -624,10 +588,8 @@
                     if(other.id === u.id || other.passenger) return;
                     let dist = hexDist(u, other);
                     if(other.perk === 'aura_shield' && other.team === u.team && dist === 1) u.auraDef += 20;
-                    if(other.perk === 'aura_terror' && other.team !== u.team && dist <= 2) u.auraAtkDrop += 20;
-                    if(other.team !== u.team && other.team !== 'neutral' && dist === 1) {
-                        eCount++; if(u.perk === 'stealth') u.isVisible = true; 
-                    }
+                    if(other.perk === 'aura_terror' && isEnemy(u.team, other.team) && dist <= 2) u.auraAtkDrop += 20;
+                    if(isEnemy(u.team, other.team) && dist === 1) { eCount++; if(u.perk === 'stealth') u.isVisible = true; }
                 });
                 u.surrounded = eCount >= 2;
             });
@@ -650,77 +612,55 @@
 
         function getValidMoves(u) {
             if(u.hasMovedThisTurn) return new Map();
-            let moves = new Map();
-            let frontier = [{ q: u.q, r: u.r, cost: 0 }];
-            moves.set(`${u.q},${u.r}`, {q: u.q, r: u.r, cost: 0});
-            
+            let moves = new Map(); let frontier = [{ q: u.q, r: u.r, cost: 0 }]; moves.set(`${u.q},${u.r}`, {q: u.q, r: u.r, cost: 0});
             while(frontier.length > 0) {
-                frontier.sort((a,b) => a.cost - b.cost);
-                let curr = frontier.shift();
-                if(curr.cost >= u.mov) continue;
-                
+                frontier.sort((a,b) => a.cost - b.cost); let curr = frontier.shift(); if(curr.cost >= u.mov) continue;
                 getNeighbors(curr.q, curr.r).forEach(n => {
-                    let cell = board.get(`${n.q},${n.r}`);
-                    if(!cell || !TERRAINS[cell.terrain].walk) return;
-                    let occ = getUnitAt(n.q, n.r);
-                    let canLoad = (u.perk === 'transport' && !u.passenger && occ && occ.team === u.team && occ.perk !== 'transport');
+                    let cell = board.get(`${n.q},${n.r}`); if(!cell || !TERRAINS[cell.terrain].walk) return;
+                    let occ = getUnitAt(n.q, n.r); let canLoad = (u.perk === 'transport' && !u.passenger && occ && occ.team === u.team && occ.perk !== 'transport');
                     if(occ && !canLoad) return;
-
                     let cost = curr.cost + 1;
                     if(cell.terrain === 'citta') cost += 2; 
                     else if(cell.terrain === 'deserto' && u.perk !== 'agile') cost++;
                     else if(cell.terrain === 'bosco' && u.perk === 'mounted') cost++;
-
-                    let currCell = board.get(`${curr.q},${curr.r}`);
-                    if(currCell && currCell.terrain === 'citta') cost += 1; 
+                    let currCell = board.get(`${curr.q},${curr.r}`); if(currCell && currCell.terrain === 'citta') cost += 1; 
 
                     if(cost <= u.mov) {
                         if(!moves.has(`${n.q},${n.r}`) || moves.get(`${n.q},${n.r}`).cost > cost) {
-                            moves.set(`${n.q},${n.r}`, { q: n.q, r: n.r, cost, isLoad: canLoad, target: occ });
-                            frontier.push({ q: n.q, r: n.r, cost });
+                            moves.set(`${n.q},${n.r}`, { q: n.q, r: n.r, cost, isLoad: canLoad, target: occ }); frontier.push({ q: n.q, r: n.r, cost });
                         }
                     }
                 });
             }
-            moves.delete(`${u.q},${u.r}`);
-            return moves;
+            moves.delete(`${u.q},${u.r}`); return moves;
         }
 
         function hexLerp(a, b, t) { return { q: a.q + (b.q - a.q)*t, r: a.r + (b.r - a.r)*t, s: a.s + (b.s - a.s)*t }; }
         function checkLOS(a, b) {
-            let dist = hexDist(a, b);
-            if (dist <= 1) return true; 
+            let dist = hexDist(a, b); if (dist <= 1) return true; 
             let a3 = {q:a.q, r:a.r, s:-a.q-a.r}, b3 = {q:b.q, r:b.r, s:-b.q-b.r};
             for(let i=1; i<dist; i++) {
-                let lerp = hexLerp(a3, b3, 1.0/dist * i);
-                let h = hexRound(lerp.q, lerp.r, lerp.s);
-                let cell = board.get(`${h.q},${h.r}`);
-                if(!cell || TERRAINS[cell.terrain].blockLOS) return false; 
+                let lerp = hexLerp(a3, b3, 1.0/dist * i); let h = hexRound(lerp.q, lerp.r, lerp.s);
+                let cell = board.get(`${h.q},${h.r}`); if(!cell || TERRAINS[cell.terrain].blockLOS) return false; 
             }
             return true;
         }
 
         function getValidActions(u) {
-            let acts = new Map();
-            let cell = board.get(`${u.q},${u.r}`);
-            let myRng = u.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
-            
+            let acts = new Map(); let cell = board.get(`${u.q},${u.r}`); let myRng = u.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
             units.forEach(other => {
                 if(other.id === u.id || other.passenger) return;
                 let dist = hexDist(u, other);
-                if(u.perk === 'healer' && other.team === u.team && dist <= myRng && checkLOS(u, other)) {
-                    acts.set(`${other.q},${other.r}`, {q:other.q, r:other.r, tgt: other, t: 'heal'});
-                }
+                if(u.perk === 'healer' && other.team === u.team && dist <= myRng && checkLOS(u, other)) acts.set(`${other.q},${other.r}`, {q:other.q, r:other.r, tgt: other, t: 'heal'});
+                // Puoi mirare anche gli alleati... se sbagli, paghi le conseguenze!
                 else if(other.team !== u.team && dist <= myRng && checkLOS(u, other)) {
-                    if(other.perk === 'stealth' && !other.isVisible && u.team !== other.team) return;
+                    if(other.perk === 'stealth' && !other.isVisible && isEnemy(u.team, other.team)) return;
                     acts.set(`${other.q},${other.r}`, {q:other.q, r:other.r, tgt: other, t: 'atk'});
                 }
             });
-
             if(u.perk === 'transport' && u.passenger) {
                 getNeighbors(u.q, u.r).forEach(n => {
-                    let c = board.get(`${n.q},${n.r}`);
-                    if(c && TERRAINS[c.terrain].walk && !getUnitAt(n.q, n.r)) acts.set(`${n.q},${n.r}`, {q:n.q, r:n.r, t: 'unload'});
+                    let c = board.get(`${n.q},${n.r}`); if(c && TERRAINS[c.terrain].walk && !getUnitAt(n.q, n.r)) acts.set(`${n.q},${n.r}`, {q:n.q, r:n.r, t: 'unload'});
                 });
             }
             return acts;
@@ -730,52 +670,31 @@
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
                 let a = Math.PI / 180 * (60 * i - 30);
-                let vx = x + size * Math.cos(a);
-                let vy = y + (size * Math.sin(a)) * Y_SQUASH;
-                if(i===0) ctx.moveTo(vx, vy);
-                else ctx.lineTo(vx, vy);
+                let vx = x + size * Math.cos(a); let vy = y + (size * Math.sin(a)) * Y_SQUASH;
+                if(i===0) ctx.moveTo(vx, vy); else ctx.lineTo(vx, vy);
             }
             ctx.closePath();
         }
 
         function draw3DTile(ctx, x, y, size, topColor, sideColor, owner) {
-            let depth = 6;
-            drawHexPath(ctx, x, y + depth, size);
-            ctx.fillStyle = sideColor; ctx.fill();
-            drawHexPath(ctx, x, y, size);
-            ctx.fillStyle = topColor; ctx.fill();
-            
-            // Colora il bordo se conquistata
-            if(owner && COLORS[owner]) {
-                ctx.lineWidth = 4; ctx.strokeStyle = COLORS[owner]; ctx.stroke();
-            } else {
-                ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.stroke();
-            }
+            let depth = 6; drawHexPath(ctx, x, y + depth, size); ctx.fillStyle = sideColor; ctx.fill();
+            drawHexPath(ctx, x, y, size); ctx.fillStyle = topColor; ctx.fill();
+            if(owner && COLORS[owner]) { ctx.lineWidth = 4; ctx.strokeStyle = COLORS[owner]; ctx.stroke(); } 
+            else { ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.stroke(); }
         }
 
         function drawTerrainFeatures(ctx, type, x, y, size) {
             ctx.save();
             if (type === 'montagna') {
-                ctx.fillStyle = '#4a4641'; 
-                ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x-size*0.7, y+size*0.2); ctx.lineTo(x, y+size*0.5); ctx.fill();
-                ctx.fillStyle = '#6b6762'; 
-                ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x+size*0.8, y+size*0.1); ctx.lineTo(x, y+size*0.5); ctx.fill();
-                ctx.fillStyle = '#f0f4f8';
-                ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x-size*0.28, y-size*0.7); ctx.lineTo(x, y-size*0.8); ctx.lineTo(x+size*0.32, y-size*0.75); ctx.fill();
+                ctx.fillStyle = '#4a4641'; ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x-size*0.7, y+size*0.2); ctx.lineTo(x, y+size*0.5); ctx.fill();
+                ctx.fillStyle = '#6b6762'; ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x+size*0.8, y+size*0.1); ctx.lineTo(x, y+size*0.5); ctx.fill();
+                ctx.fillStyle = '#f0f4f8'; ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x-size*0.28, y-size*0.7); ctx.lineTo(x, y-size*0.8); ctx.lineTo(x+size*0.32, y-size*0.75); ctx.fill();
             } 
             else if (type === 'bosco') {
-                ctx.fillStyle = 'rgba(0,0,0,0.2)';
-                ctx.beginPath(); ctx.ellipse(x, y+size*0.2, size*0.7, size*0.3, 0, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#4e342e';
-                ctx.fillRect(x-size*0.3, y-size*0.1, 4, size*0.5); ctx.fillRect(x+size*0.2, y, 4, size*0.4); ctx.fillRect(x, y-size*0.3, 5, size*0.6);
-                ctx.fillStyle = '#1b5e20'; 
-                ctx.beginPath(); ctx.arc(x-size*0.3, y-size*0.3, size*0.4, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(x+size*0.3, y-size*0.2, size*0.35, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(x, y-size*0.6, size*0.45, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#388e3c'; 
-                ctx.beginPath(); ctx.arc(x-size*0.35, y-size*0.35, size*0.25, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(x+size*0.25, y-size*0.25, size*0.2, 0, Math.PI*2); ctx.fill();
-                ctx.beginPath(); ctx.arc(x-size*0.05, y-size*0.65, size*0.3, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.ellipse(x, y+size*0.2, size*0.7, size*0.3, 0, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#4e342e'; ctx.fillRect(x-size*0.3, y-size*0.1, 4, size*0.5); ctx.fillRect(x+size*0.2, y, 4, size*0.4); ctx.fillRect(x, y-size*0.3, 5, size*0.6);
+                ctx.fillStyle = '#1b5e20'; ctx.beginPath(); ctx.arc(x-size*0.3, y-size*0.3, size*0.4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+size*0.3, y-size*0.2, size*0.35, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x, y-size*0.6, size*0.45, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#388e3c'; ctx.beginPath(); ctx.arc(x-size*0.35, y-size*0.35, size*0.25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+size*0.25, y-size*0.25, size*0.2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x-size*0.05, y-size*0.65, size*0.3, 0, Math.PI*2); ctx.fill();
             } 
             else if (type === 'citta') {
                 ctx.fillStyle = '#546e7a'; ctx.fillRect(x-size*0.5, y-size*0.2, size, size*0.4);
@@ -787,7 +706,6 @@
                 ctx.fillStyle = '#212121'; ctx.beginPath(); ctx.arc(x, y+size*0.2, size*0.15, Math.PI, 0); ctx.fill();
             }
             else if (type === 'villaggio') {
-                // Villaggio più piccolo e senza mura
                 ctx.fillStyle = '#d7ccc8'; ctx.fillRect(x-size*0.3, y-size*0.1, size*0.4, size*0.3);
                 ctx.fillStyle = '#8d6e63'; ctx.beginPath(); ctx.moveTo(x-size*0.1, y-size*0.4); ctx.lineTo(x-size*0.4, y-size*0.1); ctx.lineTo(x+size*0.2, y-size*0.1); ctx.fill();
                 ctx.fillStyle = '#a1887f'; ctx.fillRect(x+size*0.1, y, size*0.3, size*0.2);
@@ -805,127 +723,77 @@
             ctx.restore();
         }
 
-        function drawStatusIndicator(x, y, color) {
-            ctx.beginPath(); ctx.ellipse(x, y, 6, 4, 0, 0, Math.PI * 2);
-            ctx.fillStyle = color; ctx.fill();
-            ctx.strokeStyle = '#1a1612'; ctx.lineWidth = 1; ctx.stroke();
-        }
+        function drawStatusIndicator(x, y, color) { ctx.beginPath(); ctx.ellipse(x, y, 6, 4, 0, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill(); ctx.strokeStyle = '#1a1612'; ctx.lineWidth = 1; ctx.stroke(); }
 
         function renderFrame() {
             if(!ctx) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
-            ctx.translate(camX, camY); 
+            ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.save(); ctx.translate(camX, camY); 
 
-            calcAurasAndStealth();
-            calculateFog();
+            calcAurasAndStealth(); calculateFog();
 
             let moves = new Map(), acts = new Map();
-            if(gameState === 'playing' && activeUnit && turnOrder[currentTeamIdx] === 'player' && !activeUnit.hasActed) {
-                moves = getValidMoves(activeUnit); acts = getValidActions(activeUnit);
-            }
+            if(gameState === 'playing' && activeUnit && turnOrder[currentTeamIdx] === 'player' && !activeUnit.hasActed) { moves = getValidMoves(activeUnit); acts = getValidActions(activeUnit); }
 
-            let cells = Array.from(board.values()).sort((a,b) => {
-                let pa = hexToPixel(a.q, a.r); let pb = hexToPixel(b.q, b.r);
-                return pa.y - pb.y;
-            });
+            let cells = Array.from(board.values()).sort((a,b) => { let pa = hexToPixel(a.q, a.r); let pb = hexToPixel(b.q, b.r); return pa.y - pb.y; });
 
             cells.forEach(c => {
                 let px = hexToPixel(c.q, c.r);
-                if(px.x + camX < -HEX_SIZE*3 || px.x + camX > canvas.width + HEX_SIZE*3 || 
-                   px.y + camY < -HEX_SIZE*3 || px.y + camY > canvas.height + HEX_SIZE*3) return;
+                if(px.x+camX < -HEX_SIZE*3 || px.x+camX > canvas.width+HEX_SIZE*3 || px.y+camY < -HEX_SIZE*3 || px.y+camY > canvas.height+HEX_SIZE*3) return;
 
-                let isVis = visMap.get(`${c.q},${c.r}`);
-                let isExp = exploredMap.get(`${c.q},${c.r}`);
-                let t = TERRAINS[c.terrain];
+                let isVis = visMap.get(`${c.q},${c.r}`); let isExp = exploredMap.get(`${c.q},${c.r}`); let t = TERRAINS[c.terrain];
 
-                if (isExp) {
-                    draw3DTile(ctx, px.x, px.y, HEX_SIZE - 1, t.cMain, t.cSide, c.owner);
-                    drawTerrainFeatures(ctx, c.terrain, px.x, px.y, HEX_SIZE);
-                } else {
-                    draw3DTile(ctx, px.x, px.y, HEX_SIZE - 1, '#3a3128', '#231e18', null);
-                }
+                if (isExp) { draw3DTile(ctx, px.x, px.y, HEX_SIZE - 1, t.cMain, t.cSide, c.owner); drawTerrainFeatures(ctx, c.terrain, px.x, px.y, HEX_SIZE); } 
+                else { draw3DTile(ctx, px.x, px.y, HEX_SIZE - 1, '#3a3128', '#231e18', null); }
 
-                if(cfg.fog && isExp && !isVis) {
-                    drawHexPath(ctx, px.x, px.y, HEX_SIZE - 1);
-                    ctx.fillStyle = 'rgba(15, 12, 10, 0.55)'; ctx.fill();
-                }
+                if(cfg.fog && isExp && !isVis) { drawHexPath(ctx, px.x, px.y, HEX_SIZE - 1); ctx.fillStyle = 'rgba(15, 12, 10, 0.55)'; ctx.fill(); }
 
                 let k = `${c.q},${c.r}`;
-                if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { 
-                    drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 215, 0, 0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); 
-                }
-                if(activeUnit && activeUnit.q === c.q && activeUnit.r === c.r) { 
-                    drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.strokeStyle='gold'; ctx.lineWidth=4; ctx.stroke(); 
-                }
-                
-                // Highlight selezione Città per reclutamento
-                if(!activeUnit && selectedCellForInfo && selectedCellForInfo.q === c.q && selectedCellForInfo.r === c.r && (c.terrain === 'citta' || c.terrain === 'villaggio')) {
-                    drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 255, 255, 0.2)'; ctx.fill(); ctx.strokeStyle='white'; ctx.lineWidth=3; ctx.stroke(); 
-                }
-
+                if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 215, 0, 0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); }
+                if(activeUnit && activeUnit.q === c.q && activeUnit.r === c.r) { drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.strokeStyle='gold'; ctx.lineWidth=4; ctx.stroke(); }
+                if(!activeUnit && selectedCellForInfo && selectedCellForInfo.q === c.q && selectedCellForInfo.r === c.r && (c.terrain === 'citta' || c.terrain === 'villaggio')) { drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 255, 255, 0.2)'; ctx.fill(); ctx.strokeStyle='white'; ctx.lineWidth=3; ctx.stroke(); }
                 if(moves.has(k)) { drawHexPath(ctx, px.x, px.y, HEX_SIZE*0.4); ctx.fillStyle='rgba(129, 199, 132, 0.8)'; ctx.fill(); }
                 if(acts.has(k)) { drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229, 57, 53, 0.3)'; ctx.fill(); ctx.strokeStyle='#e53935'; ctx.lineWidth=2; ctx.stroke(); }
 
                 if(isVis) { 
                     let l = loots.find(l=>l.q===c.q && l.r===c.r); 
-                    if(l) { 
-                        ctx.fillStyle = l.type==='heal' ? '#81c784' : '#ff9800'; 
-                        ctx.beginPath(); ctx.ellipse(px.x, px.y + 10, 8, 5, 0, 0, Math.PI*2); ctx.fill();
-                        ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
-                    } 
+                    if(l) { ctx.fillStyle = l.type==='heal' ? '#81c784' : '#ff9800'; ctx.beginPath(); ctx.ellipse(px.x, px.y + 10, 8, 5, 0, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); } 
                 }
 
                 let u = getUnitAt(c.q, c.r);
                 if(u && !u.passenger) {
-                    let canRender = (u.team === 'player') || (isVis && (!u.perk==='stealth' || u.isVisible));
-                    if(canRender && (isExp || !cfg.fog)) {
-                        
+                    if((u.team === 'player') || (isVis && (!u.perk==='stealth' || u.isVisible))) {
                         let unitY = px.y - HEX_SIZE * 0.2; 
-                        
-                        ctx.fillStyle = '#111';
-                        ctx.beginPath(); ctx.ellipse(px.x, unitY + 6, HEX_SIZE * 0.5, HEX_SIZE * 0.3, 0, 0, Math.PI*2); ctx.fill();
-                        
-                        ctx.beginPath(); ctx.ellipse(px.x, unitY, HEX_SIZE * 0.5, HEX_SIZE * 0.3, 0, 0, Math.PI*2);
-                        ctx.fillStyle = COLORS[u.team]; ctx.fill();
+                        ctx.fillStyle = '#111'; ctx.beginPath(); ctx.ellipse(px.x, unitY + 6, HEX_SIZE * 0.5, HEX_SIZE * 0.3, 0, 0, Math.PI*2); ctx.fill();
+                        ctx.beginPath(); ctx.ellipse(px.x, unitY, HEX_SIZE * 0.5, HEX_SIZE * 0.3, 0, 0, Math.PI*2); ctx.fillStyle = COLORS[u.team]; ctx.fill();
                         
                         let grad = ctx.createRadialGradient(px.x, unitY, HEX_SIZE*0.1, px.x, unitY, HEX_SIZE*0.5);
-                        grad.addColorStop(0, 'rgba(255,255,255,0.2)');
-                        grad.addColorStop(1, 'rgba(0,0,0,0.4)');
+                        grad.addColorStop(0, 'rgba(255,255,255,0.2)'); grad.addColorStop(1, 'rgba(0,0,0,0.4)');
                         ctx.fillStyle = grad; ctx.fill();
 
                         ctx.lineWidth = 2; ctx.strokeStyle = u.hasActed ? '#555' : '#fff';
-                        if(u.perk === 'stealth' && !u.isVisible) ctx.globalAlpha = 0.5;
-                        ctx.stroke(); ctx.globalAlpha = 1.0;
+                        if(u.perk === 'stealth' && !u.isVisible) ctx.globalAlpha = 0.5; ctx.stroke(); ctx.globalAlpha = 1.0;
 
-                        ctx.fillStyle = u.hasActed ? '#aaa' : '#fff';
-                        ctx.font = '900 20px "Font Awesome 6 Free"';
-                        ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                        ctx.fillText(u.uni, px.x, unitY);
+                        ctx.fillStyle = u.hasActed ? '#aaa' : '#fff'; ctx.font = '900 20px "Font Awesome 6 Free"'; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(u.uni, px.x, unitY);
 
                         if(u.isCamped) drawStatusIndicator(px.x - 18, unitY + 2, '#81c784'); 
                         if(u.killBuff) drawStatusIndicator(px.x + 18, unitY + 2, '#ffb74d'); 
                         if(u.passenger) drawStatusIndicator(px.x, unitY + 12, '#ba68c8');     
                         
-                        let hpW = HEX_SIZE * 0.7;
-                        ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillRect(px.x-hpW/2, unitY-25, hpW, 4);
-                        ctx.fillStyle = u.currentHp/u.hp > 0.5 ? '#81c784' : '#e53935'; 
-                        ctx.fillRect(px.x-hpW/2, unitY-25, hpW * (u.currentHp/u.hp), 4);
+                        let hpW = HEX_SIZE * 0.7; ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillRect(px.x-hpW/2, unitY-25, hpW, 4);
+                        ctx.fillStyle = u.currentHp/u.hp > 0.5 ? '#81c784' : '#e53935'; ctx.fillRect(px.x-hpW/2, unitY-25, hpW * (u.currentHp/u.hp), 4);
                     }
                 }
             });
-
             ctx.restore();
         }
 
-        // === CONQUISTA E RECLUTAMENTO ===
         function checkCaptures() {
             units.forEach(u => {
-                if(u.team !== 'neutral' && !u.hasMovedThisTurn) { // Deve terminare il turno sopra
+                if(u.team !== 'neutral' && !u.hasMovedThisTurn) { 
                     let cell = board.get(`${u.q},${u.r}`);
                     if(cell && (cell.terrain === 'citta' || cell.terrain === 'villaggio') && cell.owner !== u.team) {
                         cell.owner = u.team;
-                        logAction(`<i class='fa-solid fa-flag'></i> ${u.team.toUpperCase()} ha conquistato un ${cell.terrain}!`);
+                        logAction(`<i class='fa-solid fa-flag'></i> ${u.team.toUpperCase()} conquista un ${cell.terrain}!`);
                     }
                 }
             });
@@ -933,123 +801,75 @@
 
         function openRecruitMenu() {
             if(!selectedCellForInfo || selectedCellForInfo.owner !== 'player' || getUnitAt(selectedCellForInfo.q, selectedCellForInfo.r)) return;
-            recruitTargetCell = selectedCellForInfo;
-            document.getElementById('recruit-modal').style.display = 'flex';
+            recruitTargetCell = selectedCellForInfo; document.getElementById('recruit-modal').style.display = 'flex';
             document.getElementById('modal-gold-display').innerText = `Oro Disponibile: ${teamGold.player}`;
-            
             const grid = document.getElementById('modal-recruit-grid'); grid.innerHTML = '';
-            const tpl = TEMPLATES.fantasy;
-            for (let k in tpl) {
-                let u = tpl[k];
-                let canAfford = teamGold.player >= u.cost;
-                grid.innerHTML += `
-                    <div class="unit-card ${canAfford?'':'disabled'}" onclick="${canAfford ? `recruitUnit('${k}')` : ''}">
-                        <div class="unit-cost"><i class="fa-solid fa-coins"></i> ${u.cost}</div>
-                        <div class="u-icon">${u.icon}</div>
-                        <div class="u-info">
-                            <strong>${u.role}</strong><br>
-                            HP: ${u.hp} | Atk: ${u.atk} | Def: ${u.def}%<br>
-                        </div>
-                    </div>`;
+            for (let k in TEMPLATES.fantasy) {
+                let u = TEMPLATES.fantasy[k]; let canAfford = teamGold.player >= u.cost;
+                grid.innerHTML += `<div class="unit-card ${canAfford?'':'disabled'}" onclick="${canAfford ? `recruitUnit('${k}')` : ''}"><div class="unit-cost"><i class="fa-solid fa-coins"></i> ${u.cost}</div><div class="u-icon">${u.icon}</div><div class="u-info"><strong>${u.role}</strong><br>HP: ${u.hp} | Atk: ${u.atk} | Def: ${u.def}%<br></div></div>`;
             }
         }
 
         function recruitUnit(unitKey) {
             let cost = TEMPLATES.fantasy[unitKey].cost;
             if(teamGold.player >= cost && recruitTargetCell) {
-                teamGold.player -= cost;
-                let u = createUnitObj(unitKey, 'player');
-                u.q = recruitTargetCell.q; u.r = recruitTargetCell.r;
-                u.hasActed = true; // Non può agire il turno in cui nasce
-                units.push(u);
-                document.getElementById('recruit-modal').style.display = 'none';
-                logAction(`<i class='fa-solid fa-user-plus'></i> Addestrato: ${u.role}.`);
-                selectedCellForInfo = null;
-                updateUI(); renderFrame();
+                teamGold.player -= cost; let u = createUnitObj(unitKey, 'player'); u.q = recruitTargetCell.q; u.r = recruitTargetCell.r; u.hasActed = true; 
+                units.push(u); document.getElementById('recruit-modal').style.display = 'none'; logAction(`<i class='fa-solid fa-user-plus'></i> Addestrato: ${u.role}.`);
+                selectedCellForInfo = null; updateUI(); renderFrame();
             }
         }
 
         function campActiveUnit() {
             if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed || isCombatActive) return;
-            activeUnit.isCamped = true; 
-            activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 20);
-            logAction(`<i class='fa-solid fa-campground'></i> ${activeUnit.role} si accampa! (+20% Def, +20 HP)`); 
-            finalizeAction(activeUnit); 
+            activeUnit.isCamped = true; activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 20); logAction(`<i class='fa-solid fa-campground'></i> ${activeUnit.role} si fortifica!`); finalizeAction(activeUnit); 
         }
 
         canvas.addEventListener('pointerup', e => {
-            if (isCombatActive) return; 
-            isDragging = false;
-            if(dragMoved) return; 
-
-            let rect = canvas.getBoundingClientRect();
-            let cx = e.clientX - rect.left; let cy = e.clientY - rect.top;
-            let mapX = (cx - camX); let mapY = (cy - camY);
-            
-            let h = pixelToHex(mapX, mapY);
-            if(!board.has(`${h.q},${h.r}`)) return;
-            
-            let q = h.q, r = h.r;
+            if (isCombatActive) return; isDragging = false; if(dragMoved) return; 
+            let rect = canvas.getBoundingClientRect(); let cx = e.clientX - rect.left; let cy = e.clientY - rect.top;
+            let mapX = (cx - camX); let mapY = (cy - camY); let h = pixelToHex(mapX, mapY);
+            if(!board.has(`${h.q},${h.r}`)) return; let q = h.q, r = h.r;
             
             if (gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player') {
                 let cell = board.get(`${q},${r}`);
                 if(cell && cell.spawnTeam === 'player' && !getUnitAt(q,r) && pDeployQueue.length > 0) {
                     if(selectedDeployIdx === -1) return;
-                    let u = pDeployQueue.splice(selectedDeployIdx, 1)[0];
-                    u.q = q; u.r = r; units.push(u); exploredMap.set(`${q},${r}`, true); 
-                    selectedDeployIdx = -1; currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length;
-                    updateUI(); handleDeployTurn();
+                    let u = pDeployQueue.splice(selectedDeployIdx, 1)[0]; u.q = q; u.r = r; units.push(u); exploredMap.set(`${q},${r}`, true); 
+                    selectedDeployIdx = -1; currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; updateUI(); handleDeployTurn();
                 }
                 return;
             }
 
             if (gameState !== 'playing' || turnOrder[currentTeamIdx] !== 'player') return;
-
-            let occ = getUnitAt(q, r);
-            let clickedCell = board.get(`${q},${r}`);
+            let occ = getUnitAt(q, r); let clickedCell = board.get(`${q},${r}`);
 
             if (activeUnit && activeUnit.hasMovedThisTurn) {
-                let acts = getValidActions(activeUnit);
-                if (!acts.has(`${q},${r}`) && (q !== activeUnit.q || r !== activeUnit.r)) {
-                    finalizeAction(activeUnit);
-                }
+                let acts = getValidActions(activeUnit); if (!acts.has(`${q},${r}`) && (q !== activeUnit.q || r !== activeUnit.r)) finalizeAction(activeUnit);
             }
 
-            // Selezione Città per info o reclutamento
             if (!occ && clickedCell && (clickedCell.terrain === 'citta' || clickedCell.terrain === 'villaggio')) {
-                activeUnit = null;
-                selectedCellForInfo = clickedCell;
-                updateInfoEmptyCell(clickedCell); 
-                renderFrame(); updateUI(); return;
-            } else {
-                selectedCellForInfo = null;
-            }
+                activeUnit = null; selectedCellForInfo = clickedCell; updateInfoEmptyCell(clickedCell); renderFrame(); updateUI(); return;
+            } else { selectedCellForInfo = null; }
 
-            if (occ && occ.team === 'player' && !occ.hasActed) {
-                activeUnit = occ; updateInfo(occ); renderFrame(); updateUI(); return;
-            }
-
+            if (occ && occ.team === 'player' && !occ.hasActed) { activeUnit = occ; updateInfo(occ); renderFrame(); updateUI(); return; }
             if(!activeUnit && occ) { updateInfo(occ); return; }
             if(!activeUnit && !occ) { updateInfoEmptyCell(clickedCell); return; }
 
             if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed) return;
 
-            let acts = getValidActions(activeUnit);
-            let act = acts.get(`${q},${r}`);
+            let acts = getValidActions(activeUnit); let act = acts.get(`${q},${r}`);
             if (act) {
                 if(act.t === 'unload') { act.tgt = activeUnit.passenger; act.tgt.q = q; act.tgt.r = r; activeUnit.passenger = null; finalizeAction(activeUnit); return; }
                 if(act.t === 'heal') { act.tgt.currentHp = Math.min(act.tgt.hp, act.tgt.currentHp + 30); logAction(`<i class='fa-solid fa-hand-holding-medical'></i> ${activeUnit.role} cura ${act.tgt.role}!`); finalizeAction(activeUnit); return; }
                 if(act.t === 'atk') { executeCombat(activeUnit, act.tgt, false); return; }
             }
 
-            let moves = getValidMoves(activeUnit);
-            let move = moves.get(`${q},${r}`);
+            let moves = getValidMoves(activeUnit); let move = moves.get(`${q},${r}`);
             if (move) {
                 activeUnit.isCamped = false; 
                 if(move.isLoad) { activeUnit.passenger = move.target; move.target.q = -99; activeUnit.q = q; activeUnit.r = r; } 
                 else {
-                    activeUnit.q = q; activeUnit.r = r;
-                    let lIdx = loots.findIndex(l => l.q===q && l.r===r);
+                    activeUnit.q = q; activeUnit.r = r; let lIdx = loots.findIndex(l => l.q===q && l.r===r);
                     if(lIdx >= 0) {
                         let l = loots.splice(lIdx, 1)[0];
                         if(l.type==='heal') { activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 30); logAction("<i class='fa-solid fa-flask'></i> Pozione trovata!"); }
@@ -1061,17 +881,20 @@
             }
         });
 
-        function finalizeAction(u) { 
-            u.hasActed = true; u.hasMovedThisTurn = false; actionsLeft--; activeUnit = null; 
-            checkCaptures(); renderFrame(); updateUI(); checkTurnEnd(); 
-        }
+        function finalizeAction(u) { u.hasActed = true; u.hasMovedThisTurn = false; actionsLeft--; activeUnit = null; checkCaptures(); renderFrame(); updateUI(); checkTurnEnd(); }
 
         function executeCombat(atkU, defU, isCounter) {
             isCombatActive = true; 
             if(atkU.perk === 'stealth') atkU.isVisible = true;
-
             if(defU.team === 'neutral') defU.provoked = true;
             if(atkU.team === 'neutral') atkU.provoked = true;
+
+            // DIPLOMAZIA: Segna il tradimento se attacchi un alleato
+            if (gameMode === 'darklord' && atkU.team === 'player' && (defU.team === 'team3' || defU.team === 'team4')) {
+                playerAggression[defU.team]++;
+                if (playerAggression[defU.team] === 1) logAction(`<strong style="color:red">⚠️ Attenzione: Hai attaccato l'alleato ${defU.team.toUpperCase()}! Al prossimo sgarro l'alleanza si romperà.</strong>`);
+                else if (playerAggression[defU.team] === 2) logAction(`<strong style="color:red">🔥 TRADIMENTO! L'alleanza con ${defU.team.toUpperCase()} è infranta. Ora siamo in guerra!</strong>`);
+            }
 
             let bAtk = atkU.atk;
             if(isCounter) bAtk = Math.round(bAtk * atkU.ctr);
@@ -1095,80 +918,48 @@
                 
                 if(defU.team === 'neutral') {
                     loots.push({q: defU.q, r: defU.r, type: Math.random() > 0.5 ? 'heal' : 'dmg'});
-                    if(atkU.team !== 'neutral') {
-                        teamGold[atkU.team] += 50; // Taglia per mostro ucciso
-                        logAction(`<i class="fa-solid fa-coins"></i> ${atkU.team.toUpperCase()} guadagna 50 oro dal mostro!`);
-                    }
+                    if(atkU.team !== 'neutral') { teamGold[atkU.team] += 50; logAction(`<i class="fa-solid fa-coins"></i> ${atkU.team.toUpperCase()} saccheggia 50 oro!`); }
                 }
-                
                 units = units.filter(u => u.id !== defU.id && (!defU.passenger || u.id !== defU.passenger.id));
             } 
             
-            if (!isCounter && defU.currentHp > 0 && defU.team !== atkU.team && defU.perk !== 'healer' && defU.ctr > 0) {
-                let cell = board.get(`${defU.q},${defU.r}`);
-                let defRng = defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
-                if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) {
-                    setTimeout(() => { executeCombat(defU, atkU, true); }, 600);
-                    return; 
-                }
+            if (!isCounter && defU.currentHp > 0 && isEnemy(atkU.team, defU.team) && defU.perk !== 'healer' && defU.ctr > 0) {
+                let cell = board.get(`${defU.q},${defU.r}`); let defRng = defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
+                if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) { setTimeout(() => { executeCombat(defU, atkU, true); }, 600); return; }
             }
 
-            isCombatActive = false; 
-            if(!isCounter) finalizeAction(atkU);
-            else finalizeAction(defU);
+            isCombatActive = false; if(!isCounter) finalizeAction(atkU); else finalizeAction(defU);
         }
 
         function checkTurnEnd() {
             let t = turnOrder[currentTeamIdx];
             let availableUnits = units.filter(u => u.team === t && !u.hasActed && !u.passenger);
-            
             updateUI(); renderFrame();
-
             if (actionsLeft <= 0 || availableUnits.length === 0) passTurn();
             else if (t !== 'player' && gameState === 'playing') setTimeout(aiTurn, 600);
         }
 
-        function forcePassTurn() { 
-            if(gameState==='playing' && turnOrder[currentTeamIdx]==='player' && !isCombatActive) { 
-                if(activeUnit) { activeUnit.hasActed = true; activeUnit.hasMovedThisTurn = false; activeUnit = null; }
-                passTurn(); 
-            } 
-        }
+        function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player' && !isCombatActive) { if(activeUnit) { activeUnit.hasActed = true; activeUnit.hasMovedThisTurn = false; activeUnit = null; } passTurn(); } }
 
         function collectIncome(team) {
             if (team === 'neutral') return;
             let inc = 0;
             Array.from(board.values()).forEach(c => {
-                if(c.owner === team) {
-                    if(c.terrain === 'citta') inc += 75;
-                    if(c.terrain === 'villaggio') inc += 25;
-                }
+                if(c.owner === team) { if(c.terrain === 'citta') inc += 75; if(c.terrain === 'villaggio') inc += 25; }
             });
-            if(inc > 0) {
-                teamGold[team] += inc;
-                if(team === 'player') logAction(`<i class="fa-solid fa-sack-dollar"></i> Entrate raccolte: +${inc} Oro`);
-            }
+            if(inc > 0) { teamGold[team] += inc; if(team === 'player') logAction(`<i class="fa-solid fa-sack-dollar"></i> Entrate dai domini: +${inc} Oro`); }
         }
 
         function passTurn() {
             if(gameState !== 'playing') return;
-            
             units.filter(u => u.team === turnOrder[currentTeamIdx]).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
             
             let safeCounter = 0;
-            do { 
-                currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; 
-                safeCounter++; if (safeCounter > 10) break;
-            } while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0 && !checkVictory());
-
+            do { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; safeCounter++; if (safeCounter > 10) break; } while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0 && !checkVictory());
             if (checkVictory()) return;
 
-            maxAP = 5; 
-            actionsLeft = maxAP; 
-            let t = turnOrder[currentTeamIdx];
-            
+            maxAP = 5; actionsLeft = maxAP; let t = turnOrder[currentTeamIdx];
             collectIncome(t);
-
             units.filter(u => u.team === t).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
             
             if(currentTeamIdx === 0 && cfg.neutral) {
@@ -1177,19 +968,14 @@
                     if (n.provoked) {
                         let acts = Array.from(getValidActions(n).values()).filter(a => a.t === 'atk');
                         if(acts.length>0) { executeCombat(n, acts[0].tgt, false); }
-                        else {
-                            let mvs = Array.from(getValidMoves(n).values()); 
-                            if(mvs.length>0) { let rm = mvs[Math.floor(Math.random()*mvs.length)]; n.q = rm.q; n.r = rm.r; }
-                        }
+                        else { let mvs = Array.from(getValidMoves(n).values()); if(mvs.length>0) { let rm = mvs[Math.floor(Math.random()*mvs.length)]; n.q = rm.q; n.r = rm.r; } }
                     } else if (Math.random() > 0.5) { 
-                        let mvs = Array.from(getValidMoves(n).values()); 
-                        if(mvs.length>0) { let rm = mvs[Math.floor(Math.random()*mvs.length)]; n.q = rm.q; n.r = rm.r; }
+                        let mvs = Array.from(getValidMoves(n).values()); if(mvs.length>0) { let rm = mvs[Math.floor(Math.random()*mvs.length)]; n.q = rm.q; n.r = rm.r; }
                     }
                 });
             }
 
-            updateUI(); renderFrame(); 
-            logAction(`<strong style="color:var(--text-main);"><i class="fa-solid fa-hourglass-start"></i> TURNO: ${t.toUpperCase()}</strong>`);
+            updateUI(); renderFrame(); logAction(`<strong style="color:var(--text-main);"><i class="fa-solid fa-hourglass-start"></i> TURNO: ${t.toUpperCase()}</strong>`);
             if (t !== 'player') setTimeout(aiTurn, 800);
         }
 
@@ -1197,53 +983,41 @@
             if (gameState !== 'playing' || turnOrder[currentTeamIdx] === 'player') return;
             let t = turnOrder[currentTeamIdx];
             
-            // IA RECLUTAMENTO SEMPLICE
+            // IA RECLUTAMENTO
             let aiOwnedCities = Array.from(board.values()).filter(c => c.owner === t && c.terrain === 'citta' && !getUnitAt(c.q, c.r));
             if(aiOwnedCities.length > 0 && teamGold[t] >= 150) {
                 let keys = Object.keys(TEMPLATES.fantasy).filter(k => TEMPLATES.fantasy[k].cost <= teamGold[t]);
                 if(keys.length > 0) {
-                    let uk = keys[Math.floor(Math.random()*keys.length)];
-                    teamGold[t] -= TEMPLATES.fantasy[uk].cost;
-                    let u = createUnitObj(uk, t);
-                    u.q = aiOwnedCities[0].q; u.r = aiOwnedCities[0].r; u.hasActed = true;
-                    units.push(u);
-                    renderFrame(); updateUI();
+                    let uk = keys[Math.floor(Math.random()*keys.length)]; teamGold[t] -= TEMPLATES.fantasy[uk].cost;
+                    let u = createUnitObj(uk, t); u.q = aiOwnedCities[0].q; u.r = aiOwnedCities[0].r; u.hasActed = true; units.push(u); renderFrame(); updateUI();
                 }
             }
 
             let avail = units.filter(u => u.team === t && !u.hasActed && !u.passenger);
-            
             if(actionsLeft > 0 && avail.length > 0) {
                 for(let h of avail.filter(u => u.perk === 'healer')) {
                     let w = Array.from(getValidActions(h).values()).find(a => a.t === 'heal' && a.tgt.currentHp < a.tgt.hp);
                     if(w) { w.tgt.currentHp = Math.min(w.tgt.hp, w.tgt.currentHp+30); finalizeAction(h); return; }
                 }
-
                 for(let u of avail) {
                     let acts = Array.from(getValidActions(u).values()).filter(a => a.t === 'atk');
-                    if(acts.length > 0) { 
-                        if(cfg.diff !== 'Facile') acts.sort((a,b)=> a.tgt.currentHp - b.tgt.currentHp); 
-                        executeCombat(u, acts[0].tgt, false); return; 
-                    }
+                    if(acts.length > 0) { if(cfg.diff !== 'Facile') acts.sort((a,b)=> a.tgt.currentHp - b.tgt.currentHp); executeCombat(u, acts[0].tgt, false); return; }
                 }
 
                 let u = avail[Math.floor(Math.random() * avail.length)];
                 let mvs = Array.from(getValidMoves(u).values());
-                let ens = units.filter(e => e.team !== t && e.team !== 'neutral');
-                let targetLocs = Array.from(board.values()).filter(c => (c.terrain==='citta' || c.terrain==='villaggio') && c.owner !== t);
+                // LA IA PUNTA SOLO I VERI NEMICI
+                let ens = units.filter(e => isEnemy(t, e.team));
+                let targetLocs = Array.from(board.values()).filter(c => (c.terrain==='citta' || c.terrain==='villaggio') && isEnemy(t, c.owner || 'neutral'));
 
                 if (u.currentHp < u.hp * 0.4 && cfg.diff === 'Difficile' && Math.random() > 0.3) {
                     u.isCamped = true; u.currentHp = Math.min(u.hp, u.currentHp + 20); finalizeAction(u); return;
                 } else if(mvs.length > 0) {
                     let dest = null;
-                    if(targetLocs.length > 0 && Math.random() > 0.5) { // Cerca di conquistare
-                        let tCity = targetLocs[Math.floor(Math.random()*targetLocs.length)];
-                        mvs.sort((a,b)=> hexDist(a, tCity) - hexDist(b, tCity));
-                        dest = mvs[0];
-                    } else if (ens.length > 0) { // Cerca nemici
-                        let tgt = ens[Math.floor(Math.random()*ens.length)];
-                        mvs.sort((a,b)=> hexDist(a, tgt) - hexDist(b, tgt));
-                        dest = mvs[0];
+                    if(targetLocs.length > 0 && Math.random() > 0.5) { 
+                        let tCity = targetLocs[Math.floor(Math.random()*targetLocs.length)]; mvs.sort((a,b)=> hexDist(a, tCity) - hexDist(b, tCity)); dest = mvs[0];
+                    } else if (ens.length > 0) { 
+                        let tgt = ens[Math.floor(Math.random()*ens.length)]; mvs.sort((a,b)=> hexDist(a, tgt) - hexDist(b, tgt)); dest = mvs[0];
                     }
                     if(dest) { u.isCamped = false; u.q = dest.q; u.r = dest.r; finalizeAction(u); return; }
                 } 
@@ -1261,28 +1035,21 @@
         function updateInfoEmptyCell(c) {
             let det = document.getElementById('unit-detail-box');
             let t = TERRAINS[c.terrain]; 
-            let ownStr = c.owner ? `<span style="color:${COLORS[c.owner]}">Dominio: ${c.owner.toUpperCase()}</span>` : "Territorio Conteso";
+            let ownStr = c.owner ? `<span style="color:${COLORS[c.owner]}">Dominio: ${c.owner.toUpperCase()}</span>` : "Territorio Indipendente";
             let incomeStr = c.terrain === 'citta' ? "+75 Oro a turno" : (c.terrain === 'villaggio' ? "+25 Oro a turno" : "");
-            
-            det.innerHTML = `
-                <div style="font-size:1.2rem; margin-bottom:5px;"><strong>${t.id}</strong></div>
-                ${ownStr}<br>
-                Copertura Difesa: ${t.cover}%<br>
-                <em>${incomeStr}</em>
-            `;
+            det.innerHTML = `<div style="font-size:1.2rem; margin-bottom:5px;"><strong>${t.id}</strong></div>${ownStr}<br>Copertura Difesa: ${t.cover}%<br><em>${incomeStr}</em>`;
         }
 
         function updateUI() {
             let b = document.getElementById('turn-badge'), bp = document.getElementById('btn-pass'), det = document.getElementById('unit-detail-box'), msg = document.getElementById('status-msg');
-            let actMenu = document.getElementById('unit-actions');
-            let cityMenu = document.getElementById('city-actions');
+            let actMenu = document.getElementById('unit-actions'), cityMenu = document.getElementById('city-actions'), allyBox = document.getElementById('alliance-box');
             
             document.getElementById('ui-gold-display').innerHTML = `<i class="fa-solid fa-coins"></i> Oro: ${teamGold.player}`;
 
             if(gameState === 'deploy') { 
                 let t = turnOrder[currentTeamIdx];
                 b.innerText = `SCHIERA: ${t.toUpperCase()}`; b.style.background = t==='player'?"#fdf8eb":"#ffebee"; b.style.color = "#3e2723"; bp.style.display = 'none';
-                actMenu.style.display = 'none'; cityMenu.style.display = 'none';
+                actMenu.style.display = 'none'; cityMenu.style.display = 'none'; allyBox.style.display = 'none';
                 if(t === 'player') {
                     msg.innerText = "Scegli un'unità e tocca la zona illuminata.";
                     let html = '<div style="display:flex; flex-wrap:wrap; gap:5px;">';
@@ -1301,29 +1068,27 @@
                 bp.style.display = t === 'player' ? 'block' : 'none';
                 msg.innerText = t === 'player' ? `Azioni Strategiche Rimaste: ${actionsLeft}/${maxAP}` : "La mente nemica sta pianificando...";
                 
+                if (gameMode === 'darklord') {
+                    allyBox.style.display = 'block';
+                    let aText = "";
+                    if(cfg.teams >= 3) aText += `Team 3: ${playerAggression.team3 >= 2 ? '<span style="color:red">OSTILE</span>' : '<span style="color:green">Alleato</span>'} <br>`;
+                    if(cfg.teams === 4) aText += `Team 4: ${playerAggression.team4 >= 2 ? '<span style="color:red">OSTILE</span>' : '<span style="color:green">Alleato</span>'}`;
+                    document.getElementById('alliance-text').innerHTML = aText;
+                } else allyBox.style.display = 'none';
+
                 actMenu.style.display = (activeUnit && t === 'player' && !activeUnit.hasActed && !isCombatActive) ? 'block' : 'none';
-                
-                // Mostra tasto recluta se tocco una mia città vuota
-                if (!activeUnit && t === 'player' && selectedCellForInfo && selectedCellForInfo.terrain === 'citta' && selectedCellForInfo.owner === 'player' && !getUnitAt(selectedCellForInfo.q, selectedCellForInfo.r)) {
-                    cityMenu.style.display = 'block';
-                } else {
-                    cityMenu.style.display = 'none';
-                }
-                
+                cityMenu.style.display = (!activeUnit && t === 'player' && selectedCellForInfo && selectedCellForInfo.terrain === 'citta' && selectedCellForInfo.owner === 'player' && !getUnitAt(selectedCellForInfo.q, selectedCellForInfo.r)) ? 'block' : 'none';
                 if(!activeUnit && !selectedCellForInfo && t === 'player') det.innerHTML = "<em>Tocca un esagono o trascina per esplorare la mappa.</em>";
             }
-            updateEnemyRoster();
-            updateAPDisplay();
+            updateEnemyRoster(); updateAPDisplay();
         }
 
         function updateEnemyRoster() {
             let html = '';
             TEAMS.slice(0, cfg.teams).forEach(t => {
-                let tu = units.filter(u => u.team === t);
-                if (tu.length === 0) return;
+                let tu = units.filter(u => u.team === t); if (tu.length === 0) return;
                 html += `<div class="team-icons-row"><strong style="width:60px;">${t.toUpperCase()}</strong> `;
-                tu.forEach(u => { html += `<span title="${u.role}">${u.icon}</span>`; });
-                html += `</div>`;
+                tu.forEach(u => { html += `<span title="${u.role}">${u.icon}</span>`; }); html += `</div>`;
             });
             document.getElementById('team-rosters').innerHTML = html;
         }
@@ -1339,7 +1104,6 @@
             let tCover = TERRAINS[board.get(`${u.q},${u.r}`).terrain].cover;
             let effDef = Math.min(80, u.def + tCover + (u.isCamped?20:0) + u.auraDef);
             let effAtk = Math.max(5, Math.round(u.atk * (1 - u.auraAtkDrop/100)));
-            
             let statusHtml = "";
             if (u.killBuff) statusHtml += "🔥 Furia (+15 Atk) ";
             if (u.surrounded) statusHtml += "⚠️ Circondato (-10 Atk) ";
@@ -1357,3 +1121,4 @@
     </script>
 </body>
 </html>
+
