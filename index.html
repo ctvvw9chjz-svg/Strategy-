@@ -47,7 +47,6 @@
 
         .game-layout { display: flex; width: 100%; height: 85vh; gap: 20px; align-items: stretch; justify-content: center; flex-wrap: wrap;}
         
-        /* Modificato colore sfondo per dare risalto al 3D */
         #canvas-container { flex: 1; min-width: 300px; position: relative; background: #3b4249; border-radius: 8px; border: 4px solid #23272b; box-shadow: inset 0 0 80px rgba(0,0,0,0.9); overflow: hidden; display: flex; justify-content: center; align-items: center; cursor: grab;}
         #canvas-container:active { cursor: grabbing; }
         canvas { touch-action: none; width: 100%; height: 100%; display: block;}
@@ -77,6 +76,9 @@
         
         .btn-camp-action { width: 100%; padding: 12px; font-size: 1.05rem; background: #2e7d32; color: white; border: 2px solid #1b5e20; margin-top: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;}
         .btn-camp-action:hover { background: #1b5e20; border-color: #0d3b10; transform: scale(1.02);}
+        
+        .status-box { margin-top:10px; padding:8px; border-radius:4px; background:#fff; border:1px solid #ddd; font-size:0.85rem;}
+        .status-badge { display:inline-block; padding:3px 6px; border-radius:3px; margin:2px; font-weight:bold;}
     </style>
 </head>
 <body>
@@ -114,9 +116,9 @@
             </div>
             
             <div style="text-align:center; margin-top:25px; font-size: 0.95rem; background: #fff; padding: 15px; border-radius: 4px; border: 1px dashed var(--panel-border);">
-                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;"><i class="fa-solid fa-cube"></i> Il nuovo motore rendering 2.5D Isometrico modellerà il terreno procedurale.</p>
+                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;"><i class="fa-solid fa-cube"></i> Le forze neutrali ora proteggono preziosi tesori. Sconfiggile per ottenerli!</p>
                 <label style="margin-right: 15px; cursor: pointer;"><input type="checkbox" id="fogToggle" checked> Oscurità (Nebbia di Guerra)</label>
-                <label style="cursor: pointer;"><input type="checkbox" id="neutralToggle" checked> Genera Reliquie & Pozioni Mappa</label>
+                <label style="cursor: pointer;"><input type="checkbox" id="neutralToggle" checked> Genera Mostri e Banditi Neutrali</label>
             </div>
 
             <div style="text-align: center;">
@@ -168,9 +170,6 @@
                         <button id="btn-camp" class="btn-camp-action" onclick="campActiveUnit()">
                             <i class="fa-solid fa-campground"></i> Accampati e Fortifica
                         </button>
-                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px; text-align:center; line-height: 1.3;">
-                            Passa il resto del turno e innalza palizzate.<br><strong>+20% Difesa Bonus</strong> e recupera <strong>20 HP</strong>.
-                        </p>
                     </div>
                 </div>
 
@@ -193,7 +192,6 @@
     </div>
 
     <script>
-        // === CONFIGURAZIONE E STRUTTURE DATI ===
         let cfg = { diff: 'Normale', radius: 5, unitCount: 5, teams: 2, fog: true, neutral: true };
         let maxAP = 3;
 
@@ -212,24 +210,23 @@
             guaritore: '\ue579', stealth: '\uf6fa', trasporto: '\uf474', orrore: '\uf6e2'
         };
 
+        // Bilanciamento Modificato
         const B_STAT = { 
-            fanteria:   { hp: 120, atk: 35, def: 10, mov: 3, rng: 1, vis: 6, ctr: 1.0, role: "Spadaccino", desc: "Equilibrata, eccelle nel difendere.", icon: ICONS.fanteria, uni: UNICODES.fanteria },
-            arciere:    { hp: 60,  atk: 45, def: 0,  mov: 3, rng: 5, vis: 7, ctr: 0.0, role: "Arciere", desc: "Letale da lontano, debole in mischia.", icon: ICONS.arciere, uni: UNICODES.arciere },
-            mago:       { hp: 70,  atk: 40, def: 5,  mov: 3, rng: 3, vis: 6, ctr: 0.5, role: "Mago Arcano", desc: "Arti arcane a media distanza.", icon: ICONS.mago, uni: UNICODES.mago },
-            esploratore:{ hp: 55,  atk: 25, def: 0,  mov: 5, rng: 1, vis: 8, ctr: 0.7, role: "Ranger", perk: 'agile', desc: "Ignora malus del deserto, ottima vista.", icon: ICONS.esploratore, uni: UNICODES.esploratore },
-            cavaliereL: { hp: 80,  atk: 30, def: 10, mov: 6, rng: 1, vis: 7, ctr: 0.8, role: "Cavalleria", perk: 'mounted', desc: "Veloce per fiancheggiamenti.", icon: ICONS.cavaliereL, uni: UNICODES.cavaliereL },
-            cavaliereP: { hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cavaliere Corazzato", perk: 'mounted', desc: "Corazzato, ostacolato dai boschi.", icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
-            colosso:    { hp: 160, atk: 55, def: 30, mov: 2, rng: 1, vis: 5, ctr: 1.0, role: "Golem", desc: "Lentissimo, massimi HP e Danni.", icon: ICONS.colosso, uni: UNICODES.colosso },
-            difensore:  { hp: 140, atk: 25, def: 40, mov: 2, rng: 1, vis: 6, ctr: 0.8, role: "Paladino", perk: 'aura_shield', desc: "Bonus difesa ad alleati vicini.", icon: ICONS.difensore, uni: UNICODES.difensore },
-            guaritore:  { hp: 60,  atk: 15, def: 5,  mov: 3, rng: 2, vis: 6, ctr: 0.2, role: "Chierico", perk: 'healer', desc: "Cura ferite (Non attacca).", icon: ICONS.guaritore, uni: UNICODES.guaritore },
-            stealth:    { hp: 50,  atk: 50, def: 0,  mov: 4, rng: 1, vis: 7, ctr: 0.5, role: "Ombra", perk: 'stealth', desc: "Invisibile finché il nemico non è vicino.", icon: ICONS.stealth, uni: UNICODES.stealth },
+            fanteria:   { hp: 100, atk: 30, def: 15, mov: 3, rng: 1, vis: 6, ctr: 1.0, role: "Spadaccino", desc: "Equilibrata, ottima in difesa.", icon: ICONS.fanteria, uni: UNICODES.fanteria },
+            arciere:    { hp: 60,  atk: 40, def: 0,  mov: 3, rng: 4, vis: 7, ctr: 0.0, role: "Arciere", desc: "Letale a distanza, debole in mischia.", icon: ICONS.arciere, uni: UNICODES.arciere },
+            mago:       { hp: 70,  atk: 40, def: 5,  mov: 3, rng: 3, vis: 6, ctr: 0.5, role: "Mago", desc: "Danni costanti a media distanza.", icon: ICONS.mago, uni: UNICODES.mago },
+            esploratore:{ hp: 55,  atk: 20, def: 0,  mov: 5, rng: 1, vis: 8, ctr: 0.7, role: "Ranger", perk: 'agile', desc: "Molto agile. Ignora malus deserto.", icon: ICONS.esploratore, uni: UNICODES.esploratore },
+            cavaliereL: { hp: 80,  atk: 30, def: 10, mov: 6, rng: 1, vis: 7, ctr: 0.8, role: "Cavalleria Leggera", perk: 'mounted', desc: "Veloce per fiancheggiamenti.", icon: ICONS.cavaliereL, uni: UNICODES.cavaliereL },
+            cavaliereP: { hp: 110, atk: 45, def: 20, mov: 4, rng: 1, vis: 6, ctr: 0.9, role: "Cavaliere Pesante", perk: 'mounted', desc: "Corazzato, rallentato dai boschi.", icon: ICONS.cavaliereP, uni: UNICODES.cavaliereP },
+            colosso:    { hp: 150, atk: 50, def: 30, mov: 2, rng: 1, vis: 5, ctr: 1.0, role: "Golem", desc: "Lentissimo, massimi HP e Danni.", icon: ICONS.colosso, uni: UNICODES.colosso },
+            difensore:  { hp: 140, atk: 25, def: 30, mov: 2, rng: 1, vis: 6, ctr: 0.8, role: "Paladino", perk: 'aura_shield', desc: "Aura: +20 Def agli alleati vicini.", icon: ICONS.difensore, uni: UNICODES.difensore },
+            guaritore:  { hp: 60,  atk: 15, def: 5,  mov: 3, rng: 2, vis: 6, ctr: 0.2, role: "Chierico", perk: 'healer', desc: "Cura 30 HP. Non attacca.", icon: ICONS.guaritore, uni: UNICODES.guaritore },
+            stealth:    { hp: 50,  atk: 50, def: 0,  mov: 4, rng: 1, vis: 7, ctr: 0.5, role: "Ombra", perk: 'stealth', desc: "Invisibile finché non è adiacente.", icon: ICONS.stealth, uni: UNICODES.stealth },
             trasporto:  { hp: 100, atk: 10, def: 15, mov: 5, rng: 1, vis: 6, ctr: 0.2, role: "Carrozza", perk: 'transport', desc: "Trasporta una truppa alleata.", icon: ICONS.trasporto, uni: UNICODES.trasporto },
-            orrore:     { hp: 80,  atk: 30, def: 10, mov: 4, rng: 1, vis: 6, ctr: 0.8, role: "Banshee", perk: 'aura_terror', desc: "Riduce l'attacco dei nemici adiacenti.", icon: ICONS.orrore, uni: UNICODES.orrore }
+            orrore:     { hp: 80,  atk: 30, def: 10, mov: 4, rng: 1, vis: 6, ctr: 0.8, role: "Banshee", perk: 'aura_terror', desc: "Aura: -20% Atk ai nemici vicini.", icon: ICONS.orrore, uni: UNICODES.orrore }
         };
 
-        const TEMPLATES = {
-            fantasy: { ...B_STAT }
-        };
+        const TEMPLATES = { fantasy: { ...B_STAT } };
 
         const TERRAINS = {
             pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#7cb342', cSide: '#558b2f' },
@@ -253,11 +250,10 @@
         let selectedDeployIdx = -1;
         let isCombatActive = false;
 
-        // === MOTORE ISOMETRICO E MATEMATICA CANVAS ===
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const HEX_SIZE = 45; 
-        const Y_SQUASH = 0.65; // Magia Isometrica: Schiaccia l'asse Y del 35%
+        const Y_SQUASH = 0.65; 
         
         let camX = 0, camY = 0;
         let isDragging = false, dragStartX = 0, dragStartY = 0, dragMoved = false;
@@ -276,8 +272,7 @@
         window.addEventListener('resize', resizeCanvas);
 
         function centerCamera() {
-            camX = canvas.width / 2;
-            camY = canvas.height / 2;
+            camX = canvas.width / 2; camY = canvas.height / 2;
         }
 
         canvas.addEventListener('pointerdown', e => {
@@ -296,14 +291,13 @@
         canvas.addEventListener('pointerleave', () => { isDragging = false; });
         canvas.addEventListener('pointercancel', () => { isDragging = false; });
 
-        // Matematica Esagonale Adattata per Prospettiva Isometrica
         function hexToPixel(q, r) {
             let x = HEX_SIZE * Math.sqrt(3) * (q + r/2);
             let y = HEX_SIZE * 3/2 * r;
-            return { x: x, y: y * Y_SQUASH }; // Applica lo squash all'asse Y
+            return { x: x, y: y * Y_SQUASH };
         }
         function pixelToHex(px, py) {
-            let unY = py / Y_SQUASH; // "Rigonfia" l'asse Y prima del calcolo logico
+            let unY = py / Y_SQUASH; 
             let q = (Math.sqrt(3)/3 * px - 1/3 * unY) / HEX_SIZE;
             let r = (2/3 * unY) / HEX_SIZE;
             return hexRound(q, r, -q-r);
@@ -318,7 +312,6 @@
         function hexDist(a, b) { return (Math.abs(a.q - b.q) + Math.abs(a.r - b.r) + Math.abs(-a.q-a.r + b.q+b.r)) / 2; }
         function getNeighbors(q, r) { return [[1,0], [1,-1], [0,-1], [-1,0], [-1,1], [0,1]].map(d => ({q: q+d[0], r: r+d[1]})); }
 
-        // === FASE 1 & 2: Menu ===
         function updateBtnGroup(gid, btn) { document.querySelectorAll(`#${gid} .select-btn`).forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); }
         function selectDiff(v, b) { cfg.diff = v; updateBtnGroup('diff-group', b); }
         function selectUnitCount(c, b) { cfg.unitCount = c; updateBtnGroup('unit-group', b); }
@@ -361,7 +354,6 @@
         }
         function addToRoster(k) { if(playerRosterKeys.length < cfg.unitCount) { playerRosterKeys.push(k); updateDraftUI(); } }
 
-        // === FASE 3: MAPPA E SCHIERAMENTO ===
         function startDeployment() {
             maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3);
             let baseRadius = 6;
@@ -391,8 +383,11 @@
             }
 
             generateHexMap();
+            
+            // Spawn ridotto di neutrali e passivi di base
             if(cfg.neutral) {
-                for(let i=0; i<Math.floor(cfg.radius); i++) {
+                let numNeutrals = Math.floor(cfg.radius / 1.5);
+                for(let i=0; i<numNeutrals; i++) {
                     let u = createUnitObj(keys[Math.floor(Math.random()*keys.length)], 'neutral');
                     placeRandom(u);
                 }
@@ -406,7 +401,7 @@
 
         function createUnitObj(key, team) {
             let b = TEMPLATES.fantasy[key];
-            return { ...b, id: team+'_'+Math.random().toString(36).substr(2,5), team, currentHp: b.hp, hasActed: false, hasMovedThisTurn: false, isCamped: false, killBuff: false, passenger: null, isVisible: true, q: 0, r: 0 };
+            return { ...b, id: team+'_'+Math.random().toString(36).substr(2,5), team, currentHp: b.hp, hasActed: false, hasMovedThisTurn: false, isCamped: false, killBuff: false, passenger: null, isVisible: true, provoked: false, q: 0, r: 0 };
         }
         function getUnitAt(q, r) { return units.find(u => u.q === q && u.r === r); }
 
@@ -436,19 +431,14 @@
                     q = n.q; r = n.r;
                 }
             }
-            
-            if(cfg.neutral) {
-                Array.from(board.values()).forEach(c => {
-                    if(Math.random() < 0.04 && c.terrain !== 'montagna') loots.push({q:c.q, r:c.r, type: Math.random()>0.5?'heal':'dmg'});
-                });
-            }
 
+            // SICUREZZA SCHIERAMENTO: Assicuriamo che ogni team abbia sempre il numero esatto di spot
             let teamsArr = TEAMS.slice(0, cfg.teams);
-            let spawnClusters = 3;
-            let tilesPerCluster = Math.ceil(cfg.unitCount / 1.2); 
+            let tilesPerCluster = Math.ceil(cfg.unitCount / 1.5); 
 
             teamsArr.forEach(t => {
-                for(let c = 0; c < spawnClusters; c++) {
+                let currentSpots = 0;
+                for(let c = 0; c < 3; c++) {
                     let validCells = Array.from(board.values()).filter(cell => {
                         if(cell.spawnTeam || cell.terrain === 'montagna' || cell.terrain === 'citta') return false; 
                         let ns = getNeighbors(cell.q, cell.r);
@@ -463,6 +453,7 @@
                     
                     let seed = validCells[Math.floor(Math.random() * validCells.length)];
                     seed.spawnTeam = t;
+                    currentSpots++;
                     
                     let count = 1;
                     let queue = [{q: seed.q, r: seed.r}];
@@ -475,11 +466,20 @@
                             let nCell = board.get(`${n.q},${n.r}`);
                             if(nCell && !nCell.spawnTeam && nCell.terrain !== 'montagna' && nCell.terrain !== 'citta' && count < tilesPerCluster) {
                                 nCell.spawnTeam = t;
-                                count++;
+                                count++; currentSpots++;
                                 queue.push(n);
                             }
                         }
                     }
+                }
+                
+                // Failsafe se lo spazio vitale fallisce
+                while(currentSpots < cfg.unitCount) {
+                    let emergencyCells = Array.from(board.values()).filter(c => !c.spawnTeam && c.terrain !== 'montagna');
+                    if(emergencyCells.length > 0) {
+                        emergencyCells[0].spawnTeam = t;
+                        currentSpots++;
+                    } else break;
                 }
             });
         }
@@ -538,7 +538,6 @@
             handleDeployTurn();
         }
 
-        // === REGOLE E FOG OF WAR ===
         function calcAurasAndStealth() {
             units.forEach(u => {
                 u.auraDef = 0; u.auraAtkDrop = 0; u.surrounded = false;
@@ -650,8 +649,6 @@
             return acts;
         }
 
-        // === RENDER ENGINE ISOMETRICO (Stile Civ 6) ===
-        // Funzione per disegnare un poligono esagonale "schiacciato"
         function drawHexPath(ctx, x, y, size) {
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
@@ -664,83 +661,62 @@
             ctx.closePath();
         }
 
-        // Disegna un esagono con spessore 3D
         function draw3DTile(ctx, x, y, size, topColor, sideColor) {
             let depth = 6;
             drawHexPath(ctx, x, y + depth, size);
-            ctx.fillStyle = sideColor;
-            ctx.fill();
-            
+            ctx.fillStyle = sideColor; ctx.fill();
             drawHexPath(ctx, x, y, size);
-            ctx.fillStyle = topColor;
-            ctx.fill();
-            
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-            ctx.stroke();
+            ctx.fillStyle = topColor; ctx.fill();
+            ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.stroke();
         }
 
-        // Disegna elementi che "si alzano" dall'esagono
         function drawTerrainFeatures(ctx, type, x, y, size) {
             ctx.save();
             if (type === 'montagna') {
-                // Montagna Centrale che sborda in alto (y negativo)
-                ctx.fillStyle = '#4a4641'; // Ombra destra
+                ctx.fillStyle = '#4a4641'; 
                 ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x-size*0.7, y+size*0.2); ctx.lineTo(x, y+size*0.5); ctx.fill();
-                ctx.fillStyle = '#6b6762'; // Luce sinistra
+                ctx.fillStyle = '#6b6762'; 
                 ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x+size*0.8, y+size*0.1); ctx.lineTo(x, y+size*0.5); ctx.fill();
-                // Neve
                 ctx.fillStyle = '#f0f4f8';
                 ctx.beginPath(); ctx.moveTo(x, y-size*1.3); ctx.lineTo(x-size*0.28, y-size*0.7); ctx.lineTo(x, y-size*0.8); ctx.lineTo(x+size*0.32, y-size*0.75); ctx.fill();
                 
-                // Piccola montagna laterale
                 ctx.fillStyle = '#3e3a35';
                 ctx.beginPath(); ctx.moveTo(x-size*0.5, y-size*0.6); ctx.lineTo(x-size*0.9, y+size*0.1); ctx.lineTo(x-size*0.2, y+size*0.3); ctx.fill();
                 ctx.fillStyle = '#5c5853';
                 ctx.beginPath(); ctx.moveTo(x-size*0.5, y-size*0.6); ctx.lineTo(x, y+size*0.2); ctx.lineTo(x-size*0.2, y+size*0.3); ctx.fill();
             } 
             else if (type === 'bosco') {
-                // Base d'ombra
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.beginPath(); ctx.ellipse(x, y+size*0.2, size*0.7, size*0.3, 0, 0, Math.PI*2); ctx.fill();
-                // Tronchi
                 ctx.fillStyle = '#4e342e';
-                ctx.fillRect(x-size*0.3, y-size*0.1, 4, size*0.5);
-                ctx.fillRect(x+size*0.2, y, 4, size*0.4);
-                ctx.fillRect(x, y-size*0.3, 5, size*0.6);
-                // Chiome (Pini / Alberi sovrapposti verso l'alto)
-                ctx.fillStyle = '#1b5e20'; // Scuro
+                ctx.fillRect(x-size*0.3, y-size*0.1, 4, size*0.5); ctx.fillRect(x+size*0.2, y, 4, size*0.4); ctx.fillRect(x, y-size*0.3, 5, size*0.6);
+                ctx.fillStyle = '#1b5e20'; 
                 ctx.beginPath(); ctx.arc(x-size*0.3, y-size*0.3, size*0.4, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(x+size*0.3, y-size*0.2, size*0.35, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(x, y-size*0.6, size*0.45, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#388e3c'; // Chiaro
+                ctx.fillStyle = '#388e3c'; 
                 ctx.beginPath(); ctx.arc(x-size*0.35, y-size*0.35, size*0.25, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(x+size*0.25, y-size*0.25, size*0.2, 0, Math.PI*2); ctx.fill();
                 ctx.beginPath(); ctx.arc(x-size*0.05, y-size*0.65, size*0.3, 0, Math.PI*2); ctx.fill();
             } 
             else if (type === 'citta') {
-                // Mura Città
                 ctx.fillStyle = '#546e7a';
                 ctx.fillRect(x-size*0.5, y-size*0.2, size, size*0.4);
                 ctx.fillStyle = '#37474f';
-                ctx.fillRect(x-size*0.5, y-size*0.2, size, size*0.1); // merlatura
-                // Torre 1
+                ctx.fillRect(x-size*0.5, y-size*0.2, size, size*0.1); 
                 ctx.fillStyle = '#78909c';
                 ctx.fillRect(x-size*0.6, y-size*0.7, size*0.3, size*0.9);
-                ctx.fillStyle = '#b71c1c'; // Tetto rosso a cono
+                ctx.fillStyle = '#b71c1c'; 
                 ctx.beginPath(); ctx.moveTo(x-size*0.45, y-size*1.1); ctx.lineTo(x-size*0.7, y-size*0.7); ctx.lineTo(x-size*0.2, y-size*0.7); ctx.fill();
-                // Torre 2
                 ctx.fillStyle = '#607d8b';
                 ctx.fillRect(x+size*0.3, y-size*0.5, size*0.25, size*0.7);
                 ctx.fillStyle = '#c62828';
                 ctx.beginPath(); ctx.moveTo(x+size*0.42, y-size*0.8); ctx.lineTo(x+size*0.2, y-size*0.5); ctx.lineTo(x+size*0.65, y-size*0.5); ctx.fill();
-                // Cancello
                 ctx.fillStyle = '#212121';
                 ctx.beginPath(); ctx.arc(x, y+size*0.2, size*0.15, Math.PI, 0); ctx.fill();
             } 
             else if (type === 'deserto') {
-                ctx.strokeStyle = '#d4a355';
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#d4a355'; ctx.lineWidth = 2;
                 ctx.beginPath(); ctx.moveTo(x-size*0.6, y); ctx.quadraticCurveTo(x-size*0.1, y-size*0.4, x+size*0.5, y+size*0.2); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(x-size*0.3, y+size*0.3); ctx.quadraticCurveTo(x+size*0.2, y-size*0.1, x+size*0.7, y+size*0.4); ctx.stroke();
             } 
@@ -754,8 +730,7 @@
         }
 
         function drawStatusIndicator(x, y, color) {
-            ctx.beginPath();
-            ctx.ellipse(x, y, 6, 4, 0, 0, Math.PI * 2);
+            ctx.beginPath(); ctx.ellipse(x, y, 6, 4, 0, 0, Math.PI * 2);
             ctx.fillStyle = color; ctx.fill();
             ctx.strokeStyle = '#1a1612'; ctx.lineWidth = 1; ctx.stroke();
         }
@@ -774,7 +749,6 @@
                 moves = getValidMoves(activeUnit); acts = getValidActions(activeUnit);
             }
 
-            // Depth Sorting fondamentale: ordina per coordinata Y schermo in modo che le cose dietro vengano coperte!
             let cells = Array.from(board.values()).sort((a,b) => {
                 let pa = hexToPixel(a.q, a.r); let pb = hexToPixel(b.q, b.r);
                 return pa.y - pb.y;
@@ -789,22 +763,18 @@
                 let isExp = exploredMap.get(`${c.q},${c.r}`);
                 let t = TERRAINS[c.terrain];
 
-                // 1. Disegna la base 3D
                 if (isExp) {
                     draw3DTile(ctx, px.x, px.y, HEX_SIZE - 1, t.cMain, t.cSide);
-                    // 2. Disegna gli elementi di terreno in rilievo
                     drawTerrainFeatures(ctx, c.terrain, px.x, px.y, HEX_SIZE);
                 } else {
                     draw3DTile(ctx, px.x, px.y, HEX_SIZE - 1, '#3a3128', '#231e18');
                 }
 
-                // Nebbia di Guerra
                 if(cfg.fog && isExp && !isVis) {
                     drawHexPath(ctx, px.x, px.y, HEX_SIZE - 1);
                     ctx.fillStyle = 'rgba(15, 12, 10, 0.55)'; ctx.fill();
                 }
 
-                // Overlay Selezioni
                 let k = `${c.q},${c.r}`;
                 if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { 
                     drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 215, 0, 0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); 
@@ -815,7 +785,6 @@
                 if(moves.has(k)) { drawHexPath(ctx, px.x, px.y, HEX_SIZE*0.4); ctx.fillStyle='rgba(129, 199, 132, 0.8)'; ctx.fill(); }
                 if(acts.has(k)) { drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229, 57, 53, 0.3)'; ctx.fill(); ctx.strokeStyle='#e53935'; ctx.lineWidth=2; ctx.stroke(); }
 
-                // Loot
                 if(isVis) { 
                     let l = loots.find(l=>l.q===c.q && l.r===c.r); 
                     if(l) { 
@@ -825,19 +794,16 @@
                     } 
                 }
 
-                // Disegno Truppe (Token 3D Stile Tavolo)
                 let u = getUnitAt(c.q, c.r);
                 if(u && !u.passenger) {
                     let canRender = (u.team === 'player') || (isVis && (!u.perk==='stealth' || u.isVisible));
                     if(canRender && (isExp || !cfg.fog)) {
                         
-                        let unitY = px.y - HEX_SIZE * 0.2; // Solleva leggermente la truppa
+                        let unitY = px.y - HEX_SIZE * 0.2; 
                         
-                        // Base del Token (Spessore Cilindrico)
                         ctx.fillStyle = '#111';
                         ctx.beginPath(); ctx.ellipse(px.x, unitY + 6, HEX_SIZE * 0.5, HEX_SIZE * 0.3, 0, 0, Math.PI*2); ctx.fill();
                         
-                        // Top del Token
                         ctx.beginPath(); ctx.ellipse(px.x, unitY, HEX_SIZE * 0.5, HEX_SIZE * 0.3, 0, 0, Math.PI*2);
                         ctx.fillStyle = COLORS[u.team]; ctx.fill();
                         
@@ -850,18 +816,15 @@
                         if(u.perk === 'stealth' && !u.isVisible) ctx.globalAlpha = 0.5;
                         ctx.stroke(); ctx.globalAlpha = 1.0;
 
-                        // Icona
                         ctx.fillStyle = u.hasActed ? '#aaa' : '#fff';
                         ctx.font = '900 20px "Font Awesome 6 Free"';
                         ctx.textAlign = "center"; ctx.textBaseline = "middle";
                         ctx.fillText(u.uni, px.x, unitY);
 
-                        // Indicatori (Verde=Camped, Arancio=Buff, Viola=Load)
                         if(u.isCamped) drawStatusIndicator(px.x - 18, unitY + 2, '#81c784'); 
                         if(u.killBuff) drawStatusIndicator(px.x + 18, unitY + 2, '#ffb74d'); 
                         if(u.passenger) drawStatusIndicator(px.x, unitY + 12, '#ba68c8');     
                         
-                        // Barra HP fluttuante
                         let hpW = HEX_SIZE * 0.7;
                         ctx.fillStyle = 'rgba(0,0,0,0.8)'; ctx.fillRect(px.x-hpW/2, unitY-25, hpW, 4);
                         ctx.fillStyle = u.currentHp/u.hp > 0.5 ? '#81c784' : '#e53935'; 
@@ -873,7 +836,6 @@
             ctx.restore();
         }
 
-        // === AZIONE ACCAMPATI ===
         function campActiveUnit() {
             if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed || isCombatActive) return;
             activeUnit.isCamped = true; 
@@ -882,7 +844,6 @@
             finalizeAction(activeUnit); 
         }
 
-        // === GESTIONE CLICK E BLOCCAGGI ===
         canvas.addEventListener('pointerup', e => {
             if (isCombatActive) return; 
             isDragging = false;
@@ -892,9 +853,7 @@
             let cx = e.clientX - rect.left;
             let cy = e.clientY - rect.top;
             
-            let mapX = (cx - camX);
-            let mapY = (cy - camY);
-            
+            let mapX = (cx - camX); let mapY = (cy - camY);
             let h = pixelToHex(mapX, mapY);
             if(!board.has(`${h.q},${h.r}`)) return;
             
@@ -935,7 +894,7 @@
             if(!activeUnit && !occ) { 
                 let t = TERRAINS[board.get(`${q},${r}`).terrain]; 
                 let blockTxt = t.blockLOS ? "Blocca Linea di Tiro" : "Visuale Libera";
-                let movCostTxt = t.id === 'Città Fortificata' ? "<br><em>Ingresso/Uscita difficoltoso (+2 Punti Mov)</em>" : "";
+                let movCostTxt = t.id === 'Città' ? "<br><em>Ingresso/Uscita difficoltoso (+2 Punti Mov)</em>" : "";
                 document.getElementById('unit-detail-box').innerHTML = `<strong>Terreno: ${t.id}</strong><br>Copertura Difesa: ${t.cover}%<br><em>${blockTxt}</em>${movCostTxt}`; 
                 return; 
             }
@@ -954,7 +913,7 @@
             let move = moves.get(`${q},${r}`);
             if (move) {
                 activeUnit.isCamped = false; 
-                if(move.isLoad) { activeUnit.passenger = move.target; move.target.q = -99; activeUnit.q = q; activeUnit.r = r; logAction(`<i class='fa-solid fa-arrow-up'></i> Imbarco completato!`); } 
+                if(move.isLoad) { activeUnit.passenger = move.target; move.target.q = -99; activeUnit.q = q; activeUnit.r = r; logAction(`<i class='fa-solid fa-arrow-up'></i> Truppa imbarcata sul carro!`); } 
                 else {
                     activeUnit.q = q; activeUnit.r = r;
                     let lIdx = loots.findIndex(l => l.q===q && l.r===r);
@@ -974,10 +933,13 @@
             renderFrame(); updateUI(); checkTurnEnd(); 
         }
 
-        // === COMBAT E IA SICURA ===
         function executeCombat(atkU, defU, isCounter) {
             isCombatActive = true; 
             if(atkU.perk === 'stealth') atkU.isVisible = true;
+
+            // Se i neutrali vengono attaccati, diventano aggressivi
+            if(defU.team === 'neutral') defU.provoked = true;
+            if(atkU.team === 'neutral') atkU.provoked = true;
 
             let bAtk = atkU.atk;
             if(isCounter) bAtk = Math.round(bAtk * atkU.ctr);
@@ -997,7 +959,14 @@
 
             if (defU.currentHp <= 0) {
                 logAction(`<i class='fa-solid fa-skull'></i> ${defU.role} è caduto!`);
-                if(!isCounter) atkU.killBuff = true;
+                if(!isCounter && defU.team !== 'neutral') atkU.killBuff = true;
+                
+                // I neutrali rilasciano sempre tesori quando muoiono
+                if(defU.team === 'neutral') {
+                    loots.push({q: defU.q, r: defU.r, type: Math.random() > 0.5 ? 'heal' : 'dmg'});
+                    logAction("<i class='fa-solid fa-gem'></i> Il nemico ha lasciato cadere un tesoro!");
+                }
+                
                 units = units.filter(u => u.id !== defU.id && (!defU.passenger || u.id !== defU.passenger.id));
             } 
             
@@ -1052,11 +1021,21 @@
             
             units.filter(u => u.team === t).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
             
+            // Gestione Avanzata e Pacifica dei Neutrali
             if(currentTeamIdx === 0 && cfg.neutral) {
                 let nts = units.filter(u => u.team === 'neutral');
                 nts.forEach(n => {
-                    let mvs = Array.from(getValidMoves(n).values()); 
-                    if(mvs.length>0) { let rm = mvs[Math.floor(Math.random()*mvs.length)]; n.q = rm.q; n.r = rm.r; }
+                    if (n.provoked) {
+                        let acts = Array.from(getValidActions(n).values()).filter(a => a.t === 'atk');
+                        if(acts.length>0) { executeCombat(n, acts[0].tgt, false); }
+                        else {
+                            let mvs = Array.from(getValidMoves(n).values()); 
+                            if(mvs.length>0) { let rm = mvs[Math.floor(Math.random()*mvs.length)]; n.q = rm.q; n.r = rm.r; }
+                        }
+                    } else if (Math.random() > 0.5) { // Movimento pacifico casuale
+                        let mvs = Array.from(getValidMoves(n).values()); 
+                        if(mvs.length>0) { let rm = mvs[Math.floor(Math.random()*mvs.length)]; n.q = rm.q; n.r = rm.r; }
+                    }
                 });
             }
 
@@ -1170,11 +1149,24 @@
             let tCover = TERRAINS[board.get(`${u.q},${u.r}`).terrain].cover;
             let effDef = Math.min(80, u.def + tCover + (u.isCamped?20:0) + u.auraDef);
             let effAtk = Math.max(5, Math.round(u.atk * (1 - u.auraAtkDrop/100)));
+            
+            // Visualizzazione degli status attivi
+            let statusHtml = "";
+            if (u.killBuff) statusHtml += "<span class='status-badge' style='background:#fff3e0; color:#f57f17'><i class='fa-solid fa-fire'></i> Furia (+15 Atk)</span> ";
+            if (u.surrounded) statusHtml += "<span class='status-badge' style='background:#ffebee; color:#d32f2f'><i class='fa-solid fa-triangle-exclamation'></i> Circondato (-10 Atk)</span> ";
+            if (u.isCamped) statusHtml += "<span class='status-badge' style='background:#e8f5e9; color:#2e7d32'><i class='fa-solid fa-campground'></i> Fortificato (+20 Def)</span> ";
+            if (u.auraAtkDrop > 0) statusHtml += "<span class='status-badge' style='background:#f3e5f5; color:#6a1b9a'><i class='fa-solid fa-ghost'></i> Terrorizzato (-20% Atk)</span> ";
+            if (u.auraDef > 0 && !u.isCamped) statusHtml += "<span class='status-badge' style='background:#e3f2fd; color:#1565c0'><i class='fa-solid fa-shield-halved'></i> Scudo Alleato (+20 Def)</span> ";
+            if (u.passenger) statusHtml += "<span class='status-badge' style='background:#f3e5f5; color:#ab47bc'><i class='fa-solid fa-box'></i> Truppa a Bordo</span> ";
+
+            let statusDiv = statusHtml ? `<div class="status-box"><strong>Stati Attivi:</strong><br>${statusHtml}</div>` : "";
+
             det.innerHTML = `
                 <div style="font-size:1.2rem; margin-bottom:5px;">${u.icon} <strong style="color:var(--accent-gold-hover); font-family: 'Playfair Display', serif;">${u.role}</strong></div>
                 <i class="fa-solid fa-heart" style="color:#d50000"></i> HP: ${u.currentHp}/${u.hp} | <i class="fa-solid fa-burst" style="color:#f57f17"></i> Atk: ${effAtk} | <i class="fa-solid fa-shield-halved" style="color:#1976d2"></i> Def: ${effDef}%<br>
                 <i class="fa-solid fa-shoe-prints"></i> Mov: ${u.mov} | <i class="fa-solid fa-crosshairs"></i> Rng: ${u.rng} | <i class="fa-solid fa-eye"></i> Vis: ${u.vis}<br>
                 <em style="color:var(--text-muted);">${u.desc}</em>
+                ${statusDiv}
             `;
         }
 
@@ -1182,3 +1174,4 @@
     </script>
 </body>
 </html>
+
