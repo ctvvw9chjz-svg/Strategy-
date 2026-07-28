@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strategia Elegante - Master Edition</title>
+    <title>Strategia Elegante - Touch & Hex Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,55 +16,69 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Lato', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        h1, h2, h3 { font-family: 'Playfair Display', serif; text-align: center; margin: 5px 0;}
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: 'Lato', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-y: auto;}
+        
+        h1, h2, h3 { font-family: 'Playfair Display', serif; text-align: center; margin: 10px 0;}
+        h1 { font-size: 2.2rem; color: var(--text-main); letter-spacing: 1px;}
 
-        .screen { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; overflow-y: auto; padding: 15px;}
+        /* SCHERMATE E CONTENITORI */
+        .screen { display: none; width: 100%; max-width: 1300px; flex-direction: column; align-items: center; padding: 20px;}
         .screen.active { display: flex; }
+        
+        .main-panel { background-color: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; }
 
         /* PULSANTI */
         .btn-group { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; justify-content: center; }
-        button, .select-btn { background: #fff; border: 2px solid var(--panel-border); color: var(--text-main); padding: 8px 16px; font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        button, .select-btn { background: #fff; border: 2px solid var(--panel-border); color: var(--text-main); padding: 10px 18px; font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.03);}
         button:hover, .select-btn:hover { border-color: var(--accent-gold); transform: translateY(-2px); }
         button.selected, .select-btn.selected { background: var(--accent-gold); color: #fff; border-color: var(--accent-gold-hover); }
-        button.primary-action { background: var(--accent-gold); color: white; padding: 12px 30px; font-size: 1.1rem; margin-top: 15px; }
+        button.primary-action { background: var(--accent-gold); color: white; padding: 14px 35px; font-size: 1.2rem; margin-top: 20px; }
 
-        /* MENU DRAFT E WIKI */
-        .wiki-container { display: flex; width: 100%; max-width: 1200px; gap: 20px; margin-top: 15px; }
-        .roster-panel { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid var(--panel-border); }
-        .draft-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; overflow-y: auto; padding-right: 5px; max-height: 550px;}
-        .unit-card { border: 1px solid var(--panel-border); border-radius: 6px; padding: 8px; display: flex; gap: 10px; cursor: pointer; background: #faf8f5; transition: 0.2s;}
-        .unit-card:hover { border-color: var(--accent-gold); transform: translateX(3px); }
-        .unit-card.disabled { opacity: 0.5; pointer-events: none; }
-        .u-icon { font-size: 1.8rem; width: 40px; text-align: center; }
-        .u-info { flex: 1; font-size: 0.75rem; line-height: 1.2; }
-        .u-info strong { font-size: 0.9rem; color: var(--accent-gold-hover); }
-        .u-info .role-title { font-weight: bold; color: var(--text-main); font-size: 0.8rem; }
-        .selected-roster { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 15px; min-height: 40px; }
-        .roster-chip { background: #fff; border: 1px solid var(--accent-gold); padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; cursor: pointer; }
-
-        /* GIOCO CANVAS E RESPONSIVE */
-        .game-layout { display: flex; width: 100%; height: 100%; overflow: hidden; flex-direction: row;}
-        #canvas-container { flex: 1; position: relative; background: #1a1410; border-radius: 8px; border: 4px solid var(--panel-border); box-shadow: 0 8px 20px rgba(0,0,0,0.3); overflow: hidden; }
-        canvas { display: block; touch-action: none; }
+        /* MENU DRAFT */
+        .wiki-container { display: flex; width: 100%; gap: 20px; margin-top: 15px; }
+        .roster-panel { flex: 1; display: flex; flex-direction: column; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid var(--panel-border); }
+        .draft-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; max-height: 60vh; overflow-y: auto; padding-right: 10px;}
+        .unit-card { border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; display: flex; gap: 12px; cursor: pointer; background: #faf8f5; transition: 0.2s;}
+        .unit-card:hover { border-color: var(--accent-gold); transform: translateX(4px); box-shadow: 0 4px 10px rgba(0,0,0,0.05);}
+        .unit-card.disabled { opacity: 0.4; pointer-events: none; }
         
-        /* SIDEBAR */
-        .sidebar { width: 340px; background: var(--panel-bg); border-left: 2px solid var(--panel-border); padding: 15px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto;}
+        .u-icon { font-size: 2rem; width: 45px; text-align: center; display: flex; align-items: center; justify-content: center;}
+        .u-info { flex: 1; font-size: 0.8rem; line-height: 1.3; color: var(--text-muted); }
+        .u-info strong { font-size: 1rem; color: var(--text-main); }
+        .u-info .role-title { font-weight: bold; color: var(--accent-gold); font-size: 0.75rem; text-transform: uppercase;}
+        
+        .selected-roster { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; min-height: 50px; align-items: flex-start;}
+        .roster-chip { background: #fff; border: 1px solid var(--accent-gold); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;}
+
+        /* GIOCO CANVAS (RESPONSIVE & TOUCH) */
+        .game-layout { display: flex; width: 100%; height: 85vh; gap: 20px; align-items: stretch; justify-content: center; flex-wrap: wrap;}
+        
+        #canvas-container { flex: 1; min-width: 300px; position: relative; background: #2a221a; border-radius: 12px; border: 4px solid var(--panel-border); box-shadow: inset 0 0 50px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.15); overflow: hidden; display: flex; justify-content: center; align-items: center;}
+        canvas { touch-action: none; /* Fondamentale per iPad: blocca lo scroll quando si tocca la mappa */ width: 100%; height: 100%; display: block;}
+        
+        /* SIDEBAR (ELEGANTE) */
+        .sidebar { width: 340px; background: transparent; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; padding-right: 5px;}
         
         @media (max-width: 900px) {
-            .game-layout { flex-direction: column; }
-            .sidebar { width: 100%; flex: 0 0 auto; border-left: none; border-top: 2px solid var(--panel-border); max-height: 45vh;}
-            #canvas-container { flex: 1; min-height: 40vh; }
+            .game-layout { height: auto; flex-direction: column; }
+            #canvas-container { height: 50vh; width: 100%; }
+            .sidebar { width: 100%; height: auto; }
             .wiki-container { flex-direction: column; }
         }
 
-        .info-card { background: #fff; border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; font-size: 0.85rem; }
-        .turn-badge { padding: 8px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 1.1rem; border: 2px solid;}
-        .action-points { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
-        .ap-dot { width: 12px; height: 12px; border-radius: 50%; background: #ccc; transition: 0.3s;}
-        .ap-dot.active { background: var(--accent-gold); box-shadow: 0 0 6px var(--accent-gold); }
-        .log-box { height: 100px; overflow-y: auto; font-size: 0.75rem; background: #faf8f5; border: 1px solid #e2d9cc; padding: 5px; font-family: monospace; display: flex; flex-direction: column-reverse; }
-        .team-icons-row { display: flex; gap: 4px; margin-bottom: 4px; align-items:center; flex-wrap:wrap; border-top: 1px dashed #ccc; padding-top:4px;}
+        .info-card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 10px; padding: 15px; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);}
+        .turn-badge { padding: 10px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 1.1rem; border: 2px solid; letter-spacing: 1px; margin-bottom: 10px;}
+        
+        .action-points { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; }
+        .ap-dot { width: 14px; height: 14px; border-radius: 50%; background: #d0c5b4; transition: 0.3s;}
+        .ap-dot.active { background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold); }
+        
+        .log-box { height: 140px; overflow-y: auto; font-size: 0.8rem; background: #fff; border: 1px inset var(--panel-border); padding: 8px; font-family: monospace; display: flex; flex-direction: column-reverse; border-radius: 6px;}
+        
+        .enemy-roster-box { margin-top: 10px; font-size: 0.85rem; border-top: 1px dashed #ccc; padding-top: 10px;}
+        .team-icons-row { display: flex; gap: 6px; margin-bottom: 6px; align-items:center; flex-wrap:wrap;}
+        .team-icons-row strong { width: 70px; }
+        .team-icons-row span { font-size: 1.2rem; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
     </style>
 </head>
 <body>
@@ -72,93 +86,113 @@
     <!-- SCHERMATA CONFIGURAZIONE -->
     <div id="screen-config" class="screen active">
         <h1>Strategia Elegante</h1>
-        <h2>Impostazioni di Battaglia</h2>
-        <div style="display:flex; width:100%; max-width:1000px; gap:20px; margin-top:20px; flex-wrap:wrap;">
-            <div style="flex:1; min-width:300px; text-align:center;">
-                <h3>Epoca</h3>
-                <div class="btn-group" id="era-group">
-                    <button class="select-btn selected" onclick="selectEra('fantasy', this)">🧙‍♂️ Fantasy</button>
-                    <button class="select-btn" onclick="selectEra('west', this)">🤠 Far West</button>
-                    <button class="select-btn" onclick="selectEra('future', this)">🤖 Futuro</button>
+        <div class="main-panel">
+            <h2>Impostazioni di Battaglia</h2>
+            <div style="display:flex; width:100%; gap:30px; margin-top:20px; flex-wrap:wrap;">
+                
+                <div style="flex:1; min-width:280px; text-align:center;">
+                    <h3>Epoca Storica</h3>
+                    <div class="btn-group" id="era-group">
+                        <button class="select-btn selected" onclick="selectEra('fantasy', this)">🧙‍♂️ Fantasy</button>
+                        <button class="select-btn" onclick="selectEra('west', this)">🤠 Far West</button>
+                        <button class="select-btn" onclick="selectEra('future', this)">🤖 Futuro</button>
+                    </div>
+                    <h3 style="margin-top:25px;">Difficoltà Computer</h3>
+                    <div class="btn-group" id="diff-group">
+                        <button class="select-btn" onclick="selectDiff('Facile', this)">Facile</button>
+                        <button class="select-btn selected" onclick="selectDiff('Normale', this)">Normale</button>
+                        <button class="select-btn" onclick="selectDiff('Difficile', this)">Difficile</button>
+                    </div>
                 </div>
-                <h3 style="margin-top:20px;">Difficoltà IA</h3>
-                <div class="btn-group" id="diff-group">
-                    <button class="select-btn" onclick="selectDiff('Facile', this)">Facile</button>
-                    <button class="select-btn selected" onclick="selectDiff('Normale', this)">Normale</button>
-                    <button class="select-btn" onclick="selectDiff('Difficile', this)">Difficile</button>
+
+                <div style="flex:1; min-width:280px; text-align:center;">
+                    <h3>Dimensione Esercito</h3>
+                    <div class="btn-group" id="unit-group">
+                        <button class="select-btn selected" onclick="selectUnitCount(5, this)">5 Unità (3 Azioni)</button>
+                        <button class="select-btn" onclick="selectUnitCount(7, this)">7 Unità (4 Azioni)</button>
+                        <button class="select-btn" onclick="selectUnitCount(10, this)">10 Unità (5 Azioni)</button>
+                    </div>
+                    <h3 style="margin-top:25px;">Fazioni in Gioco</h3>
+                    <div class="btn-group" id="team-group">
+                        <button class="select-btn selected" onclick="selectTeams(2, this)">1 vs 1</button>
+                        <button class="select-btn" onclick="selectTeams(3, this)">3 Squadre</button>
+                        <button class="select-btn" onclick="selectTeams(4, this)">4 Squadre</button>
+                    </div>
                 </div>
+
             </div>
-            <div style="flex:1; min-width:300px; text-align:center; padding-left:10px;">
-                <h3>Dimensione Esercito</h3>
-                <div class="btn-group" id="unit-group">
-                    <button class="select-btn selected" onclick="selectUnitCount(5, this)">5 Unità (3 Azioni)</button>
-                    <button class="select-btn" onclick="selectUnitCount(7, this)">7 Unità (4 Azioni)</button>
-                    <button class="select-btn" onclick="selectUnitCount(10, this)">10 Unità (5 Azioni)</button>
-                </div>
-                <h3 style="margin-top:20px;">Fazioni in Gioco</h3>
-                <div class="btn-group" id="team-group">
-                    <button class="select-btn selected" onclick="selectTeams(2, this)">1 vs 1</button>
-                    <button class="select-btn" onclick="selectTeams(3, this)">3 Squadre</button>
-                    <button class="select-btn" onclick="selectTeams(4, this)">4 Squadre</button>
-                </div>
-                <div style="margin-top:15px; font-size: 0.9rem;">
-                    <p style="color:var(--text-muted); font-style:italic;">La mappa esagonale scalerà automaticamente!</p>
-                    <label><input type="checkbox" id="fogToggle" checked> Abilita Foschia di Guerra</label><br>
-                    <label><input type="checkbox" id="neutralToggle" checked> Genera Banditi Neutrali & Bottino</label>
-                </div>
+            
+            <div style="text-align:center; margin-top:25px; font-size: 0.95rem; background: #fff; padding: 15px; border-radius: 8px;">
+                <p style="color:var(--accent-gold); font-style:italic; margin-bottom: 10px;">La mappa esagonale scalerà automaticamente per riempire il tuo schermo!</p>
+                <label style="margin-right: 15px; cursor: pointer;"><input type="checkbox" id="fogToggle" checked> Abilita Foschia di Guerra</label>
+                <label style="cursor: pointer;"><input type="checkbox" id="neutralToggle" checked> Genera Banditi & Bottino</label>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="primary-action" onclick="goToDraft()">Procedi al Reclutamento ➔</button>
             </div>
         </div>
-        <button class="primary-action" onclick="goToDraft()">Procedi alla Selezione Truppe ➔</button>
     </div>
 
     <!-- SCHERMATA DRAFTING -->
     <div id="screen-draft" class="screen">
         <h1>Armeria & Reclutamento</h1>
         <div class="wiki-container">
-            <div class="roster-panel" style="flex: 0.7;">
+            <div class="roster-panel" style="flex: 0.8;">
                 <h3>Il Tuo Esercito (<span id="draft-count">0</span>/<span id="max-draft">5</span>)</h3>
-                <div class="selected-roster" id="roster-bar"></div>
+                <div class="selected-roster" id="roster-bar">
+                    <p style="font-size: 0.85rem; color: #888; font-style: italic;">Scegli le truppe dal pannello a destra...</p>
+                </div>
+                
                 <div style="margin-top:auto; display:flex; gap:10px; flex-direction:column;">
-                    <button onclick="document.getElementById('screen-config').classList.add('active'); document.getElementById('screen-draft').classList.remove('active');">Indietro</button>
+                    <button class="primary-action" id="btn-start" style="display:none; margin:0;" onclick="startDeployment()">Inizia Schieramento sulla Mappa ➔</button>
                     <button onclick="playerRosterKeys=[]; updateDraftUI();">Svuota Selezione</button>
-                    <button class="primary-action" id="btn-start" style="display:none; margin:0;" onclick="startDeployment()">Inizia Schieramento ➔</button>
+                    <button onclick="document.getElementById('screen-config').classList.add('active'); document.getElementById('screen-draft').classList.remove('active');">Indietro alle Impostazioni</button>
                 </div>
             </div>
-            <div class="roster-panel" style="flex: 1.3; background: #faf8f5;">
+            <div class="roster-panel" style="flex: 1.2; background: #faf8f5;">
+                <h3 style="margin-bottom: 15px;">Enciclopedia Truppe</h3>
                 <div class="draft-grid" id="draft-grid"></div>
             </div>
         </div>
     </div>
 
     <!-- SCHERMATA GIOCO -->
-    <div id="screen-game" class="screen" style="padding:0;">
+    <div id="screen-game" class="screen" style="max-width: 100%; padding: 15px;">
         <div class="game-layout">
+            
             <div id="canvas-container">
                 <canvas id="gameCanvas"></canvas>
             </div>
+            
             <div class="sidebar">
-                <div class="info-card">
+                <div class="info-card" style="background: #fff;">
                     <div id="turn-badge" class="turn-badge">...</div>
                     <div class="action-points" id="ap-container"></div>
-                    <div id="status-msg" style="font-weight: bold; text-align:center; font-size:0.85rem; margin-bottom:8px;">...</div>
-                    <button id="btn-pass" style="width:100%; padding:6px; font-size:0.85rem; display:none;" onclick="forcePassTurn()">Fine Turno (Passa)</button>
-                    <hr style="margin:8px 0; border:0; border-top:1px solid #ddd;">
-                    <div id="unit-detail-box" style="font-size: 0.8rem; line-height:1.4; color: var(--text-main); min-height: 50px;">
-                        Tocca un esagono per i dettagli.
+                    <div id="status-msg" style="text-align:center; font-size:0.9rem; margin-bottom:10px; color: var(--text-muted);">...</div>
+                    <button id="btn-pass" style="width:100%; padding:8px; font-size:0.95rem; display:none;" onclick="forcePassTurn()">Concludi Turno</button>
+                    
+                    <hr style="margin:12px 0; border:0; border-top:1px dashed var(--panel-border);">
+                    <div id="unit-detail-box" style="font-size: 0.85rem; line-height:1.5; min-height: 60px;">
+                        <em>Tocca un esagono sulla mappa per ispezionarlo.</em>
                     </div>
                 </div>
+
                 <div class="info-card">
-                    <h4 style="margin-bottom:5px;">Radar Alleanze</h4>
+                    <h4 style="margin-bottom:8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Truppe in Campo (Radar)</h4>
                     <div id="team-rosters"></div>
                 </div>
-                <div class="info-card" style="padding: 5px;">
+
+                <div class="info-card" style="padding: 10px;">
                     <div class="log-box" id="action-log"></div>
                 </div>
-                <div style="display:flex; gap:8px;">
-                    <button style="flex:1;" onclick="if(confirm('Riavviare la mappa?')) initGame();"><i class="fa-solid fa-rotate-left"></i> Riavvia</button>
-                    <button style="flex:1;" onclick="location.reload()"><i class="fa-solid fa-house"></i> Menu</button>
+
+                <div style="display:flex; gap:10px;">
+                    <button style="flex:1; font-size: 0.8rem;" onclick="if(confirm('Riavviare la mappa?')) initGame();"><i class="fa-solid fa-rotate-left"></i> Riavvia</button>
+                    <button style="flex:1; font-size: 0.8rem;" onclick="location.reload()"><i class="fa-solid fa-house"></i> Menu</button>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -177,18 +211,18 @@
         };
 
         const DESC = {
-            fanteria: "Truppa base. Perfetta per difendere e tenere la posizione.",
-            arciere: "Colpisce da lontano, ma il suo contrattacco corpo a corpo è debole.",
-            mago: "Danni bilanciati a media distanza. Ottimo supporto offensivo.",
-            esploratore: "Ignora i malus dei deserti. Visione ampissima sulla mappa.",
-            cavaliereL: "Unità velocissima, perfetta per aggirare i nemici.",
-            cavaliereP: "Molto resistente e mobile, ma i boschi la bloccano.",
-            colosso: "Lentissimo, ma possiede i massimi HP e i danni più alti.",
-            difensore: "Aura Passiva a Croce: dona +20% Difesa agli alleati vicini.",
-            guaritore: "Non attacca. Usa l'azione su un alleato per curare 30 HP.",
-            stealth: "Completamente invisibile finché il nemico non entra nella casella adiacente.",
-            trasporto: "Carica 1 alleato (cliccaci sopra). Poi usa l'azione per sbarcarlo.",
-            orrore: "Aura Terrore: toglie il 20% di Attacco e Difesa ai nemici vicini."
+            fanteria: "Ottima per difendere e tenere la posizione.",
+            arciere: "Letale da lontano, debole nel corpo a corpo.",
+            mago: "Attacchi magici bilanciati a media distanza.",
+            esploratore: "Ignora i deserti. Svela vaste aree di nebbia.",
+            cavaliereL: "Velocissima per aggirare i fianchi nemici.",
+            cavaliereP: "Molto resistente. Bloccata dai boschi.",
+            colosso: "Lentissima, possiede i massimi HP e Danni.",
+            difensore: "Aura Passiva: +20% Difesa agli alleati vicini.",
+            guaritore: "Cura 30 HP agli alleati (Non attacca).",
+            stealth: "Invisibile finché il nemico non è adiacente.",
+            trasporto: "Carica 1 alleato (toccalo) e poi sbarcalo.",
+            orrore: "Aura Terrore: -20% Stats ai nemici vicini."
         };
 
         const B_STAT = { 
@@ -254,16 +288,16 @@
         let playerRosterKeys = [], pDeployQueue = [], botDeployQueues = {}; 
         let selectedDeployIdx = -1;
 
-        // === MOTORE CANVAS (AUTO-FIT, NIENTE DRAG/ZOOM BUGGATO) ===
+        // === MOTORE CANVAS (NO ZOOM/PAN, SOLO AUTO-FIT PER TOUCH) ===
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const HEX_SIZE = 34;
-        let camX = 0, camY = 0, camZoom = 1;
-        let hoveredHex = null;
+        let HEX_SIZE = 30; // Valore di partenza, verrà sovrascritto dall'Auto-Fit
+        let camX = 0, camY = 0;
 
         function resizeCanvas() {
             let container = document.getElementById('canvas-container');
             if(container) {
+                // Imposta la grandezza in pixel fisici uguale a quella calcolata dal CSS flexbox
                 canvas.width = container.clientWidth;
                 canvas.height = container.clientHeight;
                 if(gameState !== 'config') {
@@ -274,17 +308,32 @@
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // Calcola l'inquadratura perfetta per far stare tutta la mappa nello schermo
+        // Calcola l'inquadratura perfetta per far stare tutta la mappa nello schermo senza scorrere
         function calculateAutoFit() {
-            let gridW = (cfg.radius * 2 + 2) * Math.sqrt(3) * HEX_SIZE;
-            let gridH = (cfg.radius * 2 + 2) * 1.5 * HEX_SIZE;
-            let scaleX = canvas.width / gridW;
-            let scaleY = canvas.height / gridH;
-            camZoom = Math.min(scaleX, scaleY) * 0.95; // 95% per lasciare i bordi
+            // Un esagono ha larghezza sqrt(3)*size e altezza 2*size
+            // La mappa è un esagono grande di raggio "cfg.radius"
+            let mapWidthInHexes = (cfg.radius * 2) + 1;
+            let mapHeightInHexes = (cfg.radius * 2) + 1;
+            
+            // Calcolo ingombro virtuale se la size fosse 1
+            let virtualW = mapWidthInHexes * Math.sqrt(3);
+            let virtualH = mapHeightInHexes * 1.5 + 0.5; // Le righe si sovrappongono
+            
+            // Troviamo il nuovo HEX_SIZE in base allo schermo (tenendo un margine del 10%)
+            let availW = canvas.width * 0.90;
+            let availH = canvas.height * 0.90;
+            
+            let scaleX = availW / virtualW;
+            let scaleY = availH / virtualH;
+            
+            HEX_SIZE = Math.min(scaleX, scaleY); // Prende la misura più piccola per non tagliare
+            
+            // Centra la telecamera (le coordinate 0,0 saranno al centro del canvas)
             camX = canvas.width / 2;
             camY = canvas.height / 2;
         }
 
+        // Funzioni Matematiche Esagonali base Flat-Topped
         function hexToPixel(q, r) {
             let x = HEX_SIZE * Math.sqrt(3) * (q + r/2);
             let y = HEX_SIZE * 3/2 * r;
@@ -333,16 +382,17 @@
                         <div class="u-info">
                             <span class="role-title">${u.role}</span>
                             <strong>${u.name}</strong><br>
-                            HP:${u.hp} | Atk:${u.atk} | Def:${u.def}%<br>
-                            Mov:${u.mov} | Rng:${u.rng} | Vis:${u.vis}<br>
+                            HP: ${u.hp} | Atk: ${u.atk} | Def: ${u.def}%<br>
+                            Mov: ${u.mov} | Rng: ${u.rng} | Vis: ${u.vis}<br>
                             <em>${u.desc}</em>
                         </div>
                     </div>`;
             }
             const bar = document.getElementById('roster-bar'); bar.innerHTML = '';
+            if(playerRosterKeys.length === 0) bar.innerHTML = '<p style="font-size: 0.85rem; color: #888; font-style: italic;">Scegli le truppe dal pannello a destra...</p>';
             playerRosterKeys.forEach((k, i) => {
                 bar.innerHTML += `<div class="roster-chip" onclick="playerRosterKeys.splice(${i},1);updateDraftUI()">
-                    ${tpl[k].icon} <span style="font-weight:bold;">${tpl[k].role}</span> (${tpl[k].name}) <span style="color:red; margin-left:5px;">✖</span></div>`;
+                    ${tpl[k].icon} <span style="font-weight:bold;">${tpl[k].role}</span> <span style="color:red; margin-left:5px;">✖</span></div>`;
             });
             document.getElementById('draft-count').innerText = playerRosterKeys.length;
             document.getElementById('btn-start').style.display = playerRosterKeys.length === cfg.unitCount ? 'block' : 'none';
@@ -352,10 +402,12 @@
         // === FASE 3: MAPPA E SCHIERAMENTO ===
         function startDeployment() {
             maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3);
-            cfg.radius = 5 + Math.floor(cfg.teams) + Math.floor(cfg.unitCount / 2);
+            cfg.radius = 4 + Math.floor(cfg.teams) + Math.floor(cfg.unitCount / 2);
             
             document.getElementById('screen-draft').classList.remove('active');
             document.getElementById('screen-game').classList.add('active');
+            
+            // Inizializza subito il Canvas
             resizeCanvas(); 
             initGame();
         }
@@ -384,9 +436,9 @@
                 }
             }
 
-            calculateAutoFit(); // Centra subito la mappa
+            calculateAutoFit(); // Centra subito la mappa nel Canvas
             currentTeamIdx = Math.floor(Math.random() * turnOrder.length);
-            logAction(`Mappa scalata in automatico. Punti Azione: ${maxAP}. Inizia: ${turnOrder[currentTeamIdx].toUpperCase()}`);
+            logAction(`Mappa adattata allo schermo! Punti Azione: ${maxAP}. Inizia schieramento: ${turnOrder[currentTeamIdx].toUpperCase()}`);
             handleDeployTurn();
         }
 
@@ -402,6 +454,7 @@
         }
 
         function generateHexMap() {
+            // Forma Esagonale
             for (let q = -cfg.radius; q <= cfg.radius; q++) {
                 let r1 = Math.max(-cfg.radius, -q - cfg.radius);
                 let r2 = Math.min(cfg.radius, -q + cfg.radius);
@@ -410,6 +463,7 @@
                     if(!isVoid) board.set(`${q},${r}`, {q, r, terrain: 'pianura', spawnTeam: null});
                 }
             }
+            // Biomi
             const biomes = ['bosco','bosco','deserto','citta','collina','montagna'];
             for(let i=0; i<cfg.radius*3; i++) {
                 let b = biomes[Math.floor(Math.random()*biomes.length)];
@@ -421,12 +475,14 @@
                     q = n.q; r = n.r;
                 }
             }
+            // Loot Neutrale
             if(cfg.neutral) {
                 Array.from(board.values()).forEach(c => {
                     if(Math.random() < 0.05 && c.terrain !== 'montagna') loots.push({q:c.q, r:c.r, type: Math.random()>0.5?'heal':'dmg'});
                 });
             }
 
+            // Zone Spawn
             let spawns = [{t:'player', q:0, r:cfg.radius}, {t:'enemy', q:0, r:-cfg.radius}, {t:'team3', q:-cfg.radius, r:0}, {t:'team4', q:cfg.radius, r:0}];
             for(let i=0; i<cfg.teams; i++) {
                 let s = spawns[i];
@@ -452,14 +508,14 @@
 
             if(allDone) {
                 gameState = 'playing'; currentTeamIdx = 0; actionsLeft = maxAP;
-                logAction("🔥 SCHIERAMENTO COMPLETATO!");
+                logAction("🔥 SCHIERAMENTO COMPLETATO! Inizia la battaglia.");
                 if(turnOrder[currentTeamIdx] !== 'player') setTimeout(aiTurn, 1000);
                 updateUI(); renderFrame(); return;
             }
 
             if(!hasUnits) { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; handleDeployTurn(); return; }
 
-            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 200); } 
+            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 300); } 
             else { selectedDeployIdx = -1; updateUI(); renderFrame(); }
         }
 
@@ -476,7 +532,7 @@
             handleDeployTurn();
         }
 
-        // === REGOLE MAPPA E FOW ===
+        // === REGOLE E FOG OF WAR ===
         function calcAurasAndStealth() {
             units.forEach(u => {
                 u.auraDef = 0; u.auraAtkDrop = 0; u.surrounded = false;
@@ -604,10 +660,10 @@
         }
 
         function renderFrame() {
+            if(!ctx) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save();
-            ctx.translate(camX, camY);
-            ctx.scale(camZoom, camZoom);
+            ctx.translate(camX, camY); // Sposta l'origine al centro del Canvas
 
             calcAurasAndStealth();
             calculateFog();
@@ -617,6 +673,7 @@
                 moves = getValidMoves(activeUnit); acts = getValidActions(activeUnit); canCamp = true;
             }
 
+            // Ordina Z-Index
             let cells = Array.from(board.values()).sort((a,b) => a.r - b.r);
 
             cells.forEach(c => {
@@ -626,12 +683,12 @@
                 let t = TERRAINS[c.terrain];
 
                 drawHex(px.x, px.y, HEX_SIZE + 0.5);
-                ctx.fillStyle = isExp ? t.cMain : '#0d0d0d'; ctx.fill();
+                ctx.fillStyle = isExp ? t.cMain : '#111'; ctx.fill();
                 drawHex(px.x, px.y, HEX_SIZE - 2);
-                ctx.fillStyle = isExp ? t.cTop : '#111'; ctx.fill();
+                ctx.fillStyle = isExp ? t.cTop : '#1a1a1a'; ctx.fill();
                 
                 if(isExp) {
-                    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+                    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.1)';
                     if(c.terrain === 'bosco') { ctx.fillStyle='#2d4c24'; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.moveTo(px.x+i*8-8, px.y-i*2); ctx.lineTo(px.x+i*8-12, px.y+8-i*2); ctx.lineTo(px.x+i*8-4, px.y+8-i*2); ctx.fill(); } }
                     if(c.terrain === 'deserto') { ctx.beginPath(); ctx.moveTo(px.x-10, px.y); ctx.quadraticCurveTo(px.x, px.y-10, px.x+10, px.y+2); ctx.stroke(); }
                     if(c.terrain === 'montagna') { ctx.fillStyle='#fff'; ctx.beginPath(); ctx.moveTo(px.x, px.y-10); ctx.lineTo(px.x-8, px.y+5); ctx.lineTo(px.x+8, px.y+5); ctx.fill(); ctx.stroke(); }
@@ -639,15 +696,14 @@
                 }
 
                 if(cfg.fog && isExp && !isVis) {
-                    drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fill();
+                    drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fill();
                 }
 
                 let k = `${c.q},${c.r}`;
                 if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255,215,0,0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); }
-                if(activeUnit && activeUnit.q === c.q && activeUnit.r === c.r) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.strokeStyle='gold'; ctx.lineWidth=4; ctx.stroke(); if(canCamp){ ctx.fillStyle='white'; ctx.fillText('⛺', px.x-10, px.y+5); } }
-                if(moves.has(k)) { drawHex(px.x, px.y, 8); ctx.fillStyle='rgba(76,175,80,0.8)'; ctx.fill(); }
-                if(acts.has(k)) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229,57,53,0.4)'; ctx.fill(); ctx.strokeStyle='red'; ctx.stroke(); }
-                if(hoveredHex && hoveredHex.q === c.q && hoveredHex.r === c.r) { drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fill(); }
+                if(activeUnit && activeUnit.q === c.q && activeUnit.r === c.r) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.strokeStyle='gold'; ctx.lineWidth=4; ctx.stroke(); if(canCamp){ ctx.fillStyle='white'; ctx.font="14px Arial"; ctx.fillText('⛺', px.x-8, px.y+5); } }
+                if(moves.has(k)) { drawHex(px.x, px.y, HEX_SIZE*0.3); ctx.fillStyle='rgba(76,175,80,0.8)'; ctx.fill(); }
+                if(acts.has(k)) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229,57,53,0.3)'; ctx.fill(); ctx.strokeStyle='red'; ctx.lineWidth=2; ctx.stroke(); }
 
                 if(isVis) { let l = loots.find(l=>l.q===c.q && l.r===c.r); if(l) { ctx.fillStyle=l.type==='heal'?'pink':'red'; ctx.beginPath(); ctx.arc(px.x, px.y+10, 5, 0, 7); ctx.fill(); } }
 
@@ -657,62 +713,56 @@
                     if(canRender && (isExp || !cfg.fog)) {
                         ctx.fillStyle = COLORS[u.team]; ctx.strokeStyle = u.hasActed ? '#666' : '#fff'; ctx.lineWidth = 2;
                         if(u.hasActed) ctx.fillStyle = '#555';
-                        ctx.beginPath(); ctx.ellipse(px.x, px.y+8, 14, 6, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                        ctx.beginPath(); ctx.ellipse(px.x, px.y+8, HEX_SIZE*0.4, HEX_SIZE*0.2, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
                         
                         ctx.fillStyle = u.hasActed ? '#999' : '#fff'; ctx.strokeStyle = '#222'; ctx.lineWidth = 1;
                         if(u.perk === 'stealth' && !u.isVisible) ctx.globalAlpha = 0.4;
                         drawShape(u.shape, px.x, px.y - 6);
                         ctx.globalAlpha = 1.0;
 
+                        ctx.font="12px Arial";
                         if(u.isCamped) { ctx.fillStyle='white'; ctx.fillText('⛺', px.x-20, px.y-10); }
                         if(u.killBuff) { ctx.fillStyle='orange'; ctx.fillText('🔥', px.x+10, px.y-10); }
                         if(u.passenger) { ctx.fillStyle='white'; ctx.fillText('📦', px.x+10, px.y); }
                         
-                        ctx.fillStyle = '#000'; ctx.fillRect(px.x-10, px.y+15, 20, 4);
-                        ctx.fillStyle = u.currentHp/u.hp > 0.5 ? '#0f0' : 'red'; ctx.fillRect(px.x-10, px.y+15, 20 * (u.currentHp/u.hp), 4);
+                        let hpW = HEX_SIZE * 0.6;
+                        ctx.fillStyle = '#000'; ctx.fillRect(px.x-hpW/2, px.y+15, hpW, 4);
+                        ctx.fillStyle = u.currentHp/u.hp > 0.5 ? '#0f0' : 'red'; ctx.fillRect(px.x-hpW/2, px.y+15, hpW * (u.currentHp/u.hp), 4);
                     }
                 }
             });
 
             ctx.restore();
-            updateUI(); updateEnemyRoster();
         }
 
-        // === GESTIONE CLICK TOUCH/MOUSE ===
-        // Abbiamo sostituito mousedown/mousemove per la telecamera libera.
-        // Adesso calcoliamo l'esagono target direttamente al momento del "click/tap" in base al ridimensionamento automatico.
-        
-        canvas.addEventListener('mousemove', e => {
+        // === GESTIONE CLICK UNIVERSALE (POINTER EVENTS PER TOUCH/MOUSE) ===
+        // Questo risolve i problemi su iPad/Tablet
+        canvas.addEventListener('pointerup', e => {
             let rect = canvas.getBoundingClientRect();
-            let mx = (e.clientX - rect.left - camX) / camZoom;
-            let my = (e.clientY - rect.top - camY) / camZoom;
-            let h = pixelToHex(mx, my);
-            hoveredHex = board.has(`${h.q},${h.r}`) ? h : null;
-            renderFrame();
-        });
-
-        canvas.addEventListener('click', e => {
-            let rect = canvas.getBoundingClientRect();
+            // Trova il punto esatto rispetto al canvas
             let cx = e.clientX - rect.left;
             let cy = e.clientY - rect.top;
             
-            // Applica la trasformazione inversa per capire quale esagono abbiamo toccato
-            let mapX = (cx - camX) / camZoom;
-            let mapY = (cy - camY) / camZoom;
-            let h = pixelToHex(mapX, mapY);
+            // Applica la trasformazione inversa (togli camX/Y)
+            let mapX = (cx - camX);
+            let mapY = (cy - camY);
             
+            let h = pixelToHex(mapX, mapY);
             if(!board.has(`${h.q},${h.r}`)) return;
+            
             let q = h.q, r = h.r;
             
             if (gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player') {
                 let cell = board.get(`${q},${r}`);
                 if(cell && cell.spawnTeam === 'player' && !getUnitAt(q,r) && pDeployQueue.length > 0) {
-                    if(selectedDeployIdx === -1) { logAction("⚠️ Seleziona una truppa a destra!"); return; }
+                    if(selectedDeployIdx === -1) { logAction("⚠️ Tocca una truppa nel pannello per schierarla!"); return; }
                     let u = pDeployQueue.splice(selectedDeployIdx, 1)[0];
                     u.q = q; u.r = r; units.push(u);
                     exploredMap.set(`${q},${r}`, true); 
                     logAction(`Schierato: ${u.role}.`);
+                    selectedDeployIdx = -1; // Deseleziona
                     currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length;
+                    updateUI(); // Aggiorna pannello prima di passare turno
                     handleDeployTurn();
                 }
                 return;
@@ -733,20 +783,20 @@
             if (occ && occ.team === 'player' && !occ.hasActed) {
                 if (activeUnit && activeUnit.id === occ.id) {
                     activeUnit.isCamped = true; activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 20);
-                    logAction(`⛺ ${activeUnit.role} si accampa!`); finalizeAction(activeUnit); return;
+                    logAction(`⛺ ${activeUnit.role} si accampa! (+Def/HP)`); finalizeAction(activeUnit); return;
                 }
                 activeUnit = occ; updateInfo(occ); renderFrame(); return;
             }
 
             if(!activeUnit && occ) { updateInfo(occ); return; }
-            if(!activeUnit && !occ) { let t=TERRAINS[board.get(`${q},${r}`).terrain]; document.getElementById('unit-detail-box').innerHTML = `<strong>Terreno: ${t.id}</strong><br>Difesa Copertura: ${t.cover}%`; return; }
+            if(!activeUnit && !occ) { let t=TERRAINS[board.get(`${q},${r}`).terrain]; document.getElementById('unit-detail-box').innerHTML = `<strong>Terreno: ${t.id}</strong><br>Copertura Difesa: ${t.cover}%`; return; }
 
             if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed) return;
 
             let acts = getValidActions(activeUnit);
             let act = acts.get(`${q},${r}`);
             if (act) {
-                if(act.t === 'unload') { act.tgt = activeUnit.passenger; act.tgt.q = q; act.tgt.r = r; activeUnit.passenger = null; logAction(`📦 Sbarco.`); finalizeAction(activeUnit); return; }
+                if(act.t === 'unload') { act.tgt = activeUnit.passenger; act.tgt.q = q; act.tgt.r = r; activeUnit.passenger = null; logAction(`📦 Sbarco completato.`); finalizeAction(activeUnit); return; }
                 if(act.t === 'heal') { act.tgt.currentHp = Math.min(act.tgt.hp, act.tgt.currentHp + 30); logAction(`💖 ${activeUnit.role} cura ${act.tgt.role}!`); finalizeAction(activeUnit); return; }
                 if(act.t === 'atk') { executeCombat(activeUnit, act.tgt, false); return; }
             }
@@ -762,7 +812,7 @@
                     if(lIdx >= 0) {
                         let l = loots.splice(lIdx, 1)[0];
                         if(l.type==='heal') { activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 30); logAction("✨ Loot Curativo!"); }
-                        if(l.type==='dmg') { activeUnit.killBuff = true; logAction("⚔️ Loot Furia!"); }
+                        if(l.type==='dmg') { activeUnit.killBuff = true; logAction("⚔️ Furia Trovata!"); }
                     }
                     if(activeUnit.perk === 'stealth') activeUnit.isVisible = false; 
                 }
@@ -810,8 +860,9 @@
         function checkTurnEnd() {
             let t = turnOrder[currentTeamIdx];
             if (actionsLeft <= 0 || units.filter(u => u.team === t && !u.hasActed && !u.passenger).length === 0) passTurn();
+            else { updateUI(); renderFrame(); }
         }
-        function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player') { logAction("Fine turno anticipata."); if(activeUnit) finalizeAction(activeUnit); passTurn(); } }
+        function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player') { logAction("Turno terminato."); if(activeUnit) finalizeAction(activeUnit); passTurn(); } }
 
         function passTurn() {
             if(gameState !== 'playing') return;
@@ -825,7 +876,6 @@
             if(currentTeamIdx === 0 && cfg.neutral) {
                 let nts = units.filter(u => u.team === 'neutral');
                 if(nts.length > 0) {
-                    logAction("I Banditi si muovono...");
                     nts.forEach(n => {
                         let acts = Array.from(getValidActions(n).values());
                         if(acts.length>0) executeCombat(n, acts[0].tgt, false);
@@ -912,7 +962,7 @@
                 let tu = units.filter(u => u.team === t);
                 if (tu.length === 0) return;
                 html += `<div class="team-icons-row"><strong style="width:60px;">${t.toUpperCase()}</strong> `;
-                tu.forEach(u => { html += `<span title="${u.role} (${u.name})" style="font-size:1.2rem; background:#eee; padding:2px; border-radius:4px;">${u.icon}</span>`; });
+                tu.forEach(u => { html += `<span title="${u.role} (${u.name})">${u.icon}</span>`; });
                 html += `</div>`;
             });
             document.getElementById('team-rosters').innerHTML = html;
@@ -931,11 +981,10 @@
             let effDef = Math.min(80, u.def + tCover + (u.isCamped?20:0) + u.auraDef);
             let effAtk = Math.max(5, Math.round(u.atk * (1 - u.auraAtkDrop/100)));
             det.innerHTML = `
-                <div style="font-size:1.1rem; margin-bottom:5px;">${u.icon} <strong style="color:var(--accent-gold-hover)">${u.role}</strong> (${u.name}) <small>[${u.team}]</small></div>
+                <div style="font-size:1.2rem; margin-bottom:5px;">${u.icon} <strong style="color:var(--accent-gold-hover)">${u.role}</strong> (${u.name})</div>
                 ❤️ HP: ${u.currentHp}/${u.hp} | ⚔️ Atk: ${effAtk} | 🛡️ Def: ${effDef}%<br>
                 ⚡ Mov: ${u.mov} | 🎯 Rng: ${u.rng} | 👁️ Vis: ${u.vis}<br>
-                <em>${u.desc}</em>
-                ${u.passenger ? `<br>📦 <strong>A bordo:</strong> ${u.passenger.role}` : ''}
+                <em style="color:var(--text-muted);">${u.desc}</em>
             `;
         }
 
