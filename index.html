@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -81,6 +81,9 @@
         .team-icons-row { display: flex; gap: 6px; margin-bottom: 6px; align-items:center; flex-wrap:wrap;}
         .team-icons-row strong { width: 70px; font-family: 'Playfair Display', serif;}
         .team-icons-row span { font-size: 1.2rem; background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        
+        .btn-camp-action { width: 100%; padding: 10px; font-size: 0.95rem; background: #1976d2; color: white; border: 2px solid #0d47a1; margin-top: 10px; }
+        .btn-camp-action:hover { background: #1565c0; border-color: #0a3575; }
     </style>
 </head>
 <body>
@@ -164,11 +167,21 @@
                     <div id="turn-badge" class="turn-badge">...</div>
                     <div class="action-points" id="ap-container"></div>
                     <div id="status-msg" style="text-align:center; font-size:0.9rem; margin-bottom:10px; color: var(--text-muted);">...</div>
-                    <button id="btn-pass" style="width:100%; padding:8px; font-size:0.95rem; display:none;" onclick="forcePassTurn()">Passa il Turno</button>
+                    <button id="btn-pass" style="width:100%; padding:8px; font-size:0.95rem; display:none;" onclick="forcePassTurn()">Concludi il Turno</button>
                     
                     <hr style="margin:12px 0; border:0; border-top:1px dashed var(--panel-border);">
                     <div id="unit-detail-box" style="font-size: 0.85rem; line-height:1.5; min-height: 60px;">
                         <em>Tocca un esagono sulla mappa per analizzare.</em>
+                    </div>
+                    
+                    <!-- Nuovo Contenitore Azioni Truppa (Accampati) -->
+                    <div id="unit-actions" style="display:none; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                        <button id="btn-camp" class="btn-camp-action" onclick="campActiveUnit()">
+                            <i class="fa-solid fa-campground"></i> Accampati
+                        </button>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:5px; text-align:center; line-height: 1.3;">
+                            Fortifica la truppa in questa posizione.<br>Aumenta la Difesa del +20% e recupera 20 HP.
+                        </p>
                     </div>
                 </div>
 
@@ -191,6 +204,12 @@
     </div>
 
     <script>
+        // === CARICAMENTO IMMAGINI BIOMI (TEXTURES) ===
+        const IMG_BOSCO = new Image(); IMG_BOSCO.src = 'image.png';
+        const IMG_DESERTO = new Image(); IMG_DESERTO.src = 'image_2.png';
+        const IMG_MONTAGNA = new Image(); IMG_MONTAGNA.src = 'image_3.png';
+        const IMG_CITTA = new Image(); IMG_CITTA.src = 'image_4.png';
+
         // === CONFIGURAZIONE E STRUTTURE DATI ===
         let cfg = { diff: 'Normale', radius: 5, unitCount: 5, teams: 2, fog: true, neutral: true };
         let maxAP = 3;
@@ -252,13 +271,13 @@
         };
 
         const TERRAINS = {
-            pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#819a62', cTop: '#95b172' },
-            bosco: { id: 'Foresta Antica', walk: true, cover: 15, cMain: '#3b5e30', cTop: '#456d38' },    
-            deserto: { id: 'Deserto', walk: true, cover: 0, cMain: '#c8b67b', cTop: '#dbca91' },
-            montagna: { id: 'Picco Roccioso', walk: false, cover: 0, cMain: '#5a5652', cTop: '#6b6762', blockLOS: true },
-            citta: { id: 'Rovine Maledette', walk: true, cover: 25, cMain: '#807a72', cTop: '#928c83', blockLOS: true },     
-            collina: { id: 'Collina', walk: true, cover: 5, cMain: '#6c8a4a', cTop: '#7c9d57' },
-            vuoto: { id: 'Vuoto', walk: false, cover: 0, cMain: 'transparent', cTop: 'transparent' }
+            pianura: { id: 'Pianura', walk: true, cover: 0, cMain: '#819a62', cTop: '#95b172', img: null },
+            bosco: { id: 'Foresta Antica', walk: true, cover: 15, cMain: '#3b5e30', cTop: '#456d38', img: IMG_BOSCO },    
+            deserto: { id: 'Deserto', walk: true, cover: 0, cMain: '#c8b67b', cTop: '#dbca91', img: IMG_DESERTO },
+            montagna: { id: 'Picco Roccioso', walk: false, cover: 0, cMain: '#5a5652', cTop: '#6b6762', blockLOS: true, img: IMG_MONTAGNA },
+            collina: { id: 'Collina', walk: true, cover: 5, cMain: '#6c8a4a', cTop: '#7c9d57', img: IMG_MONTAGNA }, // Usa la stessa immagine con clipping
+            citta: { id: 'Città Fortificata', walk: true, cover: 40, cMain: '#807a72', cTop: '#928c83', blockLOS: true, img: IMG_CITTA },     
+            vuoto: { id: 'Vuoto', walk: false, cover: 0, cMain: 'transparent', cTop: 'transparent', img: null }
         };
 
         const TEAMS = ['player', 'enemy', 'team3', 'team4'];
@@ -275,7 +294,7 @@
         // === MOTORE CANVAS E CAMERA PAN ===
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const HEX_SIZE = 44; 
+        const HEX_SIZE = 48; // Dimensione esagoni leggermente aumentata per apprezzare le immagini
         let camX = 0, camY = 0;
         
         let isDragging = false;
@@ -482,8 +501,7 @@
             teamsArr.forEach(t => {
                 for(let c = 0; c < spawnClusters; c++) {
                     let validCells = Array.from(board.values()).filter(cell => {
-                        if(cell.spawnTeam || cell.terrain === 'montagna') return false;
-                        // Assicurati che il seed non sia attaccato a un'altra zona di un nemico
+                        if(cell.spawnTeam || cell.terrain === 'montagna' || cell.terrain === 'citta') return false; // Evita di spawnare direttamente in città
                         let ns = getNeighbors(cell.q, cell.r);
                         for(let n of ns) {
                             let nc = board.get(`${n.q},${n.r}`);
@@ -503,11 +521,10 @@
                     while(queue.length > 0 && count < tilesPerCluster) {
                         let curr = queue.shift();
                         let neighbors = getNeighbors(curr.q, curr.r);
-                        // Disordina i vicini per creare cluster organici e imprevedibili
                         neighbors.sort(() => Math.random() - 0.5);
                         for(let n of neighbors) {
                             let nCell = board.get(`${n.q},${n.r}`);
-                            if(nCell && !nCell.spawnTeam && nCell.terrain !== 'montagna' && count < tilesPerCluster) {
+                            if(nCell && !nCell.spawnTeam && nCell.terrain !== 'montagna' && nCell.terrain !== 'citta' && count < tilesPerCluster) {
                                 nCell.spawnTeam = t;
                                 count++;
                                 queue.push(n);
@@ -526,7 +543,9 @@
             for(let k in botDeployQueues) if(botDeployQueues[k].length > 0) allDone = false;
 
             if(allDone) {
-                gameState = 'playing'; currentTeamIdx = 0; actionsLeft = maxAP;
+                gameState = 'playing'; currentTeamIdx = 0; 
+                maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3); // Resetta AP logicamente
+                actionsLeft = maxAP;
                 logAction("<i class='fa-solid fa-play'></i> SCHIERAMENTO COMPLETATO! Inizia la battaglia.");
                 if(turnOrder[currentTeamIdx] !== 'player') setTimeout(aiTurn, 1000);
                 updateUI(); renderFrame(); return;
@@ -609,7 +628,15 @@
                     if(occ && !canLoad) return;
 
                     let cost = curr.cost + 1;
-                    if(cell.terrain === 'citta' || (cell.terrain === 'deserto' && u.perk !== 'agile') || (cell.terrain === 'bosco' && u.perk === 'mounted')) cost++;
+                    
+                    // Modificatori Ingresso Terreno
+                    if(cell.terrain === 'citta') cost += 2; // Costa 3 AP entrare in Città
+                    else if(cell.terrain === 'deserto' && u.perk !== 'agile') cost++;
+                    else if(cell.terrain === 'bosco' && u.perk === 'mounted') cost++;
+
+                    // Modificatori Uscita Terreno (Preparazione uscita città)
+                    let currCell = board.get(`${curr.q},${curr.r}`);
+                    if(currCell && currCell.terrain === 'citta') cost += 1; // Costa 1 in più uscire dalla Città
 
                     if(cost <= u.mov) {
                         if(!moves.has(`${n.q},${n.r}`) || moves.get(`${n.q},${n.r}`).cost > cost) {
@@ -711,32 +738,42 @@
                 let isExp = exploredMap.get(`${c.q},${c.r}`);
                 let t = TERRAINS[c.terrain];
 
+                // Bordo scuro dell'esagono base
                 drawHex(px.x, px.y, HEX_SIZE + 0.5);
-                ctx.fillStyle = isExp ? t.cMain : '#2c251e'; ctx.fill();
-                drawHex(px.x, px.y, HEX_SIZE - 2);
-                ctx.fillStyle = isExp ? t.cTop : '#3a3128'; ctx.fill();
+                ctx.fillStyle = '#1c1815'; ctx.fill();
                 
-                if(isExp) {
-                    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-                    if(c.terrain === 'bosco') { ctx.fillStyle='#253d1e'; for(let i=0;i<3;i++){ ctx.beginPath(); ctx.moveTo(px.x+i*8-8, px.y-i*2); ctx.lineTo(px.x+i*8-12, px.y+8-i*2); ctx.lineTo(px.x+i*8-4, px.y+8-i*2); ctx.fill(); } }
-                    if(c.terrain === 'deserto') { ctx.beginPath(); ctx.moveTo(px.x-12, px.y); ctx.quadraticCurveTo(px.x, px.y-12, px.x+12, px.y+2); ctx.stroke(); }
-                    if(c.terrain === 'montagna') { ctx.fillStyle='#d6d0c4'; ctx.beginPath(); ctx.moveTo(px.x, px.y-14); ctx.lineTo(px.x-12, px.y+8); ctx.lineTo(px.x+12, px.y+8); ctx.fill(); ctx.stroke(); }
-                    if(c.terrain === 'citta') { ctx.fillStyle='#5a5652'; ctx.fillRect(px.x-10, px.y-8, 10, 14); ctx.fillRect(px.x+2, px.y-12, 8, 18); }
+                if (isExp) {
+                    ctx.save();
+                    drawHex(px.x, px.y, HEX_SIZE - 2); // Il confine del ritaglio (clipping)
+                    ctx.clip(); 
+                    
+                    if(t.img && t.img.complete && t.img.naturalWidth !== 0) {
+                        // Disegna la texture dell'immagine fornita
+                        ctx.drawImage(t.img, px.x - HEX_SIZE, px.y - HEX_SIZE, HEX_SIZE * 2, HEX_SIZE * 2);
+                    } else {
+                        // Selettore Pianura (nessuna foto)
+                        ctx.fillStyle = t.cMain; ctx.fill();
+                    }
+                    ctx.restore();
+                } else {
+                    drawHex(px.x, px.y, HEX_SIZE - 2);
+                    ctx.fillStyle = '#26221d'; ctx.fill();
                 }
 
+                // Nebbia di Guerra
                 if(cfg.fog && isExp && !isVis) {
-                    drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(26, 22, 18, 0.5)'; ctx.fill();
+                    drawHex(px.x, px.y, HEX_SIZE); ctx.fillStyle = 'rgba(10, 8, 5, 0.65)'; ctx.fill();
                 }
 
                 let k = `${c.q},${c.r}`;
                 if(gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player' && c.spawnTeam === 'player' && !getUnitAt(c.q,c.r)) { 
-                    drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 215, 0, 0.15)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); 
+                    drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(255, 215, 0, 0.2)'; ctx.fill(); ctx.strokeStyle='gold'; ctx.lineWidth=3; ctx.stroke(); 
                 }
                 
                 if(activeUnit && activeUnit.q === c.q && activeUnit.r === c.r) { 
                     drawHex(px.x, px.y, HEX_SIZE-2); ctx.strokeStyle='gold'; ctx.lineWidth=4; ctx.stroke(); 
                 }
-                if(moves.has(k)) { drawHex(px.x, px.y, HEX_SIZE*0.3); ctx.fillStyle='rgba(129, 199, 132, 0.8)'; ctx.fill(); }
+                if(moves.has(k)) { drawHex(px.x, px.y, HEX_SIZE*0.4); ctx.fillStyle='rgba(129, 199, 132, 0.8)'; ctx.fill(); }
                 if(acts.has(k)) { drawHex(px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229, 57, 53, 0.3)'; ctx.fill(); ctx.strokeStyle='#e53935'; ctx.lineWidth=2; ctx.stroke(); }
 
                 if(isVis) { 
@@ -756,14 +793,14 @@
                         
                         // Base Pedina
                         ctx.beginPath();
-                        ctx.arc(px.x, px.y, HEX_SIZE * 0.70, 0, Math.PI * 2);
+                        ctx.arc(px.x, px.y, HEX_SIZE * 0.65, 0, Math.PI * 2);
                         ctx.fillStyle = COLORS[u.team];
                         ctx.fill();
                         
                         // Ombreggiatura interna
-                        let grad = ctx.createRadialGradient(px.x, px.y, HEX_SIZE*0.3, px.x, px.y, HEX_SIZE*0.7);
+                        let grad = ctx.createRadialGradient(px.x, px.y, HEX_SIZE*0.2, px.x, px.y, HEX_SIZE*0.7);
                         grad.addColorStop(0, 'rgba(0,0,0,0)');
-                        grad.addColorStop(1, 'rgba(0,0,0,0.4)');
+                        grad.addColorStop(1, 'rgba(0,0,0,0.5)');
                         ctx.fillStyle = grad;
                         ctx.fill();
 
@@ -775,7 +812,7 @@
 
                         // Silhouette
                         ctx.fillStyle = u.hasActed ? '#9e9e9e' : '#fff';
-                        ctx.font = '900 26px "Font Awesome 6 Free"';
+                        ctx.font = '900 24px "Font Awesome 6 Free"';
                         ctx.textAlign = "center";
                         ctx.textBaseline = "middle";
                         ctx.fillText(u.uni, px.x, px.y);
@@ -795,6 +832,15 @@
             });
 
             ctx.restore();
+        }
+
+        // === AZIONE ACCAMPATI (Bottone Laterale) ===
+        function campActiveUnit() {
+            if (!activeUnit || actionsLeft <= 0 || activeUnit.hasActed) return;
+            activeUnit.isCamped = true; 
+            activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 20);
+            logAction(`<i class='fa-solid fa-campground'></i> ${activeUnit.role} si accampa! (+20% Difesa e recupera 20 HP)`); 
+            finalizeAction(activeUnit); 
         }
 
         // === GESTIONE CLICK ===
@@ -842,21 +888,17 @@
                 }
             }
 
+            // Click su una propria truppa la seleziona
             if (occ && occ.team === 'player' && !occ.hasActed) {
-                if (activeUnit && activeUnit.id === occ.id) {
-                    activeUnit.isCamped = true; activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 20);
-                    logAction(`<i class='fa-solid fa-campground'></i> ${activeUnit.role} si accampa! (+Difesa/Salute)`); 
-                    finalizeAction(activeUnit); 
-                    return;
-                }
-                activeUnit = occ; updateInfo(occ); renderFrame(); return;
+                activeUnit = occ; updateInfo(occ); renderFrame(); updateUI(); return;
             }
 
             if(!activeUnit && occ) { updateInfo(occ); return; }
             if(!activeUnit && !occ) { 
                 let t = TERRAINS[board.get(`${q},${r}`).terrain]; 
                 let blockTxt = t.blockLOS ? "Blocca Linea di Tiro" : "Visuale Libera";
-                document.getElementById('unit-detail-box').innerHTML = `<strong>Terreno: ${t.id}</strong><br>Copertura Difesa: ${t.cover}%<br><em>${blockTxt}</em>`; 
+                let movCostTxt = t.id === 'Città Fortificata' ? "<br><em>Ingresso/Uscita difficoltoso (+2 Punti Mov)</em>" : "";
+                document.getElementById('unit-detail-box').innerHTML = `<strong>Terreno: ${t.id}</strong><br>Copertura Difesa: ${t.cover}%<br><em>${blockTxt}</em>${movCostTxt}`; 
                 return; 
             }
 
@@ -885,11 +927,14 @@
                     }
                     if(activeUnit.perk === 'stealth') activeUnit.isVisible = false; 
                 }
-                activeUnit.hasMovedThisTurn = true; renderFrame();
+                activeUnit.hasMovedThisTurn = true; renderFrame(); updateUI();
             }
         });
 
-        function finalizeAction(u) { u.hasActed = true; u.hasMovedThisTurn = false; actionsLeft--; activeUnit = null; renderFrame(); checkTurnEnd(); }
+        function finalizeAction(u) { 
+            u.hasActed = true; u.hasMovedThisTurn = false; actionsLeft--; activeUnit = null; 
+            renderFrame(); updateUI(); checkTurnEnd(); 
+        }
 
         // === COMBAT E IA ===
         function executeCombat(atkU, defU, isCounter) {
@@ -925,7 +970,7 @@
                 }
             }
             if(!isCounter) finalizeAction(atkU);
-            else { activeUnit = null; renderFrame(); if(!checkVictory()) checkTurnEnd(); }
+            else { activeUnit = null; renderFrame(); updateUI(); if(!checkVictory()) checkTurnEnd(); }
         }
 
         function checkTurnEnd() {
@@ -937,11 +982,20 @@
 
         function passTurn() {
             if(gameState !== 'playing') return;
+            
+            // Sblocca la vecchia squadra per sicurezza
             units.filter(u => u.team === turnOrder[currentTeamIdx]).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
             
             do { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; } while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0 && !checkVictory());
 
-            actionsLeft = maxAP; let t = turnOrder[currentTeamIdx];
+            // FIX BUG AP: Ricalcolo forzato e reset Punti Azione all'inizio di ogni turno
+            maxAP = cfg.unitCount === 10 ? 5 : (cfg.unitCount === 7 ? 4 : 3);
+            actionsLeft = maxAP; 
+            let t = turnOrder[currentTeamIdx];
+            
+            // Sblocca la NUOVA squadra appena passata di turno
+            units.filter(u => u.team === t).forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
+
             updateUI(); renderFrame(); logAction(`<strong style="color:var(--text-main);"><i class="fa-solid fa-hourglass-start"></i> TURNO: ${t.toUpperCase()}</strong>`);
             
             if(currentTeamIdx === 0 && cfg.neutral) {
@@ -1002,10 +1056,12 @@
 
         function updateUI() {
             let b = document.getElementById('turn-badge'), bp = document.getElementById('btn-pass'), det = document.getElementById('unit-detail-box'), msg = document.getElementById('status-msg');
+            let actMenu = document.getElementById('unit-actions');
             
             if(gameState === 'deploy') { 
                 let t = turnOrder[currentTeamIdx];
                 b.innerText = `SCHIERA: ${t.toUpperCase()}`; b.style.background = t==='player'?"#fdf8eb":"#ffebee"; b.style.color = "#3e2723"; bp.style.display = 'none';
+                actMenu.style.display = 'none';
                 if(t === 'player') {
                     msg.innerText = "Scegli un'unità e tocca la zona illuminata.";
                     let html = '<div style="display:flex; flex-wrap:wrap; gap:5px;">';
@@ -1023,6 +1079,13 @@
                 b.style.color = "white"; b.style.borderColor = "#1a1612";
                 bp.style.display = t === 'player' ? 'block' : 'none';
                 msg.innerText = t === 'player' ? `Azioni Strategiche Rimaste: ${actionsLeft}/${maxAP}` : "La mente nemica sta pianificando...";
+                
+                if(activeUnit && t === 'player' && !activeUnit.hasActed) {
+                    actMenu.style.display = 'block';
+                } else {
+                    actMenu.style.display = 'none';
+                }
+                
                 if(!activeUnit && t === 'player') det.innerHTML = "<em>Tocca un esagono o trascina per esplorare la mappa.</em>";
             }
             updateEnemyRoster();
