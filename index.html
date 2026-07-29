@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -114,16 +114,17 @@
                 <div class="mode-card" onclick="openSetup('skirmish')">
                     <i class="fa-solid fa-chess-board"></i>
                     <h3>Schermaglia</h3>
-                    <p>Partita libera tutti contro tutti in terre sconosciute.</p>
+                    <p>Partita libera in terre procedurali, usa le rotte navali e conquista.</p>
                 </div>
 
                 <div class="mode-card" onclick="openSetup('darklord')">
                     <i class="fa-solid fa-skull"></i>
                     <h3>Signore Oscuro</h3>
-                    <p>I continenti in guerra! Oltrepassa il Mare per sconfiggere l'armata oscura.</p>
+                    <p>Una mappa epica (Raggio 20). Respingi l'oscurità dalle Terre del Nord!</p>
                 </div>
             </div>
 
+            <!-- Impostazioni Partita -->
             <div id="setup-options" style="display:none; margin-top: 40px; border-top: 1px dashed var(--panel-border); padding-top: 20px;">
                 <h3 id="setup-title">Impostazioni Partita</h3>
                 <div style="display:flex; width:100%; gap:30px; margin-top:20px; flex-wrap:wrap;">
@@ -286,7 +287,6 @@
 
         const TEMPLATES = { fantasy: { ...B_STAT } };
 
-        // NUOVI BIOMI AGGIUNTI: Acqua e Porto
         const TERRAINS = {
             acqua: { id: 'Mare', walk: false, cover: 0, cMain: '#4fc3f7', cSide: '#0288d1', img: null },
             porto: { id: 'Porto', walk: true, cover: 5, cMain: '#8d6e63', cSide: '#5d4037', img: null },
@@ -432,8 +432,14 @@
         function addToRoster(k) { if(playerRosterKeys.length < 5) { playerRosterKeys.push(k); updateDraftUI(); } }
 
         function startDeployment() {
-            maxAP = 5; 
-            cfg.radius = gameMode === 'darklord' ? 9 : 7 + (cfg.teams === 4 ? 2 : 0);
+            if(gameMode === 'darklord') {
+                cfg.radius = 20; 
+            } else {
+                let baseRadius = 8;
+                let teamBonus = cfg.teams === 2 ? 0 : (cfg.teams === 3 ? 2 : 4);
+                let unitBonus = cfg.unitCount === 5 ? 0 : (cfg.unitCount === 7 ? 2 : 4);
+                cfg.radius = baseRadius + teamBonus + unitBonus;
+            }
             
             document.getElementById('screen-draft').classList.remove('active');
             document.getElementById('screen-game').classList.add('active');
@@ -449,18 +455,19 @@
 
             playerAggression = { team3: 0, team4: 0 };
             teamGold = { player: 200, enemy: 200, team3: 200, team4: 200 };
-            if(gameMode === 'darklord') teamGold.enemy = 1500; 
-
+            
             pDeployQueue = playerRosterKeys.map(k => createUnitObj(k, 'player'));
             turnOrder = ['player'];
             let keys = Object.keys(TEMPLATES.fantasy);
+            
             for(let i=1; i<cfg.teams; i++) {
                 let t = TEAMS[i]; turnOrder.push(t);
                 botDeployQueues[t] = [];
-                
                 let troopsToSpawn = 5;
-                if(gameMode === 'darklord' && t === 'enemy') troopsToSpawn = 12; 
-                
+                if(gameMode === 'darklord' && t === 'enemy') {
+                    troopsToSpawn = 20; 
+                    teamGold.enemy = 3000; 
+                }
                 for(let j=0; j<troopsToSpawn; j++) {
                     botDeployQueues[t].push(createUnitObj(keys[Math.floor(Math.random()*keys.length)], t));
                 }
@@ -470,7 +477,7 @@
             else generateHexMap();
             
             if(cfg.neutral) {
-                let numNeutrals = Math.floor(cfg.radius * 1.5);
+                let numNeutrals = Math.floor(cfg.radius * 2);
                 for(let i=0; i<numNeutrals; i++) {
                     let u = createUnitObj(keys[Math.floor(Math.random()*keys.length)], 'neutral');
                     placeRandom(u);
@@ -480,6 +487,10 @@
             centerCamera();
             currentTeamIdx = Math.floor(Math.random() * turnOrder.length);
             logAction(`<i class="fa-solid fa-flag"></i> Inizia schieramento: ${turnOrder[currentTeamIdx].toUpperCase()}`);
+            
+            // Re-set for sure
+            maxAP = 5; actionsLeft = maxAP;
+            
             handleDeployTurn();
         }
 
@@ -494,6 +505,7 @@
             if(cells.length > 0) { let c = cells[Math.floor(Math.random()*cells.length)]; u.q = c.q; u.r = c.r; units.push(u); }
         }
 
+        // === MAPPA SCHERMAGLIA ===
         function generateHexMap() {
             for (let q = -cfg.radius; q <= cfg.radius; q++) {
                 let r1 = Math.max(-cfg.radius, -q - cfg.radius);
@@ -504,8 +516,8 @@
                 }
             }
             
-            const biomes = ['bosco','bosco','deserto','collina','montagna'];
-            for(let i=0; i<cfg.radius*4; i++) {
+            const biomes = ['bosco','bosco','deserto','collina','montagna', 'acqua'];
+            for(let i=0; i<cfg.radius*5; i++) {
                 let b = biomes[Math.floor(Math.random()*biomes.length)];
                 let q = Math.floor(Math.random()*cfg.radius*2)-cfg.radius, r = Math.floor(Math.random()*cfg.radius*2)-cfg.radius;
                 for(let j=0; j<8; j++) {
@@ -513,6 +525,15 @@
                     let ns = getNeighbors(q, r); let n = ns[Math.floor(Math.random()*ns.length)]; q = n.q; r = n.r;
                 }
             }
+            
+            // Genera Porti Schermaglia
+            board.forEach(c => {
+                if (c.terrain === 'pianura' || c.terrain === 'deserto') {
+                    let neighbors = getNeighbors(c.q, c.r);
+                    let isCoast = neighbors.some(n => board.get(`${n.q},${n.r}`)?.terrain === 'acqua');
+                    if (isCoast && Math.random() < 0.1) c.terrain = 'porto';
+                }
+            });
 
             let citySpawns = [ {q: 0, r: cfg.radius-2, t: 'player'}, {q: 0, r: -cfg.radius+2, t: 'enemy'}, {q: -cfg.radius+2, r: 0, t: 'team3'}, {q: cfg.radius-2, r: 0, t: 'team4'} ];
             for(let i=0; i<cfg.teams; i++) {
@@ -520,7 +541,7 @@
                 if(cell) { cell.terrain = 'citta'; cell.owner = s.t; cell.spawnTeam = s.t; }
             }
 
-            let numVillages = cfg.radius * 1.5;
+            let numVillages = cfg.radius * 2;
             let flatCells = Array.from(board.values()).filter(c => c.terrain === 'pianura' || c.terrain === 'bosco');
             for(let i=0; i<numVillages; i++) {
                 if(flatCells.length > 0) {
@@ -534,13 +555,13 @@
                 tCells.forEach(tc => {
                     getNeighbors(tc.q, tc.r).forEach(n => {
                         let nc = board.get(`${n.q},${n.r}`);
-                        if(nc && !nc.spawnTeam && nc.terrain !== 'montagna') nc.spawnTeam = t;
+                        if(nc && !nc.spawnTeam && nc.terrain !== 'montagna' && nc.terrain !== 'acqua') nc.spawnTeam = t;
                     });
                 });
             });
         }
 
-        // === GENERATORE MAPPA DUE CONTINENTI (SIGNORE OSCURO) ===
+        // === MAPPA SIGNORE OSCURO (Raggio 20) ===
         function generateDarkLordMap() {
             for (let q = -cfg.radius; q <= cfg.radius; q++) {
                 let r1 = Math.max(-cfg.radius, -q - cfg.radius); let r2 = Math.min(cfg.radius, -q + cfg.radius);
@@ -548,13 +569,14 @@
             }
             
             board.forEach(c => {
-                // Ocean Split Centrale
                 let isWater = false;
-                if (c.q === 0 || c.q === 1) isWater = true;
-                if (c.q === -1 && c.r > 1) isWater = true;
-                if (c.q === 2 && c.r < -3) isWater = true;
-                if (c.q === -2 && c.r > 4) isWater = true;
-                if (c.q === 3 && c.r < -5) isWater = true;
+                
+                // Ocean Split: Stretto mare centrale
+                if (c.q >= -3 && c.q <= 3) isWater = true;
+                
+                // Ponti di terra! Uno a Nord e uno a Sud per permettere passaggi pedonali e "colli di bottiglia"
+                if (c.q >= -3 && c.q <= 3 && c.r >= -12 && c.r <= -8) isWater = false; 
+                if (c.q >= -3 && c.q <= 3 && c.r >= 8 && c.r <= 12) isWater = false; 
                 
                 if (isWater) {
                     c.terrain = 'acqua';
@@ -562,41 +584,46 @@
                     if (Math.random() < 0.2) c.terrain = 'bosco';
                     if (Math.random() < 0.1) c.terrain = 'collina';
 
-                    // Le Terre del Nord (Neve / Signore Oscuro)
-                    if (c.r < -2 && c.q > 1) {
+                    // La Grande Muraglia del Nord
+                    if (c.r === -6 && c.q >= -15 && c.q <= 15) c.terrain = 'montagna';
+                    
+                    // Valichi nella Muraglia
+                    if (c.r === -6 && (c.q === -8 || c.q === 8 || c.q === 0)) c.terrain = 'neve';
+
+                    // Terre del Signore Oscuro
+                    if (c.r < -6) {
                         c.terrain = 'neve';
                         if(Math.random() < 0.15) c.terrain = 'montagna'; 
                     }
-                    // Le Terre del Sud-Ovest (Deserto / Alleati)
-                    if (c.r > 3 && c.q < -1) {
-                        c.terrain = 'deserto';
-                    }
+                    
+                    // Deserti nel profondo Sud/Ovest
+                    if (c.r > 10 && c.q < -5) c.terrain = 'deserto';
                 }
             });
 
-            // Generazione dei PORTI
-            let ports = [
-                [-1, 0], [2, -2], [-2, 3], [3, 2], [1, 5]
-            ];
-            ports.forEach(coord => {
-                let c = board.get(`${coord[0]},${coord[1]}`);
-                if(c) c.terrain = 'porto';
+            // Generazione dei Porti sulle coste
+            board.forEach(c => {
+                if (c.terrain === 'pianura' || c.terrain === 'neve' || c.terrain === 'deserto') {
+                    let neighbors = getNeighbors(c.q, c.r);
+                    let isCoast = neighbors.some(n => board.get(`${n.q},${n.r}`)?.terrain === 'acqua');
+                    if (isCoast && Math.random() < 0.15) c.terrain = 'porto';
+                }
             });
 
-            // Basi Signore Oscuro (Nord-Est)
-            let enemyCities = [ [4, -8], [6, -5], [3, -5] ];
+            // Basi Signore Oscuro (Lontanissimo Nord)
+            let enemyCities = [ [0, -18], [10, -16], [-10, -15], [5, -12], [-5, -12] ];
             enemyCities.forEach(coord => {
                 let c = board.get(`${coord[0]},${coord[1]}`);
                 if(c && c.terrain !== 'acqua') { c.terrain = 'citta'; c.owner = 'enemy'; c.spawnTeam = 'enemy'; }
             });
 
-            // Basi Alleati (Ovest/Sud)
-            let pCity = board.get(`-4,2`); if(pCity && pCity.terrain !== 'acqua'){ pCity.terrain='citta'; pCity.owner='player'; pCity.spawnTeam='player'; }
-            let t3City = board.get(`-6,6`); if(t3City && t3City.terrain !== 'acqua'){ t3City.terrain='citta'; t3City.owner='team3'; t3City.spawnTeam='team3'; }
-            if(cfg.teams === 4) { let t4City = board.get(`4,4`); if(t4City && t4City.terrain !== 'acqua'){ t4City.terrain='citta'; t4City.owner='team4'; t4City.spawnTeam='team4'; } }
+            // Basi Alleati (Profondo Sud e Ovest)
+            let pCity = board.get(`-12, 10`); if(pCity && pCity.terrain !== 'acqua'){ pCity.terrain='citta'; pCity.owner='player'; pCity.spawnTeam='player'; }
+            let t3City = board.get(`12, 5`); if(t3City && t3City.terrain !== 'acqua'){ t3City.terrain='citta'; t3City.owner='team3'; t3City.spawnTeam='team3'; }
+            if(cfg.teams === 4) { let t4City = board.get(`0, 15`); if(t4City && t4City.terrain !== 'acqua'){ t4City.terrain='citta'; t4City.owner='team4'; t4City.spawnTeam='team4'; } }
 
-            let validVillages = Array.from(board.values()).filter(c => c.terrain === 'pianura' || c.terrain === 'neve');
-            for(let i=0; i<15; i++) {
+            let validVillages = Array.from(board.values()).filter(c => c.terrain === 'pianura' || c.terrain === 'neve' || c.terrain === 'deserto');
+            for(let i=0; i<30; i++) {
                 if(validVillages.length > 0) {
                     let idx = Math.floor(Math.random() * validVillages.length);
                     validVillages[idx].terrain = 'villaggio'; validVillages.splice(idx, 1);
@@ -626,7 +653,8 @@
                 gameState = 'playing'; currentTeamIdx = 0; 
                 while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0) { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; }
                 let firstTeam = turnOrder[currentTeamIdx];
-                actionsLeft = maxAP;
+                
+                maxAP = 5; actionsLeft = maxAP; // SICUREZZA AP
                 units.forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
                 
                 logAction("<i class='fa-solid fa-play'></i> SCHIERAMENTO COMPLETATO! Inizia la battaglia.");
@@ -639,7 +667,7 @@
                 currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; handleDeployTurn(); return;
             }
 
-            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 50); } 
+            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 5); } // Veloce per grandi armate
             else { selectedDeployIdx = -1; updateUI(); renderFrame(); }
         }
 
@@ -730,13 +758,11 @@
             return true;
         }
 
-        // === LOGICA AZIONI AGGIORNATA (Aggiunta Navigazione) ===
         function getValidActions(u) {
             let acts = new Map(); 
             let cell = board.get(`${u.q},${u.r}`); 
             let myRng = u.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
             
-            // Attacchi / Cure
             units.forEach(other => {
                 if(other.id === u.id || other.passenger) return;
                 let dist = hexDist(u, other);
@@ -747,21 +773,17 @@
                 }
             });
 
-            // Sbarco Trasporto
             if(u.perk === 'transport' && u.passenger) {
                 getNeighbors(u.q, u.r).forEach(n => {
                     let c = board.get(`${n.q},${n.r}`); if(c && TERRAINS[c.terrain].walk && !getUnitAt(n.q, n.r)) acts.set(`${n.q},${n.r}`, {q:n.q, r:n.r, t: 'unload'});
                 });
             }
 
-            // NAVIGAZIONE: Se sono su un porto, posso salpare verso un altro porto
             if (cell && cell.terrain === 'porto') {
                 board.forEach((c, key) => {
                     if (c.terrain === 'porto' && (c.q !== u.q || c.r !== u.r)) {
                         let occ = getUnitAt(c.q, c.r);
-                        if (!occ) {
-                            acts.set(`${c.q},${c.r}`, { q: c.q, r: c.r, tgt: null, t: 'sail' });
-                        }
+                        if (!occ) { acts.set(`${c.q},${c.r}`, { q: c.q, r: c.r, tgt: null, t: 'sail' }); }
                     }
                 });
             }
@@ -786,7 +808,6 @@
             else { ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.stroke(); }
         }
 
-        // AGGIUNTI VETTORI PER MARE E PORTO
         function drawTerrainFeatures(ctx, type, x, y, size) {
             ctx.save();
             if (type === 'villaggio') {
@@ -805,12 +826,11 @@
                 ctx.beginPath(); ctx.moveTo(x-size*0.1, y+size*0.3); ctx.quadraticCurveTo(x+size*0.2, y+size*0.1, x+size*0.5, y+size*0.3); ctx.stroke();
             }
             else if (type === 'porto') {
-                ctx.fillStyle = '#4e342e'; // Legno
+                ctx.fillStyle = '#4e342e'; 
                 ctx.fillRect(x-size*0.4, y-size*0.1, size*0.8, size*0.3);
                 ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 2;
                 ctx.beginPath(); ctx.moveTo(x-size*0.4, y); ctx.lineTo(x+size*0.4, y); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(x-size*0.4, y+size*0.1); ctx.lineTo(x+size*0.4, y+size*0.1); ctx.stroke();
-                // Ancora
                 ctx.fillStyle = '#ffb300';
                 ctx.font = '900 16px "Font Awesome 6 Free"'; ctx.textAlign = "center"; ctx.textBaseline = "middle";
                 ctx.fillText('\uf13d', x, y-size*0.2);
@@ -841,14 +861,9 @@
                     draw3DTile(ctx, px.x, px.y, HEX_SIZE - 1, t.cMain, t.cSide, c.owner); 
                     
                     if (t.img && t.img.complete && t.img.naturalWidth !== 0) {
-                        ctx.save();
-                        drawHexPath(ctx, px.x, px.y, HEX_SIZE - 1); 
-                        ctx.clip(); 
-                        ctx.drawImage(t.img, px.x - HEX_SIZE, px.y - HEX_SIZE, HEX_SIZE * 2, HEX_SIZE * 2);
-                        ctx.restore();
-                    } else {
-                        drawTerrainFeatures(ctx, c.terrain, px.x, px.y, HEX_SIZE); 
-                    }
+                        ctx.save(); drawHexPath(ctx, px.x, px.y, HEX_SIZE - 1); ctx.clip(); 
+                        ctx.drawImage(t.img, px.x - HEX_SIZE, px.y - HEX_SIZE, HEX_SIZE * 2, HEX_SIZE * 2); ctx.restore();
+                    } else { drawTerrainFeatures(ctx, c.terrain, px.x, px.y, HEX_SIZE); }
                 } 
                 else { draw3DTile(ctx, px.x, px.y, HEX_SIZE - 1, '#3a3128', '#231e18', null); }
 
@@ -866,11 +881,8 @@
                 
                 if(acts.has(k)) { 
                     let act = acts.get(k);
-                    if (act.t === 'sail') {
-                        drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(3, 169, 244, 0.4)'; ctx.fill(); ctx.strokeStyle='#0288d1'; ctx.lineWidth=3; ctx.stroke();
-                    } else {
-                        drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229, 57, 53, 0.3)'; ctx.fill(); ctx.strokeStyle='#e53935'; ctx.lineWidth=2; ctx.stroke(); 
-                    }
+                    if (act.t === 'sail') { drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(3, 169, 244, 0.4)'; ctx.fill(); ctx.strokeStyle='#0288d1'; ctx.lineWidth=3; ctx.stroke(); } 
+                    else { drawHexPath(ctx, px.x, px.y, HEX_SIZE-2); ctx.fillStyle='rgba(229, 57, 53, 0.3)'; ctx.fill(); ctx.strokeStyle='#e53935'; ctx.lineWidth=2; ctx.stroke(); }
                 }
 
                 if(isVis) { 
@@ -961,26 +973,20 @@
             let rect = canvas.getBoundingClientRect(); let cx = e.clientX - rect.left; let cy = e.clientY - rect.top;
             let mapX = (cx - camX); let mapY = (cy - camY); 
             
-            let clickedUnit = null;
-            let minDist = HEX_SIZE * 1.3; 
-            
+            let clickedUnit = null; let minDist = HEX_SIZE * 1.3; 
             for (let i = units.length - 1; i >= 0; i--) {
                 let u = units[i];
                 if (!u.isVisible || (cfg.fog && u.team !== 'player' && !visMap.get(`${u.q},${u.r}`))) continue;
-                let px = hexToPixel(u.q, u.r);
-                let unitY = px.y - HEX_SIZE * 0.2; 
+                let px = hexToPixel(u.q, u.r); let unitY = px.y - HEX_SIZE * 0.2; 
                 let dist = Math.sqrt(Math.pow(mapX - px.x, 2) + Math.pow(mapY - unitY, 2));
                 if (dist < minDist) { minDist = dist; clickedUnit = u; }
             }
 
-            let h = pixelToHex(mapX, mapY);
-            let q = h.q, r = h.r;
-
+            let h = pixelToHex(mapX, mapY); let q = h.q, r = h.r;
             if (clickedUnit) { q = clickedUnit.q; r = clickedUnit.r; }
 
             if(!board.has(`${q},${r}`)) return; 
-            let occ = getUnitAt(q, r); 
-            let clickedCell = board.get(`${q},${r}`);
+            let occ = getUnitAt(q, r); let clickedCell = board.get(`${q},${r}`);
 
             if (gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player') {
                 if(clickedCell && clickedCell.spawnTeam === 'player' && !occ && pDeployQueue.length > 0) {
@@ -1015,12 +1021,7 @@
             if (act) {
                 if(act.t === 'unload') { act.tgt = activeUnit.passenger; act.tgt.q = q; act.tgt.r = r; activeUnit.passenger = null; finalizeAction(activeUnit); return; }
                 if(act.t === 'heal') { act.tgt.currentHp = Math.min(act.tgt.hp, act.tgt.currentHp + 30); logAction(`<i class='fa-solid fa-hand-holding-medical'></i> ${activeUnit.role} cura ${act.tgt.role}!`); finalizeAction(activeUnit); return; }
-                if(act.t === 'sail') { 
-                    activeUnit.q = q; activeUnit.r = r; 
-                    logAction(`<i class='fa-solid fa-ship'></i> ${activeUnit.role} salpa verso un nuovo porto e attracca!`); 
-                    finalizeAction(activeUnit); 
-                    return; 
-                }
+                if(act.t === 'sail') { activeUnit.q = q; activeUnit.r = r; logAction(`<i class='fa-solid fa-ship'></i> ${activeUnit.role} salpa verso un nuovo porto!`); finalizeAction(activeUnit); return; }
                 if(act.t === 'atk') { executeCombat(activeUnit, act.tgt, false); return; }
             } else if (move) {
                 activeUnit.isCamped = false; 
@@ -1038,7 +1039,7 @@
             } else if (occ && isEnemy(activeUnit.team, occ.team)) {
                 logAction("<strong style='color:#f57f17;'>⚠️ Bersaglio fuori portata o visuale bloccata!</strong>");
             } else if (q === activeUnit.q && r === activeUnit.r) {
-                // Click su se stesso fa nulla
+                // Ignore self-clicks
             } else if (activeUnit.hasMovedThisTurn) {
                 logAction(`<i class='fa-solid fa-shield'></i> ${activeUnit.role} difende la posizione.`); finalizeAction(activeUnit);
             } else {
@@ -1057,8 +1058,8 @@
 
             if (gameMode === 'darklord' && atkU.team === 'player' && (defU.team === 'team3' || defU.team === 'team4')) {
                 playerAggression[defU.team]++;
-                if (playerAggression[defU.team] === 1) logAction(`<strong style="color:red">⚠️ Attenzione: Hai attaccato l'alleato ${defU.team.toUpperCase()}! Al prossimo sgarro l'alleanza si romperà.</strong>`);
-                else if (playerAggression[defU.team] === 2) logAction(`<strong style="color:red">🔥 TRADIMENTO! L'alleanza con ${defU.team.toUpperCase()} è infranta. Ora siamo in guerra!</strong>`);
+                if (playerAggression[defU.team] === 1) logAction(`<strong style="color:red">⚠️ Hai attaccato l'alleato ${defU.team.toUpperCase()}!</strong>`);
+                else if (playerAggression[defU.team] === 2) logAction(`<strong style="color:red">🔥 TRADIMENTO! L'alleanza è infranta!</strong>`);
             }
 
             let bAtk = atkU.atk;
@@ -1068,9 +1069,7 @@
             if(atkU.auraAtkDrop > 0) bAtk = Math.round(bAtk * (1 - atkU.auraAtkDrop/100));
 
             let tCover = TERRAINS[board.get(`${defU.q},${defU.r}`).terrain].cover;
-            let dTot = defU.def + tCover + (defU.isCamped?20:0) + defU.auraDef; 
-            dTot = Math.min(80, dTot); 
-            
+            let dTot = defU.def + tCover + (defU.isCamped?20:0) + defU.auraDef; dTot = Math.min(80, dTot); 
             let dmg = Math.max(5, Math.round(bAtk * (1 - dTot/100)));
             defU.currentHp -= dmg;
             
@@ -1080,20 +1079,16 @@
             if (defU.currentHp <= 0) {
                 logAction(`<i class='fa-solid fa-skull'></i> ${defU.role} abbattuto!`);
                 if(!isCounter && defU.team !== 'neutral') atkU.killBuff = true;
-                
                 if(defU.team === 'neutral') {
                     loots.push({q: defU.q, r: defU.r, type: Math.random() > 0.5 ? 'heal' : 'dmg'});
-                    if(atkU.team !== 'neutral') { teamGold[atkU.team] += 50; logAction(`<i class="fa-solid fa-coins"></i> ${atkU.team.toUpperCase()} saccheggia 50 oro!`); }
+                    if(atkU.team !== 'neutral') { teamGold[atkU.team] += 50; logAction(`<i class="fa-solid fa-coins"></i> +50 oro!`); }
                 }
                 units = units.filter(u => u.id !== defU.id && (!defU.passenger || u.id !== defU.passenger.id));
             } 
             
             if (!isCounter && defU.currentHp > 0 && isEnemy(atkU.team, defU.team) && defU.perk !== 'healer' && defU.ctr > 0) {
                 let cell = board.get(`${defU.q},${defU.r}`); let defRng = defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
-                if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) { 
-                    setTimeout(() => { executeCombat(defU, atkU, true); }, 600); 
-                    return; 
-                }
+                if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) { setTimeout(() => { executeCombat(defU, atkU, true); }, 600); return; }
             }
 
             isCombatActive = false; 
@@ -1111,12 +1106,9 @@
         function forcePassTurn() { if(gameState==='playing' && turnOrder[currentTeamIdx]==='player' && !isCombatActive) { if(activeUnit) { activeUnit.hasActed = true; activeUnit.hasMovedThisTurn = false; activeUnit = null; } passTurn(); } }
 
         function collectIncome(team) {
-            if (team === 'neutral') return;
-            let inc = 0;
-            Array.from(board.values()).forEach(c => {
-                if(c.owner === team) { if(c.terrain === 'citta' || c.terrain === 'porto') inc += 75; if(c.terrain === 'villaggio') inc += 25; }
-            });
-            if(inc > 0) { teamGold[team] += inc; if(team === 'player') logAction(`<i class="fa-solid fa-sack-dollar"></i> Entrate dai domini: +${inc} Oro`); }
+            if (team === 'neutral') return; let inc = 0;
+            Array.from(board.values()).forEach(c => { if(c.owner === team) { if(c.terrain === 'citta' || c.terrain === 'porto') inc += 75; if(c.terrain === 'villaggio') inc += 25; }});
+            if(inc > 0) { teamGold[team] += inc; if(team === 'player') logAction(`<i class="fa-solid fa-sack-dollar"></i> Entrate: +${inc} Oro`); }
         }
 
         function passTurn() {
@@ -1169,8 +1161,6 @@
                 }
                 for(let u of avail) {
                     let acts = Array.from(getValidActions(u).values());
-                    
-                    // IA Navale: Usa le barche per invadere gli avversari
                     let sailActs = acts.filter(a => a.t === 'sail');
                     let ens = units.filter(e => isEnemy(t, e.team));
                     
@@ -1178,9 +1168,7 @@
                         let closestDistNow = Math.min(...ens.map(e => hexDist(u, e)));
                         for(let s of sailActs) {
                             let distAfterSail = Math.min(...ens.map(e => hexDist(s, e)));
-                            if(distAfterSail < closestDistNow - 2) { 
-                                u.q = s.q; u.r = s.r; finalizeAction(u); return;
-                            }
+                            if(distAfterSail < closestDistNow - 2) { u.q = s.q; u.r = s.r; finalizeAction(u); return; }
                         }
                     }
 
