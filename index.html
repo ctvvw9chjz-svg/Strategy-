@@ -342,7 +342,8 @@
             let dx = e.clientX - lastX; let dy = e.clientY - lastY;
             
             let totalDx = e.clientX - dragStartX; let totalDy = e.clientY - dragStartY;
-            if (totalDx*totalDx + totalDy*totalDy > 40) dragMoved = true; 
+            // MIGLIORAMENTO 1: Aumentata sensibilmente la tolleranza per distinguere i "tap" dai veri "drag"
+            if (totalDx*totalDx + totalDy*totalDy > 250) dragMoved = true; 
             
             camX += dx; camY += dy; 
             lastX = e.clientX; lastY = e.clientY; 
@@ -961,20 +962,20 @@
             let rect = canvas.getBoundingClientRect(); let cx = e.clientX - rect.left; let cy = e.clientY - rect.top;
             let mapX = (cx - camX); let mapY = (cy - camY); 
             
-            let clickedUnit = null; let minDist = HEX_SIZE * 1.3; 
-            for (let i = units.length - 1; i >= 0; i--) {
-                let u = units[i];
-                if (!u.isVisible || (cfg.fog && u.team !== 'player' && !visMap.get(`${u.q},${u.r}`))) continue;
-                let px = hexToPixel(u.q, u.r); let unitY = px.y - HEX_SIZE * 0.2; 
-                let dist = Math.sqrt(Math.pow(mapX - px.x, 2) + Math.pow(mapY - unitY, 2));
-                if (dist < minDist) { minDist = dist; clickedUnit = u; }
-            }
-
-            let h = pixelToHex(mapX, mapY); let q = h.q, r = h.r;
-            if (clickedUnit) { q = clickedUnit.q; r = clickedUnit.r; }
+            // MIGLIORAMENTO 2: Niente più cerchi imprecisi e sovrapposti! 
+            // Usa la pura matematica della griglia esagonale per calcolare esattamente quale cella hai toccato.
+            let h = pixelToHex(mapX, mapY); 
+            let q = h.q, r = h.r;
 
             if(!board.has(`${q},${r}`)) return; 
-            let occ = getUnitAt(q, r); let clickedCell = board.get(`${q},${r}`);
+            
+            let clickedCell = board.get(`${q},${r}`);
+            let occ = getUnitAt(q, r); 
+            
+            // Sicurezza extra: Impedisce di interagire/cliccare un nemico che è avvolto dalla nebbia
+            if (occ && (!occ.isVisible || (cfg.fog && occ.team !== 'player' && !visMap.get(`${occ.q},${occ.r}`)))) {
+                occ = undefined; 
+            }
 
             if (gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player') {
                 if(clickedCell && clickedCell.spawnTeam === 'player' && !occ && pDeployQueue.length > 0) {
