@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -124,7 +124,6 @@
                 </div>
             </div>
 
-            <!-- Impostazioni Partita -->
             <div id="setup-options" style="display:none; margin-top: 40px; border-top: 1px dashed var(--panel-border); padding-top: 20px;">
                 <h3 id="setup-title">Impostazioni Partita</h3>
                 <div style="display:flex; width:100%; gap:30px; margin-top:20px; flex-wrap:wrap;">
@@ -179,7 +178,6 @@
         </div>
     </div>
 
-    <!-- SCHERMATA GIOCO -->
     <div id="screen-game" class="screen" style="max-width: 100%; padding: 15px;">
         
         <div id="recruit-modal">
@@ -406,7 +404,6 @@
             playerRosterKeys = [];
             document.getElementById('screen-config').classList.remove('active');
             document.getElementById('screen-draft').classList.add('active');
-            document.getElementById('max-draft').innerText = 5; 
             cfg.unitCount = 5; 
             updateDraftUI();
         }
@@ -488,9 +485,7 @@
             currentTeamIdx = Math.floor(Math.random() * turnOrder.length);
             logAction(`<i class="fa-solid fa-flag"></i> Inizia schieramento: ${turnOrder[currentTeamIdx].toUpperCase()}`);
             
-            // Re-set for sure
             maxAP = 5; actionsLeft = maxAP;
-            
             handleDeployTurn();
         }
 
@@ -526,7 +521,6 @@
                 }
             }
             
-            // Genera Porti Schermaglia
             board.forEach(c => {
                 if (c.terrain === 'pianura' || c.terrain === 'deserto') {
                     let neighbors = getNeighbors(c.q, c.r);
@@ -550,18 +544,21 @@
                 }
             }
 
-            TEAMS.slice(0, cfg.teams).forEach(t => {
-                let tCells = Array.from(board.values()).filter(c => c.spawnTeam === t);
-                tCells.forEach(tc => {
-                    getNeighbors(tc.q, tc.r).forEach(n => {
-                        let nc = board.get(`${n.q},${n.r}`);
-                        if(nc && !nc.spawnTeam && nc.terrain !== 'montagna' && nc.terrain !== 'acqua') nc.spawnTeam = t;
+            // Espansione di 2 esagoni per la zona di schieramento
+            for(let step = 0; step < 2; step++) {
+                TEAMS.slice(0, cfg.teams).forEach(t => {
+                    let tCells = Array.from(board.values()).filter(c => c.spawnTeam === t);
+                    tCells.forEach(tc => {
+                        getNeighbors(tc.q, tc.r).forEach(n => {
+                            let nc = board.get(`${n.q},${n.r}`);
+                            if(nc && !nc.spawnTeam && nc.terrain !== 'montagna' && nc.terrain !== 'acqua') nc.spawnTeam = t;
+                        });
                     });
                 });
-            });
+            }
         }
 
-        // === MAPPA SIGNORE OSCURO (Raggio 20) ===
+        // === MAPPA SIGNORE OSCURO ===
         function generateDarkLordMap() {
             for (let q = -cfg.radius; q <= cfg.radius; q++) {
                 let r1 = Math.max(-cfg.radius, -q - cfg.radius); let r2 = Math.min(cfg.radius, -q + cfg.radius);
@@ -570,11 +567,7 @@
             
             board.forEach(c => {
                 let isWater = false;
-                
-                // Ocean Split: Stretto mare centrale
                 if (c.q >= -3 && c.q <= 3) isWater = true;
-                
-                // Ponti di terra! Uno a Nord e uno a Sud per permettere passaggi pedonali e "colli di bottiglia"
                 if (c.q >= -3 && c.q <= 3 && c.r >= -12 && c.r <= -8) isWater = false; 
                 if (c.q >= -3 && c.q <= 3 && c.r >= 8 && c.r <= 12) isWater = false; 
                 
@@ -584,24 +577,18 @@
                     if (Math.random() < 0.2) c.terrain = 'bosco';
                     if (Math.random() < 0.1) c.terrain = 'collina';
 
-                    // La Grande Muraglia del Nord
                     if (c.r === -6 && c.q >= -15 && c.q <= 15) c.terrain = 'montagna';
-                    
-                    // Valichi nella Muraglia
                     if (c.r === -6 && (c.q === -8 || c.q === 8 || c.q === 0)) c.terrain = 'neve';
 
-                    // Terre del Signore Oscuro
                     if (c.r < -6) {
                         c.terrain = 'neve';
                         if(Math.random() < 0.15) c.terrain = 'montagna'; 
                     }
                     
-                    // Deserti nel profondo Sud/Ovest
                     if (c.r > 10 && c.q < -5) c.terrain = 'deserto';
                 }
             });
 
-            // Generazione dei Porti sulle coste
             board.forEach(c => {
                 if (c.terrain === 'pianura' || c.terrain === 'neve' || c.terrain === 'deserto') {
                     let neighbors = getNeighbors(c.q, c.r);
@@ -610,17 +597,15 @@
                 }
             });
 
-            // Basi Signore Oscuro (Lontanissimo Nord)
             let enemyCities = [ [0, -18], [10, -16], [-10, -15], [5, -12], [-5, -12] ];
             enemyCities.forEach(coord => {
                 let c = board.get(`${coord[0]},${coord[1]}`);
                 if(c && c.terrain !== 'acqua') { c.terrain = 'citta'; c.owner = 'enemy'; c.spawnTeam = 'enemy'; }
             });
 
-            // Basi Alleati (Profondo Sud e Ovest)
-            let pCity = board.get(`-12, 10`); if(pCity && pCity.terrain !== 'acqua'){ pCity.terrain='citta'; pCity.owner='player'; pCity.spawnTeam='player'; }
-            let t3City = board.get(`12, 5`); if(t3City && t3City.terrain !== 'acqua'){ t3City.terrain='citta'; t3City.owner='team3'; t3City.spawnTeam='team3'; }
-            if(cfg.teams === 4) { let t4City = board.get(`0, 15`); if(t4City && t4City.terrain !== 'acqua'){ t4City.terrain='citta'; t4City.owner='team4'; t4City.spawnTeam='team4'; } }
+            let pCity = board.get(`-12,10`); if(pCity && pCity.terrain !== 'acqua'){ pCity.terrain='citta'; pCity.owner='player'; pCity.spawnTeam='player'; }
+            let t3City = board.get(`12,5`); if(t3City && t3City.terrain !== 'acqua'){ t3City.terrain='citta'; t3City.owner='team3'; t3City.spawnTeam='team3'; }
+            if(cfg.teams === 4) { let t4City = board.get(`0,15`); if(t4City && t4City.terrain !== 'acqua'){ t4City.terrain='citta'; t4City.owner='team4'; t4City.spawnTeam='team4'; } }
 
             let validVillages = Array.from(board.values()).filter(c => c.terrain === 'pianura' || c.terrain === 'neve' || c.terrain === 'deserto');
             for(let i=0; i<30; i++) {
@@ -630,15 +615,18 @@
                 }
             }
 
-            TEAMS.slice(0, cfg.teams).forEach(t => {
-                let tCells = Array.from(board.values()).filter(c => c.spawnTeam === t);
-                tCells.forEach(tc => {
-                    getNeighbors(tc.q, tc.r).forEach(n => {
-                        let nc = board.get(`${n.q},${n.r}`);
-                        if(nc && !nc.spawnTeam && nc.terrain !== 'montagna' && nc.terrain !== 'acqua') nc.spawnTeam = t;
+            // Espansione di 2 esagoni per la zona di schieramento
+            for(let step = 0; step < 2; step++) {
+                TEAMS.slice(0, cfg.teams).forEach(t => {
+                    let tCells = Array.from(board.values()).filter(c => c.spawnTeam === t);
+                    tCells.forEach(tc => {
+                        getNeighbors(tc.q, tc.r).forEach(n => {
+                            let nc = board.get(`${n.q},${n.r}`);
+                            if(nc && !nc.spawnTeam && nc.terrain !== 'montagna' && nc.terrain !== 'acqua') nc.spawnTeam = t;
+                        });
                     });
                 });
-            });
+            }
         }
 
         function handleDeployTurn() {
@@ -654,7 +642,7 @@
                 while(units.filter(u => u.team === turnOrder[currentTeamIdx]).length === 0) { currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; }
                 let firstTeam = turnOrder[currentTeamIdx];
                 
-                maxAP = 5; actionsLeft = maxAP; // SICUREZZA AP
+                maxAP = 5; actionsLeft = maxAP; 
                 units.forEach(u => { u.hasActed = false; u.hasMovedThisTurn = false; });
                 
                 logAction("<i class='fa-solid fa-play'></i> SCHIERAMENTO COMPLETATO! Inizia la battaglia.");
@@ -667,7 +655,7 @@
                 currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; handleDeployTurn(); return;
             }
 
-            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 5); } // Veloce per grandi armate
+            if(t !== 'player') { updateUI(); setTimeout(() => { aiDeploy(t); }, 5); } 
             else { selectedDeployIdx = -1; updateUI(); renderFrame(); }
         }
 
