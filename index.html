@@ -330,11 +330,18 @@
         window.addEventListener('resize', resizeCanvas);
         function centerCamera() { camX = canvas.width / 2; camY = canvas.height / 2; }
 
+        // ==========================================
+        // MOTORE INPUT TOUCH TOTALMENTE RISCRITTO
+        // ==========================================
+        
         canvas.addEventListener('pointerdown', e => { 
             if (isCombatActive) return;
             isDragging = true; dragMoved = false; 
             dragStartX = e.clientX; dragStartY = e.clientY; 
             lastX = e.clientX; lastY = e.clientY;
+            
+            // Cattura il tocco per non perderlo se il dito esce dallo schermo
+            try { canvas.setPointerCapture(e.pointerId); } catch(err){}
         });
         
         canvas.addEventListener('pointermove', e => {
@@ -342,8 +349,8 @@
             let dx = e.clientX - lastX; let dy = e.clientY - lastY;
             
             let totalDx = e.clientX - dragStartX; let totalDy = e.clientY - dragStartY;
-            // MIGLIORAMENTO 1: Aumentata sensibilmente la tolleranza per distinguere i "tap" dai veri "drag"
-            if (totalDx*totalDx + totalDy*totalDy > 250) dragMoved = true; 
+            // Aumentata tolleranza per il tremolio naturale delle dita su schermo
+            if (totalDx*totalDx + totalDy*totalDy > 100) dragMoved = true; 
             
             camX += dx; camY += dy; 
             lastX = e.clientX; lastY = e.clientY; 
@@ -351,7 +358,116 @@
         });
         
         canvas.addEventListener('pointerleave', () => { isDragging = false; });
-        canvas.addEventListener('pointercancel', () => { isDragging = false; });
+        
+        canvas.addEventListener('pointercancel', e => { 
+            isDragging = false; 
+            try { canvas.releasePointerCapture(e.pointerId); } catch(err){}
+        });
+
+        canvas.addEventListener('pointerup', e => {
+            isDragging = false; 
+            try { canvas.releasePointerCapture(e.pointerId); } catch(err){}
+            
+            if (isCombatActive) return; 
+            if(dragMoved) return; // Se era un drag, non registrarlo come click
+
+            let rect = canvas.getBoundingClientRect(); 
+            let cx = e.clientX - rect.left; let cy = e.clientY - rect.top;
+            let mapX = (cx - camX); let mapY = (cy - camY); 
+            
+            // 1. TROVA L'ESAGONO PURO
+            let h = pixelToHex(mapX, mapY); 
+            let q = h.q, r = h.r;
+
+            // 2. HITBOX INTELLIGENTE SULLE TRUPPE GRAFICHE
+            // Questo impedisce l'errore di "tocco la testa del soldato ma clicco il nemico dietro"
+            let clickedUnit = null; 
+            let minDist = HEX_SIZE * 0.85; // Raggio del dito
+            for (let i = units.length - 1; i >= 0; i--) {
+                let u = units[i];
+                if (!u.isVisible || (cfg.fog && u.team !== 'player' && !visMap.get(`${u.q},${u.r}`))) continue;
+                
+                let px = hexToPixel(u.q, u.r); 
+                let unitY = px.y - HEX_SIZE * 0.2; // Il vero centro visivo della grafica del soldato
+                
+                let dist = Math.sqrt(Math.pow(mapX - px.x, 2) + Math.pow(mapY - unitY, 2));
+                if (dist < minDist) { minDist = dist; clickedUnit = u; }
+            }
+
+            // Se il dito ha sfiorato chiaramente una truppa, FORZA le coordinate su di essa!
+            if (clickedUnit) { q = clickedUnit.q; r = clickedUnit.r; }
+
+            if(!board.has(`${q},${r}`)) return; 
+            
+            let clickedCell = board.get(`${q},${r}`);
+            let occ = getUnitAt(q, r); 
+            
+            if (occ && (!occ.isVisible || (cfg.fog && occ.team !== 'player' && !visMap.get(`${occ.q},${occ.r}`)))) {
+                occ = undefined; 
+            }
+
+            // --- Logica Di Schieramento ---
+            if (gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player') {
+                if(clickedCell && clickedCell.spawnTeam === 'player' && !occ && pDeployQueue.length > 0) {
+                    if(selectedDeployIdx === -1) return;
+                    let u = pDeployQueue.splice(selectedDeployIdx, 1)[0]; u.q = q; u.r = r; units.push(u); exploredMap.set(`${q},${r}`, true); 
+                    selectedDeployIdx = -1; currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; updateUI(); handleDeployTurn();
+                }
+                return;
+            }
+
+            if (gameState !== 'playing' || turnOrder[currentTeamIdx] !== 'player') return;
+
+            // --- Selezione e Azioni (Logica Game) ---
+            if (!activeUnit) {
+                if (occ && occ.team === 'player' && !occ.hasActed) {
+                    activeUnit = occ; updateInfo(occ); renderFrame(); updateUI(); return; 
+                } else if (occ) {
+                    updateInfo(occ); return;
+                } else if (clickedCell && (clickedCell.terrain === 'citta' || clickedCell.terrain === 'villaggio' || clickedCell.terrain === 'porto')) {
+                    selectedCellForInfo = clickedCell; updateInfoEmptyCell(clickedCell); renderFrame(); updateUI(); return;
+                } else {
+                    selectedCellForInfo = null; updateInfoEmptyCell(clickedCell); return;
+                }
+            }
+
+            if (occ && occ.team === 'player' && !occ.hasActed && occ.id !== activeUnit.id) {
+                if (!activeUnit.hasMovedThisTurn) { activeUnit = occ; updateInfo(occ); renderFrame(); updateUI(); return; }
+            }
+
+            let acts = getValidActions(activeUnit); let act = acts.get(`${q},${r}`);
+            let moves = getValidMoves(activeUnit); let move = moves.get(`${q},${r}`);
+
+            if (act) {
+                if(act.t === 'unload') { act.tgt = activeUnit.passenger; act.tgt.q = q; act.tgt.r = r; activeUnit.passenger = null; finalizeAction(activeUnit); return; }
+                if(act.t === 'heal') { act.tgt.currentHp = Math.min(act.tgt.hp, act.tgt.currentHp + 30); logAction(`<i class='fa-solid fa-hand-holding-medical'></i> ${activeUnit.role} cura ${act.tgt.role}!`); finalizeAction(activeUnit); return; }
+                if(act.t === 'sail') { activeUnit.q = q; activeUnit.r = r; logAction(`<i class='fa-solid fa-ship'></i> ${activeUnit.role} salpa verso un nuovo porto!`); finalizeAction(activeUnit); return; }
+                if(act.t === 'atk') { executeCombat(activeUnit, act.tgt, false); return; }
+            } else if (move) {
+                activeUnit.isCamped = false; 
+                if(move.isLoad) { activeUnit.passenger = move.target; move.target.q = -99; activeUnit.q = q; activeUnit.r = r; } 
+                else {
+                    activeUnit.q = q; activeUnit.r = r; let lIdx = loots.findIndex(l => l.q===q && l.r===r);
+                    if(lIdx >= 0) {
+                        let l = loots.splice(lIdx, 1)[0];
+                        if(l.type==='heal') { activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 30); logAction("<i class='fa-solid fa-flask'></i> Pozione trovata!"); }
+                        if(l.type==='dmg') { activeUnit.killBuff = true; logAction("<i class='fa-solid fa-fire'></i> Reliquia trovata!"); }
+                    }
+                    if(activeUnit.perk === 'stealth') activeUnit.isVisible = false; 
+                }
+                activeUnit.hasMovedThisTurn = true; renderFrame(); updateUI();
+            } else if (occ && isEnemy(activeUnit.team, occ.team)) {
+                logAction("<strong style='color:#f57f17;'>⚠️ Bersaglio fuori portata o visuale bloccata!</strong>");
+            } else if (q === activeUnit.q && r === activeUnit.r) {
+                // Ignore self-clicks
+            } else if (activeUnit.hasMovedThisTurn) {
+                logAction(`<i class='fa-solid fa-shield'></i> ${activeUnit.role} difende la posizione.`); finalizeAction(activeUnit);
+            } else {
+                logAction("<strong style='color:#5e4b3c;'>❌ Azione o mossa non valida.</strong>");
+            }
+        });
+        
+        // ==========================================
 
         function hexToPixel(q, r) { let x = HEX_SIZE * Math.sqrt(3) * (q + r/2); let y = HEX_SIZE * 3/2 * r; return { x: x, y: y * Y_SQUASH }; }
         function pixelToHex(px, py) {
@@ -954,134 +1070,58 @@
             }
         }
 
-        canvas.addEventListener('pointerup', e => {
-            if (isCombatActive) return; 
-            isDragging = false; 
-            if(dragMoved) return; 
-
-            let rect = canvas.getBoundingClientRect(); let cx = e.clientX - rect.left; let cy = e.clientY - rect.top;
-            let mapX = (cx - camX); let mapY = (cy - camY); 
-            
-            // MIGLIORAMENTO 2: Niente più cerchi imprecisi e sovrapposti! 
-            // Usa la pura matematica della griglia esagonale per calcolare esattamente quale cella hai toccato.
-            let h = pixelToHex(mapX, mapY); 
-            let q = h.q, r = h.r;
-
-            if(!board.has(`${q},${r}`)) return; 
-            
-            let clickedCell = board.get(`${q},${r}`);
-            let occ = getUnitAt(q, r); 
-            
-            // Sicurezza extra: Impedisce di interagire/cliccare un nemico che è avvolto dalla nebbia
-            if (occ && (!occ.isVisible || (cfg.fog && occ.team !== 'player' && !visMap.get(`${occ.q},${occ.r}`)))) {
-                occ = undefined; 
-            }
-
-            if (gameState === 'deploy' && turnOrder[currentTeamIdx] === 'player') {
-                if(clickedCell && clickedCell.spawnTeam === 'player' && !occ && pDeployQueue.length > 0) {
-                    if(selectedDeployIdx === -1) return;
-                    let u = pDeployQueue.splice(selectedDeployIdx, 1)[0]; u.q = q; u.r = r; units.push(u); exploredMap.set(`${q},${r}`, true); 
-                    selectedDeployIdx = -1; currentTeamIdx = (currentTeamIdx + 1) % turnOrder.length; updateUI(); handleDeployTurn();
-                }
-                return;
-            }
-
-            if (gameState !== 'playing' || turnOrder[currentTeamIdx] !== 'player') return;
-
-            if (!activeUnit) {
-                if (occ && occ.team === 'player' && !occ.hasActed) {
-                    activeUnit = occ; updateInfo(occ); renderFrame(); updateUI(); return; 
-                } else if (occ) {
-                    updateInfo(occ); return;
-                } else if (clickedCell && (clickedCell.terrain === 'citta' || clickedCell.terrain === 'villaggio' || clickedCell.terrain === 'porto')) {
-                    selectedCellForInfo = clickedCell; updateInfoEmptyCell(clickedCell); renderFrame(); updateUI(); return;
-                } else {
-                    selectedCellForInfo = null; updateInfoEmptyCell(clickedCell); return;
-                }
-            }
-
-            if (occ && occ.team === 'player' && !occ.hasActed && occ.id !== activeUnit.id) {
-                if (!activeUnit.hasMovedThisTurn) { activeUnit = occ; updateInfo(occ); renderFrame(); updateUI(); return; }
-            }
-
-            let acts = getValidActions(activeUnit); let act = acts.get(`${q},${r}`);
-            let moves = getValidMoves(activeUnit); let move = moves.get(`${q},${r}`);
-
-            if (act) {
-                if(act.t === 'unload') { act.tgt = activeUnit.passenger; act.tgt.q = q; act.tgt.r = r; activeUnit.passenger = null; finalizeAction(activeUnit); return; }
-                if(act.t === 'heal') { act.tgt.currentHp = Math.min(act.tgt.hp, act.tgt.currentHp + 30); logAction(`<i class='fa-solid fa-hand-holding-medical'></i> ${activeUnit.role} cura ${act.tgt.role}!`); finalizeAction(activeUnit); return; }
-                if(act.t === 'sail') { activeUnit.q = q; activeUnit.r = r; logAction(`<i class='fa-solid fa-ship'></i> ${activeUnit.role} salpa verso un nuovo porto!`); finalizeAction(activeUnit); return; }
-                if(act.t === 'atk') { executeCombat(activeUnit, act.tgt, false); return; }
-            } else if (move) {
-                activeUnit.isCamped = false; 
-                if(move.isLoad) { activeUnit.passenger = move.target; move.target.q = -99; activeUnit.q = q; activeUnit.r = r; } 
-                else {
-                    activeUnit.q = q; activeUnit.r = r; let lIdx = loots.findIndex(l => l.q===q && l.r===r);
-                    if(lIdx >= 0) {
-                        let l = loots.splice(lIdx, 1)[0];
-                        if(l.type==='heal') { activeUnit.currentHp = Math.min(activeUnit.hp, activeUnit.currentHp + 30); logAction("<i class='fa-solid fa-flask'></i> Pozione trovata!"); }
-                        if(l.type==='dmg') { activeUnit.killBuff = true; logAction("<i class='fa-solid fa-fire'></i> Reliquia trovata!"); }
-                    }
-                    if(activeUnit.perk === 'stealth') activeUnit.isVisible = false; 
-                }
-                activeUnit.hasMovedThisTurn = true; renderFrame(); updateUI();
-            } else if (occ && isEnemy(activeUnit.team, occ.team)) {
-                logAction("<strong style='color:#f57f17;'>⚠️ Bersaglio fuori portata o visuale bloccata!</strong>");
-            } else if (q === activeUnit.q && r === activeUnit.r) {
-                // Ignore self-clicks
-            } else if (activeUnit.hasMovedThisTurn) {
-                logAction(`<i class='fa-solid fa-shield'></i> ${activeUnit.role} difende la posizione.`); finalizeAction(activeUnit);
-            } else {
-                logAction("<strong style='color:#5e4b3c;'>❌ Azione o mossa non valida.</strong>");
-            }
-        });
-
         function finalizeAction(u) { u.hasActed = true; u.hasMovedThisTurn = false; activeUnit = null; actionsLeft--; checkCaptures(); renderFrame(); updateUI(); checkTurnEnd(); }
 
         function executeCombat(atkU, defU, isCounter) {
             isCombatActive = true; 
             
-            if(atkU.perk === 'stealth') atkU.isVisible = true;
-            if(defU.team === 'neutral') defU.provoked = true;
-            if(atkU.team === 'neutral') atkU.provoked = true;
+            try {
+                if(atkU.perk === 'stealth') atkU.isVisible = true;
+                if(defU.team === 'neutral') defU.provoked = true;
+                if(atkU.team === 'neutral') atkU.provoked = true;
 
-            if (gameMode === 'darklord' && atkU.team === 'player' && (defU.team === 'team3' || defU.team === 'team4')) {
-                playerAggression[defU.team]++;
-                if (playerAggression[defU.team] === 1) logAction(`<strong style="color:red">⚠️ Hai attaccato l'alleato ${defU.team.toUpperCase()}!</strong>`);
-                else if (playerAggression[defU.team] === 2) logAction(`<strong style="color:red">🔥 TRADIMENTO! L'alleanza è infranta!</strong>`);
-            }
-
-            let bAtk = atkU.atk;
-            if(isCounter) bAtk = Math.round(bAtk * atkU.ctr);
-            if(atkU.surrounded) bAtk -= 10;
-            if(atkU.killBuff && !isCounter) { bAtk += 15; atkU.killBuff = false; }
-            if(atkU.auraAtkDrop > 0) bAtk = Math.round(bAtk * (1 - atkU.auraAtkDrop/100));
-
-            let tCover = TERRAINS[board.get(`${defU.q},${defU.r}`).terrain].cover;
-            let dTot = defU.def + tCover + (defU.isCamped?20:0) + defU.auraDef; dTot = Math.min(80, dTot); 
-            let dmg = Math.max(5, Math.round(bAtk * (1 - dTot/100)));
-            defU.currentHp -= dmg;
-            
-            if(!isCounter) logAction(`<i class='fa-solid fa-gavel'></i> ${atkU.role} colpisce: ${dmg} Danni`);
-            else logAction(`<i class='fa-solid fa-reply'></i> ${atkU.role} contrattacca: ${dmg} Danni`);
-
-            if (defU.currentHp <= 0) {
-                logAction(`<i class='fa-solid fa-skull'></i> ${defU.role} abbattuto!`);
-                if(!isCounter && defU.team !== 'neutral') atkU.killBuff = true;
-                if(defU.team === 'neutral') {
-                    loots.push({q: defU.q, r: defU.r, type: Math.random() > 0.5 ? 'heal' : 'dmg'});
-                    if(atkU.team !== 'neutral') { teamGold[atkU.team] += 50; logAction(`<i class="fa-solid fa-coins"></i> +50 oro!`); }
+                if (gameMode === 'darklord' && atkU.team === 'player' && (defU.team === 'team3' || defU.team === 'team4')) {
+                    playerAggression[defU.team]++;
+                    if (playerAggression[defU.team] === 1) logAction(`<strong style="color:red">⚠️ Hai attaccato l'alleato ${defU.team.toUpperCase()}!</strong>`);
+                    else if (playerAggression[defU.team] === 2) logAction(`<strong style="color:red">🔥 TRADIMENTO! L'alleanza è infranta!</strong>`);
                 }
-                units = units.filter(u => u.id !== defU.id && (!defU.passenger || u.id !== defU.passenger.id));
-            } 
-            
-            if (!isCounter && defU.currentHp > 0 && isEnemy(atkU.team, defU.team) && defU.perk !== 'healer' && defU.ctr > 0) {
-                let cell = board.get(`${defU.q},${defU.r}`); let defRng = defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
-                if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) { setTimeout(() => { executeCombat(defU, atkU, true); }, 600); return; }
-            }
 
-            isCombatActive = false; 
-            if(!isCounter) finalizeAction(atkU); else finalizeAction(defU);
+                let bAtk = atkU.atk;
+                if(isCounter) bAtk = Math.round(bAtk * atkU.ctr);
+                if(atkU.surrounded) bAtk -= 10;
+                if(atkU.killBuff && !isCounter) { bAtk += 15; atkU.killBuff = false; }
+                if(atkU.auraAtkDrop > 0) bAtk = Math.round(bAtk * (1 - atkU.auraAtkDrop/100));
+
+                let tCover = TERRAINS[board.get(`${defU.q},${defU.r}`).terrain].cover;
+                let dTot = defU.def + tCover + (defU.isCamped?20:0) + defU.auraDef; dTot = Math.min(80, dTot); 
+                let dmg = Math.max(5, Math.round(bAtk * (1 - dTot/100)));
+                defU.currentHp -= dmg;
+                
+                if(!isCounter) logAction(`<i class='fa-solid fa-gavel'></i> ${atkU.role} colpisce: ${dmg} Danni`);
+                else logAction(`<i class='fa-solid fa-reply'></i> ${atkU.role} contrattacca: ${dmg} Danni`);
+
+                if (defU.currentHp <= 0) {
+                    logAction(`<i class='fa-solid fa-skull'></i> ${defU.role} abbattuto!`);
+                    if(!isCounter && defU.team !== 'neutral') atkU.killBuff = true;
+                    if(defU.team === 'neutral') {
+                        loots.push({q: defU.q, r: defU.r, type: Math.random() > 0.5 ? 'heal' : 'dmg'});
+                        if(atkU.team !== 'neutral') { teamGold[atkU.team] += 50; logAction(`<i class="fa-solid fa-coins"></i> +50 oro!`); }
+                    }
+                    units = units.filter(u => u.id !== defU.id && (!defU.passenger || u.id !== defU.passenger.id));
+                } 
+                
+                if (!isCounter && defU.currentHp > 0 && isEnemy(atkU.team, defU.team) && defU.perk !== 'healer' && defU.ctr > 0) {
+                    let cell = board.get(`${defU.q},${defU.r}`); let defRng = defU.rng + (cell && cell.terrain === 'collina' ? 1 : 0);
+                    if(hexDist(atkU, defU) <= defRng && checkLOS(defU, atkU)) { setTimeout(() => { executeCombat(defU, atkU, true); }, 600); return; }
+                }
+
+                isCombatActive = false; 
+                if(!isCounter) finalizeAction(atkU); else finalizeAction(defU);
+            } catch (err) {
+                console.error("Errore nel combattimento", err);
+                isCombatActive = false;
+                finalizeAction(atkU);
+            }
         }
 
         function checkTurnEnd() {
